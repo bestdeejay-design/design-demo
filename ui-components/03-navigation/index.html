@@ -1194,9 +1194,9 @@
           const formatted = src
             .replace(/></g, '>\n<')
             .replace(/<script>/g, '<script>\n')
-            .replace(/<\/script>/g, '\n</script>')
+            .replace(/<\/script>/g, '\n<' + '/script>')
             .replace(/<style>/g, '<style>\n')
-            .replace(/<\/style>/g, '\n</style>');
+            .replace(/<\/style>/g, '\n<' + '/style>');
           sourceCode.textContent = '<!DOCTYPE html>\n' + formatted;
           sourceLoaded = true;
         } catch(e) {
