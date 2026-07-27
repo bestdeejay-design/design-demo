@@ -1,0 +1,172 @@
+- generic [active] [ref=f24e1]:
+  - banner [ref=f24e2]:
+    - generic [ref=f24e3]:
+      - link "Home" [ref=f24e4] [cursor=pointer]:
+        - /url: "#home"
+        - generic [ref=f24e6]: NavUI
+      - navigation "Main navigation" [ref=f24e8]:
+        - listitem [ref=f24e9]:
+          - link "Home" [ref=f24e10] [cursor=pointer]:
+            - /url: "#home"
+        - listitem [ref=f24e12]:
+          - link "Products" [ref=f24e13] [cursor=pointer]:
+            - /url: "#products"
+        - listitem [ref=f24e16]:
+          - link "Pricing" [ref=f24e17] [cursor=pointer]:
+            - /url: "#pricing"
+        - listitem [ref=f24e18]:
+          - link "About" [ref=f24e19] [cursor=pointer]:
+            - /url: "#about"
+        - listitem [ref=f24e20]:
+          - link "Contact" [ref=f24e21] [cursor=pointer]:
+            - /url: "#contact"
+      - generic [ref=f24e22]:
+        - button "View page source" [ref=f24e23] [cursor=pointer]: Source
+        - link "Get Started" [ref=f24e27] [cursor=pointer]:
+          - /url: "#contact"
+  - navigation "Mobile navigation" [ref=f24e28]:
+    - generic [ref=f24e29]:
+      - link "Home" [ref=f24e30] [cursor=pointer]:
+        - /url: "#home"
+      - generic [ref=f24e31]:
+        - link "Products" [ref=f24e32] [cursor=pointer]:
+          - /url: "#products"
+        - generic:
+          - link "Category 1" [ref=f24e35] [cursor=pointer]:
+            - /url: "#products"
+          - link "Category 2" [ref=f24e37] [cursor=pointer]:
+            - /url: "#products"
+          - link "Category 3" [ref=f24e39] [cursor=pointer]:
+            - /url: "#products"
+      - link "Pricing" [ref=f24e41] [cursor=pointer]:
+        - /url: "#pricing"
+      - link "About" [ref=f24e42] [cursor=pointer]:
+        - /url: "#about"
+      - link "Contact" [ref=f24e43] [cursor=pointer]:
+        - /url: "#contact"
+      - generic [ref=f24e44]:
+        - button "Source" [ref=f24e45] [cursor=pointer]
+        - link "Get Started" [ref=f24e49] [cursor=pointer]:
+          - /url: "#contact"
+  - generic [ref=f24e50]:
+    - generic [ref=f24e51]:
+      - heading "▸ index.html — page source" [level=3] [ref=f24e52]
+      - button "Copy source code" [ref=f24e53] [cursor=pointer]: Copy
+    - generic [ref=f24e54]: Loading source...
+  - main [ref=f24e55]:
+    - generic [ref=f24e56]:
+      - generic [ref=f24e57]:
+        - generic [ref=f24e58]: v2.0
+        - text: Premium navigation UI component
+      - heading "Navigate with confidence" [level=2] [ref=f24e59]
+      - paragraph [ref=f24e60]: A production-grade navigation experience — glassmorphism header, animated dropdowns, responsive mobile menu with smooth transitions, and active-link tracking via IntersectionObserver.
+      - generic [ref=f24e61]:
+        - link "Explore Products" [ref=f24e62] [cursor=pointer]:
+          - /url: "#products"
+        - link "Learn More" [ref=f24e63] [cursor=pointer]:
+          - /url: "#about"
+    - generic [ref=f24e64]:
+      - generic [ref=f24e65]: Products
+      - heading "Built for every scale" [level=2] [ref=f24e67]
+      - paragraph [ref=f24e68]: From early-stage startups to enterprise teams, our platform grows with you. Each category is crafted to solve real-world problems without the bloat.
+      - generic [ref=f24e69]:
+        - generic [ref=f24e70]:
+          - generic [ref=f24e71]: ✦
+          - heading "Category 1" [level=3] [ref=f24e72]
+          - paragraph [ref=f24e73]: Analytics dashboard with real-time reporting, custom metrics, and team collaboration tools designed for data-driven decisions.
+          - link "Learn more →" [ref=f24e74] [cursor=pointer]:
+            - /url: "#"
+        - generic [ref=f24e75]:
+          - generic [ref=f24e76]: ◆
+          - heading "Category 2" [level=3] [ref=f24e77]
+          - paragraph [ref=f24e78]: Automation engine that connects your workflows across 200+ integrations. Reduce manual work and ship faster with confidence.
+          - link "Learn more →" [ref=f24e79] [cursor=pointer]:
+            - /url: "#"
+        - generic [ref=f24e80]:
+          - generic [ref=f24e81]: ●
+          - heading "Category 3" [level=3] [ref=f24e82]
+          - paragraph [ref=f24e83]: Enterprise-grade security and compliance suite with SSO, audit logs, role-based access, and SOC 2 certification.
+          - link "Learn more →" [ref=f24e84] [cursor=pointer]:
+            - /url: "#"
+    - generic [ref=f24e85]:
+      - generic [ref=f24e86]: Pricing
+      - heading "Simple, transparent pricing" [level=2] [ref=f24e88]
+      - paragraph [ref=f24e89]: No hidden fees. No surprise charges. Pick the plan that fits your team and upgrade when you need more.
+      - generic [ref=f24e90]:
+        - generic [ref=f24e91]:
+          - generic [ref=f24e92]: Starter
+          - generic [ref=f24e93]: $19 /mo
+          - paragraph [ref=f24e94]: Perfect for small teams getting started.
+          - link "Get Started" [ref=f24e95] [cursor=pointer]:
+            - /url: "#contact"
+        - generic [ref=f24e96]:
+          - text: Popular
+          - generic [ref=f24e97]: Professional
+          - generic [ref=f24e98]: $49 /mo
+          - paragraph [ref=f24e99]: For growing teams that need more power.
+          - link "Get Started" [ref=f24e100] [cursor=pointer]:
+            - /url: "#contact"
+        - generic [ref=f24e101]:
+          - generic [ref=f24e102]: Enterprise
+          - generic [ref=f24e103]: $149 /mo
+          - paragraph [ref=f24e104]: Custom solutions for large organizations.
+          - link "Contact Sales" [ref=f24e105] [cursor=pointer]:
+            - /url: "#contact"
+    - generic [ref=f24e106]:
+      - generic [ref=f24e107]: About
+      - heading "Our story" [level=2] [ref=f24e109]
+      - generic [ref=f24e110]:
+        - generic [ref=f24e111]:
+          - paragraph [ref=f24e112]: Founded in 2020, NavUI started as a small side project by a group of designers and engineers who believed that navigation experiences deserved better than they were getting. What began as a simple component library has grown into a platform used by thousands of teams worldwide.
+          - paragraph [ref=f24e113]: We're remote-first, open-source friendly, and committed to setting a new standard for UI quality — one interaction at a time.
+          - generic [ref=f24e114]:
+            - generic [ref=f24e115]:
+              - generic [ref=f24e116]: 12k+
+              - generic [ref=f24e117]: Teams
+            - generic [ref=f24e118]:
+              - generic [ref=f24e119]: 99.9%
+              - generic [ref=f24e120]: Uptime
+            - generic [ref=f24e121]:
+              - generic [ref=f24e122]: 4.9★
+              - generic [ref=f24e123]: Rating
+            - generic [ref=f24e124]:
+              - generic [ref=f24e125]: 50M+
+              - generic [ref=f24e126]: Requests
+        - generic [ref=f24e128]:
+          - generic [ref=f24e129]: "2020"
+          - generic [ref=f24e130]: founded
+          - generic [ref=f24e131]:
+            - generic [ref=f24e132]:
+              - generic [ref=f24e133]: ▸
+              - text: Remote-first team of 40
+            - generic [ref=f24e134]:
+              - generic [ref=f24e135]: ▸
+              - text: 12 countries represented
+            - generic [ref=f24e136]:
+              - generic [ref=f24e137]: ▸
+              - text: 100% open-source core
+    - generic [ref=f24e138]:
+      - generic [ref=f24e139]: Contact
+      - heading "Get in touch" [level=2] [ref=f24e141]
+      - paragraph [ref=f24e142]: Have a question or want to work with us? Drop us a message and we'll get back to you within 24 hours.
+      - generic [ref=f24e143]:
+        - generic [ref=f24e144]:
+          - generic [ref=f24e145]:
+            - textbox "First name" [ref=f24e146]
+            - textbox "Last name" [ref=f24e147]
+          - textbox "Email address" [ref=f24e148]
+          - textbox "Message" [ref=f24e149]:
+            - /placeholder: Your message...
+          - button "Send Message" [ref=f24e150] [cursor=pointer]
+        - generic [ref=f24e151]:
+          - generic [ref=f24e152]:
+            - generic [ref=f24e153]: "@"
+            - generic [ref=f24e154]: hello@navui.demo
+          - generic [ref=f24e155]:
+            - generic [ref=f24e156]: ✆
+            - generic [ref=f24e157]: +1 (555) 123-4567
+          - generic [ref=f24e158]:
+            - generic [ref=f24e159]: ◉
+            - generic [ref=f24e160]: San Francisco, CA
+  - contentinfo [ref=f24e161]: © 2026 NavUI — Navigation Component Demo. Built with ♥ for the UI library.
+  - text: "') .replace(/ '); sourceCode.textContent = '\\n' + formatted; sourceLoaded = true; } catch(e) { sourceCode.textContent = '// Unable to load source automatically.'; } } function toggleSource() { const isOpen = sourcePanel.classList.contains('open'); if (!isOpen) loadSource(); sourcePanel.classList.toggle('open'); sourceBtn.classList.toggle('active'); if (mobileSrcBtn) mobileSrcBtn.classList.toggle('active'); } sourceBtn.addEventListener('click', toggleSource); if (mobileSrcBtn) mobileSrcBtn.addEventListener('click', (e) => { closeMobileMenu(); toggleSource(); }); /* ─── Copy source ─── */ copyBtn.addEventListener('click', async () => { try { await navigator.clipboard.writeText(sourceCode.textContent); const orig = copyBtn.textContent; copyBtn.textContent = 'Copied!'; setTimeout(() => { copyBtn.textContent = orig; }, 1800); } catch { // fallback const range = document.createRange(); range.selectNodeContents(sourceCode); const sel = window.getSelection(); sel.removeAllRanges(); sel.addRange(range); document.execCommand('copy'); sel.removeAllRanges(); } }); /* ─── Handle initial hash ─── */ if (window.location.hash) { const id = window.location.hash.slice(1); const target = document.getElementById(id); if (target) { setTimeout(() => { const headerH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--header-h')) || 64; const top = target.getBoundingClientRect().top + window.scrollY - headerH - 12; window.scrollTo({ top, behavior: 'smooth' }); setActiveLink(id); }, 100); } } /* ─── Keyboard nav ─── */ document.querySelectorAll('.has-dropdown > a').forEach(link => { link.addEventListener('focus', () => { // On focus, ensure dropdown hint visible (desktop only) }); }); // Allow Tab navigation into dropdown document.querySelectorAll('.dropdown a').forEach((item, idx, arr) => { item.addEventListener('keydown', (e) => { if (e.key === 'ArrowDown' || (e.key === 'Tab' && !e.shiftKey)) { e.preventDefault(); const next = arr[idx + 1]; if (next) next.focus(); else arr[0].focus(); } if (e.key === 'ArrowUp' || (e.key === 'Tab' && e.shiftKey)) { e.preventDefault(); const prev = arr[idx - 1]; if (prev) prev.focus(); else arr[arr.length - 1].focus(); } if (e.key === 'Escape') { // focus back on parent link.focus(); } }); }); console.log('Navigation Demo — fully interactive. ✦'); })();"

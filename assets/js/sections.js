@@ -4,46 +4,46 @@ const SECTIONS = [
     id: 'ui-components',
     icon: '🧩',
     title: 'UI Components',
-    desc: 'Карточки, формы, навигация, профили — живые интерактивные примеры',
+    desc: 'Cards, forms, navigation, profiles — live interactive examples',
     examples: [
-      { name: 'Product Card', desc: 'Карточка товара: избранное, выбор цвета/размера, корзина с тостами', url: 'ui-components/01-product-card/', tags: ['card', 'e-commerce', 'interactive'] },
-      { name: 'Profile Card', desc: 'Карточка профиля: follow/unfollow, табы, сообщения', url: 'ui-components/02-profile-card/', tags: ['card', 'profile', 'tabs'] },
-      { name: 'Navigation', desc: 'Адаптивный хедер: active-link, dropdown, mobile-menu, 5 секций', url: 'ui-components/03-navigation/', tags: ['nav', 'header', 'responsive'] }
+      { name: 'Product Card', desc: 'Product card with wishlist, color/size selection, cart toasts', url: 'ui-components/01-product-card/', tags: ['card', 'e-commerce', 'interactive'] },
+      { name: 'Profile Card', desc: 'Profile card with follow/unfollow, tabs, messaging', url: 'ui-components/02-profile-card/', tags: ['card', 'profile', 'tabs'] },
+      { name: 'Navigation', desc: 'Responsive header with active-link, dropdown, mobile menu, 5 sections', url: 'ui-components/03-navigation/', tags: ['nav', 'header', 'responsive'] }
     ]
   },
   {
     id: 'pages',
     icon: '📄',
     title: 'Pages / Screens',
-    desc: 'Цельные страницы и экраны',
+    desc: 'Full pages and screens',
     examples: []
   },
   {
     id: 'industrial',
     icon: '🏭',
     title: 'Industrial / HMI',
-    desc: 'Промышленный дизайн, приборные панели',
+    desc: 'Industrial design, instrument panels',
     examples: []
   },
   {
     id: 'interactions',
     icon: '✨',
     title: 'Interactions & Motion',
-    desc: 'Анимации, микровзаимодействия',
+    desc: 'Animations, microinteractions',
     examples: []
   },
   {
     id: 'design-systems',
     icon: '🎨',
     title: 'Design Systems',
-    desc: 'Гайдлайны, цвета, типографика',
+    desc: 'Guidelines, colors, typography',
     examples: []
   },
   {
     id: 'patterns',
     icon: '🔁',
     title: 'UX Patterns',
-    desc: 'Паттерны решений: auth, онбординг, поиск',
+    desc: 'UX patterns: auth, onboarding, search',
     examples: []
   }
 ];
@@ -68,7 +68,7 @@ function renderCatalog() {
               <div class="tags">${ex.tags.map(t => `<span class="tag">${t}</span>`).join('')}</div>
             </a>
           `).join('')}</div>`
-        : `<div class="empty-state">Примеры готовятся...</div>`
+        : `<div class="empty-state">Coming soon...</div>`
       }
     </div>
   `).join('');

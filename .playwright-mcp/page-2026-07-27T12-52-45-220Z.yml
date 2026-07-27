@@ -1,0 +1,167 @@
+- generic [active] [ref=f17e1]:
+  - navigation [ref=f17e2]:
+    - generic [ref=f17e4]:
+      - link "PicSUM :DEV" [ref=f17e5] [cursor=pointer]:
+        - /url: https://picsum.dev
+        - generic [ref=f17e9]:
+          - generic [ref=f17e10]: PicSUM
+          - generic [ref=f17e11]: :DEV
+      - generic [ref=f17e12]:
+        - link "Home" [ref=f17e13] [cursor=pointer]:
+          - /url: https://picsum.dev
+        - link "Documentation" [ref=f17e14] [cursor=pointer]:
+          - /url: https://picsum.dev/docs
+        - link "Gallery" [ref=f17e15] [cursor=pointer]:
+          - /url: https://picsum.dev/gallery
+        - link "Playground" [ref=f17e16] [cursor=pointer]:
+          - /url: https://picsum.dev/playground
+        - link "Status" [ref=f17e17] [cursor=pointer]:
+          - /url: https://picsum.dev/status
+      - generic [ref=f17e18]:
+        - generic [ref=f17e19]: All Systems Operational
+        - link "Admin Login" [ref=f17e22] [cursor=pointer]:
+          - /url: https://picsum.dev/login
+  - main [ref=f17e25]:
+    - generic [ref=f17e27]:
+      - generic [ref=f17e28]:
+        - link "Gallery" [ref=f17e29] [cursor=pointer]:
+          - /url: https://picsum.dev/gallery
+        - generic [ref=f17e30]: /
+        - link "💻 Technology" [ref=f17e31] [cursor=pointer]:
+          - /url: https://picsum.dev/gallery?category=technology
+        - generic [ref=f17e32]: /
+        - generic [ref=f17e33]: "#955"
+      - generic [ref=f17e34]:
+        - generic [ref=f17e36]:
+          - img "Modern minimalist tech workspace with dual monitors, sleek keyboard and mouse, soft natural lighting from large windows, clean white and gray tones, plants on desk, calm professional atmosphere, wide angle — no people, no text, cinematic lighting, vibrant colors, dramatic atmosphere" [ref=f17e38]
+          - generic [ref=f17e39]:
+            - generic [ref=f17e40]: 1024 × 1024 px
+            - generic [ref=f17e41]: jpg
+          - generic [ref=f17e42]:
+            - link "Open full" [ref=f17e43] [cursor=pointer]:
+              - /url: https://picsum.dev/i/955/1024/1024
+            - link "Download" [ref=f17e44] [cursor=pointer]:
+              - /url: https://picsum.dev/i/955/1024/1024
+        - generic [ref=f17e45]:
+          - generic [ref=f17e46]:
+            - 'heading "💻 Technology Image #955" [level=1] [ref=f17e47]'
+            - paragraph [ref=f17e48]: Modern minimalist tech workspace with dual monitors, sleek keyboard and mouse, soft natural lighting from large windows, clean white and gray tones, plants on desk, calm professional atmosphere, wide angle — no people, no text, cinematic lighting, vibrant colors, dramatic atmosphere
+            - generic [ref=f17e49]:
+              - generic [ref=f17e50]: "Model: flux_1_schnell"
+              - generic [ref=f17e51]: "Original: 1024×1024"
+              - generic [ref=f17e52]: "Seed: 237291004"
+              - generic [ref=f17e53]: Jul 27, 2026
+          - generic [ref=f17e54]:
+            - heading "Customize size & options" [level=2] [ref=f17e55]
+            - generic [ref=f17e58]:
+              - generic [ref=f17e59]: Presets
+              - generic [ref=f17e60]:
+                - button "1920×1080" [ref=f17e61]
+                - button "1280×720" [ref=f17e62]
+                - button "1200×630 (OG)" [ref=f17e63]
+                - button "800×600" [ref=f17e64]
+                - button "600×600" [ref=f17e65]
+                - button "400×400" [ref=f17e66]
+                - button "150×150" [ref=f17e67]
+            - generic [ref=f17e68]:
+              - generic [ref=f17e69]:
+                - generic [ref=f17e70]: Width (px)
+                - spinbutton [ref=f17e71]: "1024"
+              - generic [ref=f17e72]:
+                - generic [ref=f17e73]: Height (px)
+                - spinbutton [ref=f17e74]: "1024"
+            - generic [ref=f17e75]:
+              - generic [ref=f17e76] [cursor=pointer]:
+                - checkbox "Grayscale" [ref=f17e77]
+                - generic [ref=f17e78]: Grayscale
+              - generic [ref=f17e79]:
+                - generic [ref=f17e80]: "Blur: 0"
+                - slider [ref=f17e81]: "0"
+              - generic [ref=f17e82]:
+                - generic [ref=f17e83]: Format
+                - combobox [ref=f17e84]:
+                  - option "JPG" [selected]
+                  - option "WEBP"
+                  - option "PNG"
+          - generic [ref=f17e85]:
+            - heading "Use it — copy & paste" [level=2] [ref=f17e86]
+            - generic [ref=f17e89]:
+              - button "URL" [ref=f17e90]
+              - button "HTML" [ref=f17e91]
+              - button "Markdown" [ref=f17e92]
+              - button "CSS" [ref=f17e93]
+            - generic [ref=f17e94]:
+              - generic [ref=f17e95]: https://picsum.dev/i/955/1024/1024
+              - button "Copy" [ref=f17e96]
+            - paragraph [ref=f17e97]: "Tip: This URL always returns this exact image at the size you pick — perfect for stable placeholders."
+      - generic [ref=f17e98]:
+        - heading "More Technology images" [level=2] [ref=f17e99]
+        - generic [ref=f17e100]:
+          - link [ref=f17e101] [cursor=pointer]:
+            - /url: https://picsum.dev/gallery/954
+            - img "MacBook laptop showing a design portfolio website, coffee cup beside it, plants in background, cozy modern workspace, natural light, bright and airy, pastel tones, dreamy aesthetic" [ref=f17e102]
+          - link [ref=f17e103] [cursor=pointer]:
+            - /url: https://picsum.dev/gallery/953
+            - img "MacBook laptop showing a design portfolio website, coffee cup beside it, plants in background, cozy modern workspace, natural light, bright and airy, pastel tones, dreamy aesthetic" [ref=f17e104]
+          - link [ref=f17e105] [cursor=pointer]:
+            - /url: https://picsum.dev/gallery/952
+            - img "Brand style guide spread on a table with color palette samples, typography sheets, and logo variations, clean white background, professional, golden hour lighting, warm tones, atmospheric" [ref=f17e106]
+          - link [ref=f17e107] [cursor=pointer]:
+            - /url: https://picsum.dev/gallery/951
+            - img "Close-up of a mobile app UI wireframes on a tablet screen, minimalist desk setup, blue accent lighting, design tools nearby, golden hour lighting, warm tones, atmospheric" [ref=f17e108]
+          - link [ref=f17e109] [cursor=pointer]:
+            - /url: https://picsum.dev/gallery/950
+            - img "Modern mood board with UI sketches, color swatches and sticky notes on a wooden desk, top-down flat lay, warm lighting, creative workspace, golden hour lighting, warm tones, atmospheric" [ref=f17e110]
+          - link [ref=f17e111] [cursor=pointer]:
+            - /url: https://picsum.dev/gallery/949
+            - img "Premium wireless over-ear headphones in space gray / silver, minimalist studio lighting, isolated on clean white background, product photography style, soft shadows, high detail, 8K, commercial product shot — no text, no logo, no person, soft natural light, shallow depth of field, bokeh" [ref=f17e112]
+          - link [ref=f17e113] [cursor=pointer]:
+            - /url: https://picsum.dev/gallery/846
+            - img "Minimal modern illustration of a Smartphone Market Analytics dashboard. Premium smartphones with simple charts, pricing analytics, battery, RAM, camera, and 5G icons. Clean white and blue background, subtle gradients, soft shadows, glassmorphism, professional Power BI dashboard style, elegant UI, high quality, no text, no watermark., moody lighting, high contrast, fine art photography" [ref=f17e114]
+          - link [ref=f17e115] [cursor=pointer]:
+            - /url: https://picsum.dev/gallery/845
+            - img "Minimal modern illustration of a Smartphone Market Analytics dashboard. Premium smartphones with simple charts, pricing analytics, battery, RAM, camera, and 5G icons. Clean white and blue background, subtle gradients, soft shadows, glassmorphism, professional Power BI dashboard style, elegant UI, high quality, no text, no watermark., minimalist composition, clean background, elegant" [ref=f17e116]
+  - contentinfo [ref=f17e117]:
+    - generic [ref=f17e118]:
+      - generic [ref=f17e119]:
+        - generic [ref=f17e120]:
+          - generic [ref=f17e125]:
+            - generic [ref=f17e126]: PicSUM
+            - generic [ref=f17e127]: :DEV
+          - paragraph [ref=f17e128]: Free, reliable image placeholder API service. Fast and consistent placeholder images for developers.
+          - generic [ref=f17e129]:
+            - generic [ref=f17e130]: 99.9% Uptime
+            - generic [ref=f17e133]: Instant Access
+        - generic [ref=f17e137]:
+          - heading "Resources" [level=4] [ref=f17e138]
+          - list [ref=f17e139]:
+            - listitem [ref=f17e140]:
+              - link "Documentation" [ref=f17e141] [cursor=pointer]:
+                - /url: https://picsum.dev/docs
+            - listitem [ref=f17e142]:
+              - link "Playground" [ref=f17e143] [cursor=pointer]:
+                - /url: https://picsum.dev/playground
+            - listitem [ref=f17e144]:
+              - link "Changelog" [ref=f17e145] [cursor=pointer]:
+                - /url: https://picsum.dev/changelog
+        - generic [ref=f17e146]:
+          - heading "Company" [level=4] [ref=f17e147]
+          - list [ref=f17e148]:
+            - listitem [ref=f17e149]:
+              - link "About Us" [ref=f17e150] [cursor=pointer]:
+                - /url: https://picsum.dev/about
+            - listitem [ref=f17e151]:
+              - link "Contact" [ref=f17e152] [cursor=pointer]:
+                - /url: https://picsum.dev/contact
+            - listitem [ref=f17e153]:
+              - link "Terms of Use" [ref=f17e154] [cursor=pointer]:
+                - /url: https://picsum.dev/license
+            - listitem [ref=f17e155]:
+              - link "Service Status" [ref=f17e156] [cursor=pointer]:
+                - /url: https://picsum.dev/status
+      - generic [ref=f17e157]:
+        - paragraph [ref=f17e158]: © 2026 PicSUM:DEV. Free to use for any project.
+        - generic [ref=f17e159]:
+          - generic [ref=f17e160]: No authentication required
+          - generic [ref=f17e161]: •
+          - generic [ref=f17e162]: Free for commercial use

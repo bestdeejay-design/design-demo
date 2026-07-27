@@ -1,0 +1,72 @@
+- generic [ref=f21e2]:
+  - banner [ref=f21e3]:
+    - heading "Design Demo" [level=1] [ref=f21e4]
+    - paragraph [ref=f21e5]: Каталог UI/UX решений, компонентов и дизайн-паттернов.Каждый пример — живая демка с описанием.
+  - generic [ref=f21e6]:
+    - generic [ref=f21e7]:
+      - generic [ref=f21e8]:
+        - generic [ref=f21e9]: 🧩
+        - generic [ref=f21e10]: UI Components
+        - generic [ref=f21e11]: Карточки, формы, навигация, профили — живые интерактивные примеры
+      - generic [ref=f21e12]:
+        - 'link "Product Card Product Card Карточка товара: избранное, выбор цвета/размера, корзина с тостами card e-commerce interactive" [ref=f21e13] [cursor=pointer]':
+          - /url: ui-components/01-product-card/
+          - img "Product Card" [ref=f21e15]
+          - generic [ref=f21e16]: Product Card
+          - generic [ref=f21e17]: "Карточка товара: избранное, выбор цвета/размера, корзина с тостами"
+          - generic [ref=f21e18]:
+            - generic [ref=f21e19]: card
+            - generic [ref=f21e20]: e-commerce
+            - generic [ref=f21e21]: interactive
+        - 'link "Profile Card Profile Card Карточка профиля: follow/unfollow, табы, сообщения card profile tabs" [ref=f21e22] [cursor=pointer]':
+          - /url: ui-components/02-profile-card/
+          - img "Profile Card" [ref=f21e24]
+          - generic [ref=f21e25]: Profile Card
+          - generic [ref=f21e26]: "Карточка профиля: follow/unfollow, табы, сообщения"
+          - generic [ref=f21e27]:
+            - generic [ref=f21e28]: card
+            - generic [ref=f21e29]: profile
+            - generic [ref=f21e30]: tabs
+        - 'link "Navigation Navigation Адаптивный хедер: active-link, dropdown, mobile-menu, 5 секций nav header responsive" [ref=f21e31] [cursor=pointer]':
+          - /url: ui-components/03-navigation/
+          - img "Navigation" [ref=f21e33]
+          - generic [ref=f21e34]: Navigation
+          - generic [ref=f21e35]: "Адаптивный хедер: active-link, dropdown, mobile-menu, 5 секций"
+          - generic [ref=f21e36]:
+            - generic [ref=f21e37]: nav
+            - generic [ref=f21e38]: header
+            - generic [ref=f21e39]: responsive
+    - generic [ref=f21e40]:
+      - generic [ref=f21e41]:
+        - generic [ref=f21e42]: 📄
+        - generic [ref=f21e43]: Pages / Screens
+        - generic [ref=f21e44]: Цельные страницы и экраны
+      - generic [ref=f21e45]: Примеры готовятся...
+    - generic [ref=f21e46]:
+      - generic [ref=f21e47]:
+        - generic [ref=f21e48]: 🏭
+        - generic [ref=f21e49]: Industrial / HMI
+        - generic [ref=f21e50]: Промышленный дизайн, приборные панели
+      - generic [ref=f21e51]: Примеры готовятся...
+    - generic [ref=f21e52]:
+      - generic [ref=f21e53]:
+        - generic [ref=f21e54]: ✨
+        - generic [ref=f21e55]: Interactions & Motion
+        - generic [ref=f21e56]: Анимации, микровзаимодействия
+      - generic [ref=f21e57]: Примеры готовятся...
+    - generic [ref=f21e58]:
+      - generic [ref=f21e59]:
+        - generic [ref=f21e60]: 🎨
+        - generic [ref=f21e61]: Design Systems
+        - generic [ref=f21e62]: Гайдлайны, цвета, типографика
+      - generic [ref=f21e63]: Примеры готовятся...
+    - generic [ref=f21e64]:
+      - generic [ref=f21e65]:
+        - generic [ref=f21e66]: 🔁
+        - generic [ref=f21e67]: UX Patterns
+        - generic [ref=f21e68]: "Паттерны решений: auth, онбординг, поиск"
+      - generic [ref=f21e69]: Примеры готовятся...
+  - contentinfo [ref=f21e70]:
+    - link "GitHub" [ref=f21e71] [cursor=pointer]:
+      - /url: https://github.com/bestdeejay-design/design-demo
+    - text: · Сделано с ❤️
