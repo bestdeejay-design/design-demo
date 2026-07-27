@@ -520,6 +520,30 @@
       .project-card { padding: 16px 10px; font-size: 1.2rem; }
       .avatar { width: 76px; height: 76px; margin: -38px auto 12px; font-size: 1.5rem; }
     }
+    .back-btn {
+      position: fixed;
+      bottom: 24px;
+      left: 24px;
+      z-index: 100;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(0,0,0,0.08);
+      border-radius: 100px;
+      color: #1c1c1e;
+      font-size: 0.8rem;
+      font-weight: 500;
+      text-decoration: none;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+      cursor: pointer;
+    }
+    .back-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 20px rgba(0,0,0,0.12); }
+    .back-btn svg { width: 14px; height: 14px; }
   </style>
 </head>
 <body>
@@ -867,5 +891,9 @@
 
     })();
   </script>
+  <a href="../../index.html" class="back-btn">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+    Catalog
+  </a>
 </body>
 </html>
