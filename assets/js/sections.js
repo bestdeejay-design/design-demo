@@ -60,8 +60,8 @@ function renderCatalog() {
       ${section.examples.length > 0
         ? `<div class="examples-grid">${section.examples.map(ex => `
             <a href="${ex.url}" class="example-card">
-              <div class="thumb" data-thumb="${ex.url}">
-                <span>${ex.name.charAt(0)}</span>
+              <div class="thumb">
+                <img src="${ex.url}preview.png" alt="${ex.name}" loading="lazy" onerror="this.parentElement.innerHTML='<span>${ex.name.charAt(0)}</span>'">
               </div>
               <div class="name">${ex.name}</div>
               <div class="desc">${ex.desc}</div>
