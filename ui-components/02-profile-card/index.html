@@ -5,11 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Profile Card — UI Component</title>
   <style>
+    :root {
+      --demo-bg: #f5f5f7;
+      --demo-surface: #ffffff;
+      --demo-surface2: #f0f0f5;
+      --demo-text: #1d1d1f;
+      --demo-text2: #8e8e93;
+      --demo-text3: #aeaeb2;
+      --demo-border: #e5e5ea;
+    }
+    [data-theme="dark"] {
+      --demo-bg: #0f0f11;
+      --demo-surface: #1a1a1e;
+      --demo-surface2: #242428;
+      --demo-text: #e8e8ea;
+      --demo-text2: #8a8a8e;
+      --demo-text3: #636366;
+      --demo-border: #2c2c30;
+    }
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
-      background: #f5f5f7;
+      background: var(--demo-bg);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -19,7 +37,7 @@
     }
 
     .card {
-      background: #fff;
+      background: var(--demo-surface);
       border-radius: 20px;
       width: 360px;
       max-width: 100%;
@@ -76,18 +94,18 @@
       font-size: 1.25rem;
       font-weight: 700;
       margin-bottom: 2px;
-      color: #1d1d1f;
+      color: var(--demo-text);
     }
 
     .role {
       font-size: 0.85rem;
-      color: #8e8e93;
+      color: var(--demo-text2);
       margin-bottom: 6px;
     }
 
     .location {
       font-size: 0.78rem;
-      color: #aeaeb2;
+      color: var(--demo-text3);
       margin-bottom: 18px;
       display: flex;
       align-items: center;
@@ -123,7 +141,7 @@
     .stat-value {
       font-size: 1.1rem;
       font-weight: 700;
-      color: #1d1d1f;
+      color: var(--demo-text);
       transition: color 0.3s ease;
     }
     .stat-value.followers-animated {
@@ -131,7 +149,7 @@
     }
     .stat-label {
       font-size: 0.7rem;
-      color: #8e8e93;
+      color: var(--demo-text2);
       text-transform: uppercase;
       letter-spacing: 0.6px;
       margin-top: 2px;
@@ -174,7 +192,7 @@
 
     .btn-following {
       background: #e8e8ed;
-      color: #1d1d1f;
+      color: var(--demo-text);
       border: 2px solid transparent;
     }
     .btn-following:hover {
@@ -230,8 +248,8 @@
       font-family: inherit;
       resize: vertical;
       min-height: 72px;
-      background: #fff;
-      color: #1d1d1f;
+      background: var(--demo-surface);
+      color: var(--demo-text);
       outline: none;
       transition: border-color 0.2s ease, box-shadow 0.2s ease;
     }
@@ -258,7 +276,7 @@
     .btn-send:hover { background: #5a4bd1; }
     .btn-cancel {
       background: transparent;
-      color: #8e8e93;
+      color: var(--demo-text2);
       border: none;
     }
     .btn-cancel:hover { background: #e8e8ed; }
@@ -277,7 +295,7 @@
       text-align: center;
       font-size: 0.8rem;
       font-weight: 600;
-      color: #8e8e93;
+      color: var(--demo-text2);
       cursor: pointer;
       border: none;
       background: none;
@@ -388,11 +406,11 @@
     }
     .like-item .like-text {
       font-size: 0.85rem;
-      color: #1d1d1f;
+      color: var(--demo-text);
     }
     .like-item .like-meta {
       font-size: 0.72rem;
-      color: #aeaeb2;
+      color: var(--demo-text3);
       margin-top: 2px;
     }
 
@@ -400,7 +418,7 @@
     .about-content {
       font-size: 0.875rem;
       line-height: 1.6;
-      color: #48484a;
+      color: var(--demo-text);
     }
     .about-content p {
       margin-bottom: 12px;
@@ -438,7 +456,7 @@
       border-radius: 10px;
       font-size: 0.8rem;
       font-weight: 600;
-      color: #8e8e93;
+      color: var(--demo-text2);
       cursor: pointer;
       transition: all 0.2s ease;
       font-family: inherit;
@@ -470,7 +488,7 @@
     }
     .code-block pre {
       background: #1d1d1f;
-      color: #e5e5ea;
+      color: var(--demo-border);
       border-radius: 10px;
       padding: 18px;
       font-size: 0.7rem;
@@ -529,12 +547,12 @@
       align-items: center;
       gap: 6px;
       padding: 8px 16px;
-      background: rgba(255,255,255,0.85);
+      background: var(--demo-surface);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(0,0,0,0.08);
+      border: 1px solid var(--demo-border);
       border-radius: 100px;
-      color: #1c1c1e;
+      color: var(--demo-text);
       font-size: 0.8rem;
       font-weight: 500;
       text-decoration: none;
@@ -650,7 +668,7 @@
               </div>
             </div>
             <div class="like-item">
-              <div class="like-icon" style="background: #fff0f0; color: #ff6b6b;">❤️</div>
+              <div class="like-icon" style="background: var(--demo-surface)0f0; color: #ff6b6b;">❤️</div>
               <div>
                 <div class="like-text">Typography in Product Design</div>
                 <div class="like-meta">Medium — Yesterday</div>
@@ -895,5 +913,12 @@
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
     Catalog
   </a>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" style="position:fixed;top:20px;right:20px;z-index:999;width:40px;height:40px;border-radius:50%;border:1px solid var(--demo-border);background:var(--demo-surface);color:var(--demo-text);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 2px 12px rgba(0,0,0,0.08);transition:transform 0.2s;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="sunIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="moonIcon" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+  <script>
+    (function(){var t=document.getElementById('themeToggle'),s=document.getElementById('sunIcon'),m=document.getElementById('moonIcon'),st=localStorage.getItem('design-demo-theme'),sd=window.matchMedia('(prefers-color-scheme:dark)').matches,th=st||(sd?'dark':'light');document.documentElement.setAttribute('data-theme',th);if(th==='dark'){s.style.display='none';m.style.display=''}else{s.style.display='';m.style.display='none'}t.addEventListener('click',function(){var n=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';document.documentElement.setAttribute('data-theme',n);localStorage.setItem('design-demo-theme',n);if(n==='dark'){s.style.display='none';m.style.display=''}else{s.style.display='';m.style.display='none'}});})();
+  </script>
 </body>
 </html>
