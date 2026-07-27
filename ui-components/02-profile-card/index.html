@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Profile Card — UI Component</title>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
       background: #f5f5f7;
@@ -14,40 +15,58 @@
       justify-content: center;
       min-height: 100vh;
       padding: 24px;
+      margin: 0;
     }
+
     .card {
       background: #fff;
       border-radius: 20px;
-      width: 340px;
+      width: 360px;
+      max-width: 100%;
       overflow: hidden;
-      box-shadow: 0 2px 20px rgba(0,0,0,0.08);
-      transition: transform 0.2s;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.07), 0 1px 4px rgba(0,0,0,0.03);
+      transition: transform 0.25s ease, box-shadow 0.25s ease;
     }
-    .card:hover { transform: translateY(-4px); }
+    .card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 12px 48px rgba(0,0,0,0.1), 0 2px 8px rgba(0,0,0,0.04);
+    }
+
     .card-bg {
       height: 120px;
-      background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+      background: linear-gradient(135deg, #6c5ce7 0%, #a29bfe 50%, #6c5ce7 100%);
+      background-size: 200% 200%;
+      animation: gradientShift 6s ease-in-out infinite alternate;
     }
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 100% 50%; }
+    }
+
     .card-body {
       padding: 0 24px 24px;
       text-align: center;
       position: relative;
     }
+
     .avatar {
-      width: 80px;
-      height: 80px;
+      width: 88px;
+      height: 88px;
       border-radius: 50%;
       border: 4px solid #fff;
-      margin: -40px auto 12px;
-      background: #e0e0e0;
+      margin: -44px auto 14px;
+      background: linear-gradient(135deg, #6c5ce7, #a29bfe);
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 2rem;
-      color: #8e8e93;
+      font-size: 1.75rem;
+      font-weight: 600;
+      color: #fff;
       position: relative;
+      box-shadow: 0 4px 12px rgba(108,92,231,0.25);
     }
-    .online {
+
+    .online-dot {
       position: absolute;
       bottom: 4px;
       right: 4px;
@@ -56,71 +75,487 @@
       background: #34c759;
       border: 3px solid #fff;
       border-radius: 50%;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
     }
+
     .name {
-      font-size: 1.2rem;
+      font-size: 1.25rem;
       font-weight: 700;
       margin-bottom: 2px;
+      color: #1d1d1f;
     }
+
     .role {
       font-size: 0.85rem;
       color: #8e8e93;
-      margin-bottom: 16px;
+      margin-bottom: 6px;
     }
+
+    .location {
+      font-size: 0.78rem;
+      color: #aeaeb2;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+    .location svg {
+      width: 14px;
+      height: 14px;
+      fill: none;
+      stroke: #aeaeb2;
+      stroke-width: 2;
+      vertical-align: middle;
+    }
+
     .stats {
       display: flex;
       justify-content: center;
-      gap: 32px;
+      gap: 36px;
       margin-bottom: 20px;
+      padding: 14px 0;
+      border-top: 1px solid #f0f0f2;
+      border-bottom: 1px solid #f0f0f2;
     }
     .stat {
       text-align: center;
+      cursor: default;
+      transition: transform 0.2s ease;
+    }
+    .stat:hover {
+      transform: scale(1.05);
     }
     .stat-value {
       font-size: 1.1rem;
       font-weight: 700;
+      color: #1d1d1f;
+      transition: color 0.3s ease;
+    }
+    .stat-value.followers-animated {
+      color: #6c5ce7;
     }
     .stat-label {
-      font-size: 0.75rem;
+      font-size: 0.7rem;
       color: #8e8e93;
       text-transform: uppercase;
-      letter-spacing: 0.3px;
+      letter-spacing: 0.6px;
+      margin-top: 2px;
     }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 0;
+    }
+    .actions .btn {
+      flex: 1;
+    }
+
     .btn {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
       background: #6c5ce7;
       color: #fff;
-      padding: 10px 32px;
+      padding: 10px 20px;
       border: none;
-      border-radius: 8px;
-      font-size: 0.9rem;
+      border-radius: 10px;
+      font-size: 0.875rem;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.25s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      position: relative;
+      overflow: hidden;
+      font-family: inherit;
     }
-    .btn:hover { background: #5a4bd1; }
+    .btn:active { transform: scale(0.96); }
+
+    .btn-follow {
+      background: #6c5ce7;
+      color: #fff;
+    }
+    .btn-follow:hover { background: #5a4bd1; }
+
+    .btn-following {
+      background: #e8e8ed;
+      color: #1d1d1f;
+      border: 2px solid transparent;
+    }
+    .btn-following:hover {
+      background: #e3e3e8;
+      border-color: #c7c7cc;
+    }
+    .btn-following .check-icon {
+      display: inline-flex;
+      opacity: 0;
+      transform: scale(0);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .btn-following.is-following .check-icon {
+      opacity: 1;
+      transform: scale(1);
+    }
+
     .btn-outline {
       background: transparent;
       color: #6c5ce7;
       border: 2px solid #6c5ce7;
-      margin-left: 8px;
     }
-    .btn-outline:hover { background: #f0edff; }
+    .btn-outline:hover {
+      background: #f0edff;
+    }
+
+    /* Message popover */
+    .message-area {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                  opacity 0.25s ease, margin 0.3s ease;
+      opacity: 0;
+      margin-top: 0;
+    }
+    .message-area.open {
+      max-height: 220px;
+      opacity: 1;
+      margin-top: 14px;
+    }
+    .message-box {
+      background: #f8f8fa;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: left;
+    }
+    .message-box textarea {
+      width: 100%;
+      border: 1px solid #e5e5ea;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 0.875rem;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 72px;
+      background: #fff;
+      color: #1d1d1f;
+      outline: none;
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .message-box textarea:focus {
+      border-color: #6c5ce7;
+      box-shadow: 0 0 0 3px rgba(108,92,231,0.12);
+    }
+    .message-box .msg-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .message-box .msg-actions .btn {
+      padding: 8px 18px;
+      font-size: 0.8rem;
+      border-radius: 8px;
+    }
+    .btn-send {
+      background: #6c5ce7;
+      color: #fff;
+      border: none;
+    }
+    .btn-send:hover { background: #5a4bd1; }
+    .btn-cancel {
+      background: transparent;
+      color: #8e8e93;
+      border: none;
+    }
+    .btn-cancel:hover { background: #e8e8ed; }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 0;
+      margin-top: 20px;
+      border-bottom: 1px solid #f0f0f2;
+      position: relative;
+    }
+    .tab {
+      flex: 1;
+      padding: 12px 8px;
+      text-align: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #8e8e93;
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: inherit;
+      position: relative;
+      transition: color 0.25s ease;
+    }
+    .tab:hover { color: #6c5ce7; }
+    .tab.active {
+      color: #6c5ce7;
+    }
+    .tab-indicator {
+      position: absolute;
+      bottom: 0;
+      height: 2.5px;
+      background: #6c5ce7;
+      border-radius: 2px 2px 0 0;
+      transition: left 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                  width 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+
+    /* Tab content */
+    .tab-content-wrapper {
+      position: relative;
+      overflow: hidden;
+    }
+    .tab-content {
+      display: none;
+      padding-top: 18px;
+      text-align: left;
+      animation: tabFadeIn 0.3s ease;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    @keyframes tabFadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    /* Projects grid */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .project-card {
+      border-radius: 12px;
+      padding: 20px 14px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      color: #fff;
+      font-weight: 600;
+      font-size: 1.5rem;
+      aspect-ratio: 1 / 1;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      cursor: default;
+    }
+    .project-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+    }
+    .project-card .project-label {
+      font-size: 0.72rem;
+      font-weight: 500;
+      opacity: 0.85;
+      text-align: center;
+    }
+
+    /* Likes list */
+    .likes-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .like-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: #f8f8fa;
+      transition: background 0.2s ease, transform 0.2s ease;
+      cursor: default;
+    }
+    .like-item:hover {
+      background: #f0edff;
+      transform: translateX(4px);
+    }
+    .like-item .like-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+    .like-item .like-text {
+      font-size: 0.85rem;
+      color: #1d1d1f;
+    }
+    .like-item .like-meta {
+      font-size: 0.72rem;
+      color: #aeaeb2;
+      margin-top: 2px;
+    }
+
+    /* About tab */
+    .about-content {
+      font-size: 0.875rem;
+      line-height: 1.6;
+      color: #48484a;
+    }
+    .about-content p {
+      margin-bottom: 12px;
+    }
+    .about-content .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 14px;
+    }
+    .about-content .tag {
+      background: #f0edff;
+      color: #6c5ce7;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 500;
+    }
+
+    /* View Code toggle */
+    .code-section {
+      margin-top: 18px;
+      border-top: 1px solid #f0f0f2;
+      padding-top: 14px;
+    }
+    .code-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      padding: 10px;
+      background: none;
+      border: 1px solid #e5e5ea;
+      border-radius: 10px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #8e8e93;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      font-family: inherit;
+    }
+    .code-toggle:hover {
+      border-color: #6c5ce7;
+      color: #6c5ce7;
+      background: #f0edff;
+    }
+    .code-toggle .arrow {
+      display: inline-block;
+      transition: transform 0.3s ease;
+    }
+    .code-toggle.is-open .arrow {
+      transform: rotate(180deg);
+    }
+    .code-block {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                  opacity 0.3s ease, margin 0.3s ease;
+      opacity: 0;
+      margin-top: 0;
+    }
+    .code-block.open {
+      max-height: 1200px;
+      opacity: 1;
+      margin-top: 12px;
+    }
+    .code-block pre {
+      background: #1d1d1f;
+      color: #e5e5ea;
+      border-radius: 10px;
+      padding: 18px;
+      font-size: 0.7rem;
+      line-height: 1.5;
+      overflow-x: auto;
+      font-family: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, monospace;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .code-block pre .hl-accent { color: #a29bfe; }
+    .code-block pre .hl-string { color: #ffd60a; }
+    .code-block pre .hl-tag { color: #ff375f; }
+    .code-block pre .hl-attr { color: #30d158; }
+    .code-block pre .hl-comment { color: #636366; }
+
+    /* Send toast */
+    .send-toast {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1d1d1f;
+      color: #fff;
+      padding: 10px 24px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      opacity: 0;
+      transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      pointer-events: none;
+      z-index: 100;
+    }
+    .send-toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Responsive */
+    @media (max-width: 420px) {
+      body { padding: 16px; }
+      .card { border-radius: 16px; }
+      .card-body { padding: 0 18px 20px; }
+      .stats { gap: 24px; }
+      .tab { font-size: 0.75rem; padding: 10px 6px; }
+      .projects-grid { gap: 8px; }
+      .project-card { padding: 16px 10px; font-size: 1.2rem; }
+      .avatar { width: 76px; height: 76px; margin: -38px auto 12px; font-size: 1.5rem; }
+    }
   </style>
 </head>
 <body>
-  <div class="card">
+
+  <div class="card" id="profileCard">
     <div class="card-bg"></div>
+
     <div class="card-body">
+      <!-- Avatar -->
       <div class="avatar">
         AK
-        <span class="online"></span>
+        <span class="online-dot"></span>
       </div>
+
+      <!-- Name & Role -->
       <div class="name">Alex Kuznetsov</div>
       <div class="role">Lead Product Designer</div>
+      <div class="location">
+        <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <title>Location</title>
+          <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/>
+          <circle cx="12" cy="10" r="3"/>
+        </svg>
+        San Francisco, CA
+      </div>
+
+      <!-- Stats -->
       <div class="stats">
         <div class="stat">
-          <div class="stat-value">12.4K</div>
+          <div class="stat-value" id="followersCount">12.4K</div>
           <div class="stat-label">Followers</div>
         </div>
         <div class="stat">
@@ -132,11 +567,315 @@
           <div class="stat-label">Likes</div>
         </div>
       </div>
-      <div>
-        <button class="btn">Follow</button>
-        <button class="btn btn-outline">Message</button>
+
+      <!-- Buttons -->
+      <div class="actions">
+        <button type="button" class="btn btn-following is-following" id="followBtn">
+          <span class="check-icon">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <title>Check</title>
+              <polyline points="20 6 9 17 4 12"/>
+            </svg>
+          </span>
+          <span class="btn-text">Following</span>
+        </button>
+        <button type="button" class="btn btn-outline" id="msgBtn">Message</button>
+      </div>
+
+      <!-- Message area (inline popover) -->
+      <div class="message-area" id="messageArea">
+        <div class="message-box">
+          <textarea id="msgTextarea" placeholder="Write your message..." rows="2"></textarea>
+          <div class="msg-actions">
+            <button type="button" class="btn btn-cancel" id="msgCancel">Cancel</button>
+            <button type="button" class="btn btn-send" id="msgSend">Send</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div class="tabs" id="tabsContainer">
+        <button type="button" class="tab active" data-tab="projects">Projects</button>
+        <button type="button" class="tab" data-tab="likes">Likes</button>
+        <button type="button" class="tab" data-tab="about">About</button>
+        <div class="tab-indicator" id="tabIndicator"></div>
+      </div>
+
+      <!-- Tab content -->
+      <div class="tab-content-wrapper">
+        <!-- Projects -->
+        <div class="tab-content active" id="tabProjects">
+          <div class="projects-grid">
+            <div class="project-card" style="background: linear-gradient(135deg, #6c5ce7, #a29bfe);">
+              DB
+              <span class="project-label">Design Board</span>
+            </div>
+            <div class="project-card" style="background: linear-gradient(135deg, #ff6b6b, #ffa502);">
+              UI
+              <span class="project-label">UI Kit</span>
+            </div>
+            <div class="project-card" style="background: linear-gradient(135deg, #2ed573, #7bed9f);">
+              BR
+              <span class="project-label">Brand Guide</span>
+            </div>
+            <div class="project-card" style="background: linear-gradient(135deg, #1e90ff, #70a1ff);">
+              PD
+              <span class="project-label">Portfolio</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Likes -->
+        <div class="tab-content" id="tabLikes">
+          <div class="likes-list">
+            <div class="like-item">
+              <div class="like-icon" style="background: #f0edff; color: #6c5ce7;">🎨</div>
+              <div>
+                <div class="like-text">Modern UI Design Principles</div>
+                <div class="like-meta">Dribbble — 2h ago</div>
+              </div>
+            </div>
+            <div class="like-item">
+              <div class="like-icon" style="background: #fff0f0; color: #ff6b6b;">❤️</div>
+              <div>
+                <div class="like-text">Typography in Product Design</div>
+                <div class="like-meta">Medium — Yesterday</div>
+              </div>
+            </div>
+            <div class="like-item">
+              <div class="like-icon" style="background: #f0fff4; color: #2ed573;">💎</div>
+              <div>
+                <div class="like-text">Design System Case Study</div>
+                <div class="like-meta">Behance — 3d ago</div>
+              </div>
+            </div>
+            <div class="like-item">
+              <div class="like-icon" style="background: #f0f8ff; color: #1e90ff;">⚡</div>
+              <div>
+                <div class="like-text">Figma Plugin Development</div>
+                <div class="like-meta">Product Hunt — 5d ago</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- About -->
+        <div class="tab-content" id="tabAbout">
+          <div class="about-content">
+            <p>Lead Product Designer with 8+ years of experience crafting digital products for startups and enterprise. Passionate about design systems, typography, and pixel-perfect interfaces.</p>
+            <p>Currently focused on building accessible, human-centered experiences at the intersection of design and technology.</p>
+            <div class="tags">
+              <span class="tag">Design Systems</span>
+              <span class="tag">Figma</span>
+              <span class="tag">UI/UX</span>
+              <span class="tag">Prototyping</span>
+              <span class="tag">Accessibility</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- View Code toggle -->
+      <div class="code-section">
+        <button type="button" class="code-toggle" id="codeToggle">
+          <span>View Code</span>
+          <span class="arrow">▼</span>
+        </button>
+        <div class="code-block" id="codeBlock">
+          <pre id="codeContent"></pre>
+        </div>
       </div>
     </div>
   </div>
+
+  <!-- Toast -->
+  <div class="send-toast" id="sendToast">Message sent! ✨</div>
+
+  <script>
+    (function(){
+      'use strict';
+
+      // ── DOM refs ──
+      const followBtn    = document.getElementById('followBtn');
+      const msgBtn       = document.getElementById('msgBtn');
+      const msgArea      = document.getElementById('messageArea');
+      const msgTextarea  = document.getElementById('msgTextarea');
+      const msgCancel    = document.getElementById('msgCancel');
+      const msgSend      = document.getElementById('msgSend');
+      const followersEl  = document.getElementById('followersCount');
+      const tabs         = document.querySelectorAll('.tab');
+      const tabContents  = {
+        projects: document.getElementById('tabProjects'),
+        likes:    document.getElementById('tabLikes'),
+        about:    document.getElementById('tabAbout'),
+      };
+      const tabIndicator = document.getElementById('tabIndicator');
+      const codeToggle   = document.getElementById('codeToggle');
+      const codeBlock    = document.getElementById('codeBlock');
+      const codeContent  = document.getElementById('codeContent');
+      const sendToast    = document.getElementById('sendToast');
+
+      let isFollowing = true;
+      let toastTimer  = null;
+
+      // ── Follow / Unfollow ──
+      followBtn.addEventListener('click', function() {
+        const currentFollowers = parseFollowerCount(followersEl.textContent);
+        const textSpan = this.querySelector('.btn-text');
+
+        if (isFollowing) {
+          // Unfollow
+          this.classList.remove('is-following');
+          this.classList.remove('btn-following');
+          this.classList.add('btn-follow');
+          this.style.background = '#6c5ce7';
+          this.style.color = '#fff';
+          this.style.border = 'none';
+          textSpan.textContent = 'Follow';
+          followersEl.textContent = formatFollowerCount(currentFollowers - 1);
+          followersEl.classList.add('followers-animated');
+          setTimeout(() => followersEl.classList.remove('followers-animated'), 400);
+          isFollowing = false;
+        } else {
+          // Follow
+          this.classList.add('is-following');
+          this.classList.remove('btn-follow');
+          this.classList.add('btn-following');
+          this.style.background = '';
+          this.style.color = '';
+          this.style.border = '';
+          textSpan.textContent = 'Following';
+          followersEl.textContent = formatFollowerCount(currentFollowers + 1);
+          followersEl.classList.add('followers-animated');
+          setTimeout(() => followersEl.classList.remove('followers-animated'), 400);
+          isFollowing = true;
+        }
+      });
+
+      function parseFollowerCount(str) {
+        str = str.trim();
+        if (str.includes('K')) {
+          return Math.round(parseFloat(str) * 1000);
+        }
+        return parseInt(str, 10) || 0;
+      }
+
+      function formatFollowerCount(n) {
+        if (n >= 1000) {
+          return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+        }
+        return String(n);
+      }
+
+      // ── Message popover ──
+      msgBtn.addEventListener('click', function() {
+        msgArea.classList.toggle('open');
+        if (msgArea.classList.contains('open')) {
+          msgTextarea.focus();
+        }
+      });
+
+      msgCancel.addEventListener('click', function() {
+        msgArea.classList.remove('open');
+        msgTextarea.value = '';
+      });
+
+      msgSend.addEventListener('click', function() {
+        const text = msgTextarea.value.trim();
+        if (!text) {
+          msgTextarea.focus();
+          msgTextarea.style.borderColor = '#ff6b6b';
+          setTimeout(() => { msgTextarea.style.borderColor = ''; }, 1000);
+          return;
+        }
+        showToast();
+        msgTextarea.value = '';
+        msgArea.classList.remove('open');
+      });
+
+      function showToast() {
+        sendToast.classList.add('show');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function() {
+          sendToast.classList.remove('show');
+        }, 2200);
+      }
+
+      // ── Tabs ──
+      function updateTabs(tabId) {
+        // Deactivate all
+        tabs.forEach(t => { t.classList.remove('active'); });
+        Object.values(tabContents).forEach(tc => { tc.classList.remove('active'); });
+
+        // Activate selected
+        const activeTab = document.querySelector(`.tab[data-tab="${tabId}"]`);
+        if (activeTab) activeTab.classList.add('active');
+        if (tabContents[tabId]) tabContents[tabId].classList.add('active');
+
+        // Move indicator
+        moveIndicator(activeTab);
+      }
+
+      function moveIndicator(tabEl) {
+        if (!tabEl) return;
+        const container = document.getElementById('tabsContainer');
+        const containerRect = container.getBoundingClientRect();
+        const tabRect = tabEl.getBoundingClientRect();
+        tabIndicator.style.left = (tabRect.left - containerRect.left) + 'px';
+        tabIndicator.style.width = tabRect.width + 'px';
+      }
+
+      for (let i = 0; i < tabs.length; i++) {
+        tabs[i].addEventListener('click', function() {
+          const tabId = this.getAttribute('data-tab');
+          updateTabs(tabId);
+        });
+      }
+
+      // Set initial indicator position
+      window.addEventListener('load', function() {
+        const activeTab = document.querySelector('.tab.active');
+        if (activeTab) moveIndicator(activeTab);
+      });
+      // On resize, reposition
+      let resizeTimer;
+      window.addEventListener('resize', function() {
+        clearTimeout(resizeTimer);
+        resizeTimer = setTimeout(function() {
+          const activeTab = document.querySelector('.tab.active');
+          if (activeTab) moveIndicator(activeTab);
+        }, 100);
+      });
+
+      // ── View Code toggle ──
+      // Build the source from the outer HTML (self, sans script)
+      function getSourceHTML() {
+        const clone = document.getElementById('profileCard').cloneNode(true);
+        // Remove scripts from clone
+        const scripts = clone.querySelectorAll('script');
+        for (let i = scripts.length - 1; i >= 0; i--) { scripts[i].remove(); }
+        // Remove code section content from clone to avoid infinite nesting
+        const codeSec = clone.querySelector('.code-section');
+        if (codeSec) codeSec.remove();
+        // Remove toast
+        const toast = clone.querySelector('.send-toast');
+        if (toast) toast.remove();
+        return '<!DOCTYPE html>\n' + document.querySelector('html').outerHTML
+          .replace(/<script>[\s\S]*?<\/script>/, '')
+          .replace(/<div class="send-toast"[\s\S]*?<\/div>/, '')
+          .replace(/<div class="code-section">[\s\S]*?<\/div>/, '')
+          .replace(/id="sendToast"[^>]*>[\s\S]*?<\/div>/, '');
+      }
+
+      codeToggle.addEventListener('click', function() {
+        this.classList.toggle('is-open');
+        codeBlock.classList.toggle('open');
+        if (codeBlock.classList.contains('open')) {
+          codeContent.textContent = getSourceHTML();
+        }
+      });
+
+    })();
+  </script>
 </body>
 </html>

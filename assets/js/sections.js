@@ -4,11 +4,11 @@ const SECTIONS = [
     id: 'ui-components',
     icon: '🧩',
     title: 'UI Components',
-    desc: 'Карточки, формы, навигация, профили',
+    desc: 'Карточки, формы, навигация, профили — живые интерактивные примеры',
     examples: [
-      { name: 'Product Card', desc: 'Карточка товара с изображением, ценой и рейтингом', url: 'ui-components/01-product-card/', tags: ['card', 'e-commerce'] },
-      { name: 'Profile Card', desc: 'Карточка пользователя с аватаром и статистикой', url: 'ui-components/02-profile-card/', tags: ['card', 'profile'] },
-      { name: 'Navigation', desc: 'Адаптивная навигация с хедером и мобильным меню', url: 'ui-components/03-navigation/', tags: ['nav', 'header'] }
+      { name: 'Product Card', desc: 'Карточка товара: избранное, выбор цвета/размера, корзина с тостами', url: 'ui-components/01-product-card/', tags: ['card', 'e-commerce', 'interactive'] },
+      { name: 'Profile Card', desc: 'Карточка профиля: follow/unfollow, табы, сообщения', url: 'ui-components/02-profile-card/', tags: ['card', 'profile', 'tabs'] },
+      { name: 'Navigation', desc: 'Адаптивный хедер: active-link, dropdown, mobile-menu, 5 секций', url: 'ui-components/03-navigation/', tags: ['nav', 'header', 'responsive'] }
     ]
   },
   {
