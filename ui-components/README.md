@@ -15,6 +15,7 @@
 - [x] Product Card — карточка товара (избранное, корзина, выбор размера)
 - [x] Profile Card — карточка профиля (follow/unfollow, табы)
 - [x] Navigation — адаптивная навигация (active-link, mobile menu, dropdown)
+- [x] Cosmic System — интерактивная солнечная система с параллаксом, планетами, warp-эффектом
 
 ### Фаза 2 — Расширение (ближайшие)
 - [ ] Form Elements — кастомные инпуты, селекты, чекбоксы, toggle

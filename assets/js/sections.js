@@ -18,7 +18,8 @@ const SECTIONS = [
     examples: [
       { name: 'Product Card', desc: 'Product card with wishlist, color/size selection, cart toasts', url: 'ui-components/01-product-card/', tags: ['card', 'e-commerce', 'interactive'] },
       { name: 'Profile Card', desc: 'Profile card with follow/unfollow, tabs, messaging', url: 'ui-components/02-profile-card/', tags: ['card', 'profile', 'tabs'] },
-      { name: 'Navigation', desc: 'Responsive header with active-link, dropdown, mobile menu, 5 sections', url: 'ui-components/03-navigation/', tags: ['nav', 'header', 'responsive'] }
+      { name: 'Navigation', desc: 'Responsive header with active-link, dropdown, mobile menu, 5 sections', url: 'ui-components/03-navigation/', tags: ['nav', 'header', 'responsive'] },
+      { name: 'Cosmic System', desc: 'Interactive solar system with parallax starfield, clickable planets and warp-speed effect', url: 'ui-components/04-cosmic-system/', tags: ['canvas', 'animation', 'space', 'interactive'] }
     ]
   },
   {
