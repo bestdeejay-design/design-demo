@@ -3,50 +3,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Design Demo — UI/UX catalog of solutions</title>
+  <title>Design Demo — UI/UX Kit for Web & Mobile</title>
   <link rel="stylesheet" href="assets/css/main.css">
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236c5ce7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polygon points='12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2'/></svg>">
-  <meta name="description" content="Catalog of UI/UX solutions, components, and design patterns.">
+  <meta name="description" content="Каталог UI/UX решений, компонентов, страниц и паттернов для веб- и мобильных проектов. Готовые адаптивные примеры, которые можно копировать к себе.">
 </head>
 <body>
-  <div class="container">
+  <div class="header-wrap">
     <header class="header">
-      <h1>Design Demo</h1>
-      <p>Catalog of UI/UX solutions, components, and design patterns.<br>Each example is a live demo with a description.</p>
+      <a href="/" class="brand">
+        <span class="brand-mark">D</span>
+        <span>Design Demo</span>
+      </a>
+      <nav class="header-nav" id="headerNav">
+        <a href="#components">Components</a>
+        <a href="#pages">Pages</a>
+        <a href="#design-systems">Tokens</a>
+        <a href="https://github.com/bestdeejay-design/design-demo" target="_blank" rel="noopener">GitHub ↗</a>
+      </nav>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="sunIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="moonIcon" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        </button>
+        <button class="header-menu-btn theme-toggle" id="menuBtn" aria-label="Menu">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+      </div>
     </header>
+  </div>
+
+  <main class="container">
+    <section class="hero">
+      <div class="hero-inner">
+        <div class="hero-badge">
+          <span class="hero-badge-dot"></span>
+          <span>Активная разработка · v1.0</span>
+        </div>
+        <h1>UI/UX Kit для веба<br>и мобильных проектов</h1>
+        <p>Готовые адаптивные компоненты, страницы и паттерны. Каждый пример — живая демка, которую можно посмотреть, потрогать и скопировать к себе.</p>
+        <div class="hero-actions">
+          <a href="#components" class="btn btn-primary">
+            Смотреть компоненты
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </a>
+          <a href="https://github.com/bestdeejay-design/design-demo" target="_blank" rel="noopener" class="btn btn-secondary">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/></svg>
+            GitHub
+          </a>
+        </div>
+        <div class="hero-stats">
+          <div class="hero-stat"><div class="hero-stat-num" id="statComponents">—</div><div class="hero-stat-label">Components</div></div>
+          <div class="hero-stat"><div class="hero-stat-num" id="statPages">—</div><div class="hero-stat-label">Pages</div></div>
+          <div class="hero-stat"><div class="hero-stat-num" id="statPatterns">—</div><div class="hero-stat-label">Patterns</div></div>
+          <div class="hero-stat"><div class="hero-stat-num" id="statAll">—</div><div class="hero-stat-label">Всего</div></div>
+        </div>
+      </div>
+    </section>
+
+    <div class="search-bar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="search" id="searchInput" placeholder="Поиск по компонентам, тегам, разделам…" autocomplete="off">
+      <kbd>⌘K</kbd>
+    </div>
 
     <div class="sections-grid" id="catalog">
       <!-- Sections are rendered by sections.js -->
     </div>
+  </main>
 
-    <footer class="footer">
-      <a href="https://github.com/bestdeejay-design/design-demo" style="color: var(--text2);">GitHub</a>
-      &middot; Сделано с ❤️
-    </footer>
-  </div>
+  <footer class="footer">
+    Сделано с любовью к деталям · <a href="https://github.com/bestdeejay-design/design-demo" target="_blank" rel="noopener">Open Source</a> · Чистый HTML/CSS/JS, ноль зависимостей
+  </footer>
 
   <script src="assets/js/sections.js"></script>
-
-  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="sunIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" id="moonIcon" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-  </button>
-
   <script>
+    // ── Theme toggle ──
     (function() {
       const toggle = document.getElementById('themeToggle');
       const sun = document.getElementById('sunIcon');
       const moon = document.getElementById('moonIcon');
       const stored = localStorage.getItem('design-demo-theme');
       const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-
       let theme = stored || (sysDark ? 'dark' : 'light');
       document.documentElement.setAttribute('data-theme', theme);
-
       if (theme === 'dark') { sun.style.display = 'none'; moon.style.display = ''; }
       else { sun.style.display = ''; moon.style.display = 'none'; }
-
-      toggle.addEventListener('click', function() {
+      toggle.addEventListener('click', () => {
         const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
         document.documentElement.setAttribute('data-theme', next);
         localStorage.setItem('design-demo-theme', next);
@@ -54,6 +97,80 @@
         else { sun.style.display = ''; moon.style.display = 'none'; }
       });
     })();
+
+    // ── Mobile menu ──
+    document.getElementById('menuBtn').addEventListener('click', () => {
+      document.getElementById('headerNav').classList.toggle('is-open');
+    });
+
+    // ── Search (filter cards live) ──
+    (function() {
+      const input = document.getElementById('searchInput');
+      let timer;
+      input.addEventListener('input', () => {
+        clearTimeout(timer);
+        timer = setTimeout(() => applyFilter(input.value), 80);
+      });
+      // ⌘K / Ctrl+K to focus
+      document.addEventListener('keydown', (e) => {
+        if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+          e.preventDefault();
+          input.focus();
+          input.select();
+        }
+        if (e.key === 'Escape' && document.activeElement === input) {
+          input.value = '';
+          applyFilter('');
+          input.blur();
+        }
+      });
+
+      function applyFilter(q) {
+        q = (q || '').trim().toLowerCase();
+        const cards = document.querySelectorAll('.example-card');
+        let visibleCount = 0;
+        cards.forEach(card => {
+          const text = (card.textContent || '').toLowerCase();
+          const match = !q || text.includes(q);
+          card.classList.toggle('is-hidden', !match);
+          if (match) visibleCount++;
+        });
+        // Hide section if all its cards are hidden
+        document.querySelectorAll('.section-group').forEach(group => {
+          const visibleCards = group.querySelectorAll('.example-card:not(.is-hidden)');
+          group.classList.toggle('is-hidden', q && visibleCards.length === 0);
+        });
+      }
+    })();
+
+    // ── Stats (count up) — runs after catalog renders ──
+    function updateStats() {
+      const sections = document.querySelectorAll('.section-group');
+      const compSection = Array.from(sections).find(s => s.querySelector('.section-title')?.textContent.toLowerCase().includes('component'));
+      const pageSection = Array.from(sections).find(s => s.querySelector('.section-title')?.textContent.toLowerCase().includes('page'));
+      const patternSection = Array.from(sections).find(s => s.querySelector('.section-title')?.textContent.toLowerCase().includes('pattern'));
+      const count = (sec) => sec ? sec.querySelectorAll('.example-card').length : 0;
+      const animate = (el, target) => {
+        if (!el) return;
+        const dur = 800;
+        const start = performance.now();
+        const tick = (t) => {
+          const k = Math.min(1, (t - start) / dur);
+          const eased = 1 - Math.pow(1 - k, 3);
+          el.textContent = Math.round(target * eased);
+          if (k < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      };
+      const c = count(compSection);
+      const p = count(pageSection);
+      const pa = count(patternSection);
+      animate(document.getElementById('statComponents'), c);
+      animate(document.getElementById('statPages'), p);
+      animate(document.getElementById('statPatterns'), pa);
+      animate(document.getElementById('statAll'), c + p + pa);
+    }
+    document.addEventListener('catalog:rendered', updateStats);
   </script>
 </body>
 </html>
