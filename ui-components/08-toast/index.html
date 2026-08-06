@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Toast & Notification — UI Component</title>
+  <style>
+    :root {
+      --bg: #f5f5f7; --surface: #ffffff; --surface-2: #f0f0f5; --surface-3: #e8e8ed;
+      --text: #1c1c1e; --text-2: #636366; --text-3: #8e8e93; --text-inverse: #fff;
+      --border: #e5e5ea; --border-strong: #d0d0d6;
+      --accent: #6c5ce7; --accent-hover: #5a4bd1; --accent-soft: rgba(108,92,231,.08);
+      --success: #00b894; --success-soft: rgba(0,184,148,.1);
+      --warning: #fdcb6e; --warning-soft: rgba(253,203,110,.18);
+      --danger: #ff4757; --danger-soft: rgba(255,71,87,.1);
+      --info: #74b9ff; --info-soft: rgba(116,185,255,.1);
+      --radius-sm: 6px; --radius: 10px; --radius-md: 12px; --radius-lg: 16px;
+      --shadow-md: 0 8px 28px rgba(0,0,0,.09); --shadow-lg: 0 16px 48px rgba(0,0,0,.12);
+      --ease: cubic-bezier(0.4,0,0.2,1); --ease-spring: cubic-bezier(0.34,1.56,0.64,1);
+      --dur-fast: 180ms; --dur: 260ms; --dur-slow: 420ms;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+    }
+    [data-theme="dark"] {
+      --bg: #0c0c0e; --surface: #1a1a20; --surface-2: #23232a; --surface-3: #2a2a32;
+      --text: #ececf0; --text-2: #a0a0a8; --text-3: #6e6e76;
+      --border: #2a2a32; --border-strong: #3a3a44;
+      --accent-soft: rgba(108,92,231,.15);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);padding:40px 20px 100px;-webkit-font-smoothing:antialiased;line-height:1.6;min-height:100vh}
+    .container{max-width:920px;margin:0 auto}
+    ::selection{background:var(--accent);color:var(--text-inverse)}
+    .page-head{text-align:center;margin-bottom:40px}
+    .page-head h1{font-size:2.2rem;font-weight:800;letter-spacing:-0.02em;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+    .page-head p{color:var(--text-2);font-size:1rem;max-width:540px;margin:0 auto}
+
+    .theme-toggle{position:fixed;top:16px;right:16px;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:100;transition:all var(--dur-fast) var(--ease)}
+    .theme-toggle:hover{transform:scale(1.05);border-color:var(--accent);color:var(--accent)}
+    .theme-toggle svg{width:16px;height:16px}
+
+    .section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;margin-bottom:20px}
+    .section-head{display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+    .section-num{width:32px;height:32px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;font-family:'SF Mono',monospace}
+    .section-title{font-size:1.2rem;font-weight:700}
+    .section-sub{color:var(--text-2);font-size:.85rem;margin-top:2px}
+
+    /* ─── Buttons ─── */
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:var(--radius);font-size:.9rem;font-weight:600;cursor:pointer;transition:all var(--dur-fast) var(--ease);font-family:inherit;white-space:nowrap;border:none}
+    .btn-primary{background:var(--accent);color:var(--text-inverse);box-shadow:0 2px 6px rgba(108,92,231,.3)}
+    .btn-primary:hover{background:var(--accent-hover);transform:translateY(-1px);box-shadow:0 6px 20px rgba(108,92,231,.4)}
+    .btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border)}
+    .btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
+    .btn-success{background:var(--success);color:#fff}
+    .btn-warning{background:#d4a13d;color:#fff}
+    .btn-danger{background:var(--danger);color:#fff}
+    .btn-info{background:var(--info);color:#fff}
+
+    .trigger-row{display:flex;gap:10px;flex-wrap:wrap}
+
+    /* ─── Toast styles ─── */
+    .toast-stack {
+      position: fixed;
+      z-index: 1000;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      pointer-events: none;
+    }
+    .toast-stack.top-right    { top: 20px; right: 20px; }
+    .toast-stack.top-left     { top: 20px; left: 20px; }
+    .toast-stack.top-center   { top: 20px; left: 50%; transform: translateX(-50%); }
+    .toast-stack.bottom-right { bottom: 20px; right: 20px; }
+    .toast-stack.bottom-left  { bottom: 20px; left: 20px; }
+    .toast-stack.bottom-center{ bottom: 20px; left: 50%; transform: translateX(-50%); }
+
+    .toast {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      padding: 14px 16px;
+      min-width: 280px;
+      max-width: 380px;
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      pointer-events: auto;
+      animation: toastIn 0.4s var(--ease-spring) both;
+      position: relative;
+      overflow: hidden;
+    }
+    .toast.is-leaving {
+      animation: toastOut 0.3s var(--ease) forwards;
+    }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(20px) scale(0.95); }
+      to   { opacity: 1; transform: translateX(0) scale(1); }
+    }
+    @keyframes toastOut {
+      to { opacity: 0; transform: translateX(20px) scale(0.95); }
+    }
+    .toast-icon {
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .toast-icon svg { width: 14px; height: 14px; }
+    .toast.success .toast-icon { background: var(--success-soft); color: var(--success); }
+    .toast.error   .toast-icon { background: var(--danger-soft);  color: var(--danger); }
+    .toast.warning .toast-icon { background: var(--warning-soft); color: #d4a13d; }
+    .toast.info    .toast-icon { background: var(--info-soft);    color: var(--info); }
+
+    .toast-body { flex: 1; min-width: 0; }
+    .toast-title { font-weight: 700; font-size: 0.88rem; margin-bottom: 2px; color: var(--text); }
+    .toast-msg { font-size: 0.82rem; color: var(--text-2); line-height: 1.45; }
+    .toast-close {
+      width: 22px; height: 22px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-3);
+      cursor: pointer;
+      transition: all var(--dur-fast) var(--ease);
+      flex-shrink: 0;
+    }
+    .toast-close:hover { background: var(--surface-2); color: var(--text); }
+    .toast-close svg { width: 12px; height: 12px; }
+
+    .toast-action {
+      background: none;
+      border: none;
+      color: var(--accent);
+      font-weight: 600;
+      font-size: 0.82rem;
+      padding: 0;
+      margin-top: 6px;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .toast-action:hover { text-decoration: underline; }
+
+    /* ─── Progress bar in toast (for timed dismissal) ─── */
+    .toast-progress {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--accent);
+      transform-origin: left;
+      animation: progress linear forwards;
+    }
+    .toast.success .toast-progress { background: var(--success); }
+    .toast.error   .toast-progress { background: var(--danger); }
+    .toast.warning .toast-progress { background: #d4a13d; }
+    .toast.info    .toast-progress { background: var(--info); }
+    @keyframes progress {
+      from { transform: scaleX(1); }
+      to   { transform: scaleX(0); }
+    }
+
+    /* ─── Inline alert (not toast) ─── */
+    .alert {
+      padding: 14px 16px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      border: 1px solid;
+    }
+    .alert.success { background: var(--success-soft); border-color: rgba(0,184,148,.3); color: var(--success); }
+    .alert.error   { background: var(--danger-soft);  border-color: rgba(255,71,87,.3);  color: var(--danger); }
+    .alert.warning { background: var(--warning-soft); border-color: rgba(253,203,110,.4); color: #a87a1c; }
+    .alert.info    { background: var(--info-soft);    border-color: rgba(116,185,255,.3); color: var(--info); }
+    .alert-icon { flex-shrink: 0; }
+    .alert-icon svg { width: 20px; height: 20px; }
+    .alert-body { flex: 1; }
+    .alert-title { font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; }
+    .alert-msg { font-size: 0.85rem; line-height: 1.5; opacity: 0.85; }
+
+    /* ─── Banner (full-width) ─── */
+    .banner {
+      padding: 12px 18px;
+      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--accent);
+      color: var(--text-inverse);
+      font-size: 0.88rem;
+    }
+    .banner strong { font-weight: 700; }
+    .banner-msg { flex: 1; }
+    .banner a { color: var(--text-inverse); text-decoration: underline; }
+    .banner-close {
+      color: var(--text-inverse);
+      opacity: 0.7;
+      cursor: pointer;
+      transition: opacity var(--dur-fast);
+    }
+    .banner-close:hover { opacity: 1; }
+
+    /* ─── Back & view-code ─── */
+    .back-btn{position:fixed;bottom:20px;left:20px;display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:100px;color:var(--text);font-size:.85rem;font-weight:500;text-decoration:none;box-shadow:0 2px 12px rgba(0,0,0,.08);z-index:100;transition:all var(--dur-fast) var(--ease)}
+    .back-btn:hover{transform:translateY(-2px);border-color:var(--accent);color:var(--accent)}
+    .back-btn svg{width:14px;height:14px}
+    .view-code-btn{position:fixed;bottom:20px;right:20px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);color:var(--text-2);padding:8px 16px;border-radius:100px;font-size:.78rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;z-index:100;transition:all var(--dur-fast) var(--ease)}
+    .view-code-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .code-panel{position:fixed;bottom:64px;right:20px;width:min(640px,calc(100vw - 40px));max-height:0;overflow:hidden;transition:max-height .45s var(--ease),opacity .3s;opacity:0;background:var(--surface);backdrop-filter:blur(20px);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-md);z-index:99}
+    .code-panel.open{max-height:70vh;opacity:1}
+    .code-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;font-size:.72rem;color:var(--text-2);font-weight:500;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+    .code-panel pre{padding:18px;font-size:.7rem;line-height:1.6;color:var(--text-2);overflow:auto;max-height:60vh;white-space:pre;tab-size:2;font-family:'SF Mono','Fira Code',monospace}
+    .copy-btn{background:var(--surface-2);border:none;color:var(--text-2);padding:4px 12px;border-radius:6px;font-size:.72rem;cursor:pointer;font-family:inherit;transition:all var(--dur-fast) var(--ease)}
+    .copy-btn:hover{background:var(--accent-soft);color:var(--accent)}
+
+    @media (max-width: 720px) {
+      body { padding: 24px 14px 100px; }
+      .page-head h1 { font-size: 1.7rem; }
+      .section { padding: 20px; }
+      .toast-stack.top-right, .toast-stack.top-left,
+      .toast-stack.bottom-right, .toast-stack.bottom-left,
+      .toast-stack.top-center, .toast-stack.bottom-center {
+        left: 12px; right: 12px; transform: none; top: auto; bottom: 12px;
+      }
+      .toast { min-width: 0; max-width: 100%; }
+      .back-btn, .view-code-btn { bottom: 12px; padding: 7px 12px; font-size: 0.75rem; }
+      .back-btn { left: 12px; }
+      .view-code-btn { right: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="sunIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="moonIcon" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+
+  <div class="container">
+    <header class="page-head">
+      <h1>Toast & Notification</h1>
+      <p>Всплывающие уведомления, инлайн-алерты, баннеры. Стек, таймер, прогресс, экшены.</p>
+    </header>
+
+    <!-- 1. TYPES -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">1</div>
+        <div>
+          <div class="section-title">Toast Types</div>
+          <div class="section-sub">4 типа: success, error, warning, info</div>
+        </div>
+      </div>
+      <div class="trigger-row">
+        <button class="btn btn-success" data-toast="success">Success</button>
+        <button class="btn btn-danger" data-toast="error">Error</button>
+        <button class="btn btn-warning" data-toast="warning">Warning</button>
+        <button class="btn btn-info" data-toast="info">Info</button>
+      </div>
+    </section>
+
+    <!-- 2. POSITIONS -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">2</div>
+        <div>
+          <div class="section-title">Positions</div>
+          <div class="section-sub">6 стандартных позиций на экране</div>
+        </div>
+      </div>
+      <div class="trigger-row">
+        <button class="btn btn-primary" data-toast="info" data-position="top-left">↖ Top-Left</button>
+        <button class="btn btn-primary" data-toast="info" data-position="top-center">↑ Top-Center</button>
+        <button class="btn btn-primary" data-toast="info" data-position="top-right">↗ Top-Right</button>
+        <button class="btn btn-primary" data-toast="info" data-position="bottom-left">↙ Bottom-Left</button>
+        <button class="btn btn-primary" data-toast="info" data-position="bottom-center">↓ Bottom-Center</button>
+        <button class="btn btn-primary" data-toast="info" data-position="bottom-right">↘ Bottom-Right</button>
+      </div>
+    </section>
+
+    <!-- 3. WITH ACTION -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">3</div>
+        <div>
+          <div class="section-title">With Action Button</div>
+          <div class="section-sub">Отменить, открыть, повторить — CTA внутри тоста</div>
+        </div>
+      </div>
+      <div class="trigger-row">
+        <button class="btn btn-secondary" data-toast="undo">↩ С отменой</button>
+        <button class="btn btn-secondary" data-toast="with-link">🔗 С ссылкой</button>
+        <button class="btn btn-secondary" data-toast="retry">↻ С повтором</button>
+      </div>
+    </section>
+
+    <!-- 4. STACKING -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">4</div>
+        <div>
+          <div class="section-title">Stacking & Queue</div>
+          <div class="section-sub">Несколько тостов — стек с auto-dismiss</div>
+        </div>
+      </div>
+      <div class="trigger-row">
+        <button class="btn btn-primary" id="toastSpam">📨 Заспамить 5 тостов</button>
+        <button class="btn btn-secondary" id="toastClear">🗑 Очистить все</button>
+      </div>
+    </section>
+
+    <!-- 5. INLINE ALERTS -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">5</div>
+        <div>
+          <div class="section-title">Inline Alerts</div>
+          <div class="section-sub">В потоке контента — не исчезают, заметные</div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:10px">
+        <div class="alert success">
+          <div class="alert-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="alert-body">
+            <div class="alert-title">Оплата прошла успешно</div>
+            <div class="alert-msg">Спасибо! Ваш Pro-план активирован до 5 августа 2027.</div>
+          </div>
+        </div>
+        <div class="alert error">
+          <div class="alert-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+          </div>
+          <div class="alert-body">
+            <div class="alert-title">Не удалось сохранить</div>
+            <div class="alert-msg">Проверьте подключение к интернету и попробуйте ещё раз.</div>
+          </div>
+        </div>
+        <div class="alert warning">
+          <div class="alert-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div class="alert-body">
+            <div class="alert-title">Мало места на диске</div>
+            <div class="alert-msg">Осталось 500 МБ. Старые бэкапы будут удалены через 7 дней.</div>
+          </div>
+        </div>
+        <div class="alert info">
+          <div class="alert-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          </div>
+          <div class="alert-body">
+            <div class="alert-title">Доступно обновление v1.4</div>
+            <div class="alert-msg">Новые компоненты: Tabs, Toast, Tooltip. <a href="#" style="color:currentColor;text-decoration:underline;font-weight:600">Что нового?</a></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. BANNER -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">6</div>
+        <div>
+          <div class="section-title">Top Banner</div>
+          <div class="section-sub">Sticky-полоса вверху страницы</div>
+        </div>
+      </div>
+      <div class="banner" id="demoBanner">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <div class="banner-msg">
+          <strong>Новая версия UI Kit v2.0</strong> · Добавлено 11 компонентов и 4 страницы. <a href="#">Посмотреть</a>
+        </div>
+        <span class="banner-close" id="closeDemoBanner">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+        </span>
+      </div>
+    </section>
+  </div>
+
+  <!-- Toast container — default top-right -->
+  <div class="toast-stack top-right" id="toastStack"></div>
+
+  <a class="back-btn" href="../../">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Back to catalog
+  </a>
+  <button class="view-code-btn" id="viewCodeBtn">⌨ View Code</button>
+  <div class="code-panel" id="codePanel">
+    <div class="code-header">
+      <span>index.html</span>
+      <button class="copy-btn" id="copyCodeBtn">Copy</button>
+    </div>
+    <pre id="codeContent"></pre>
+  </div>
+
+  <script>
+    (function() {
+      'use strict';
+      // Theme
+      const toggle = document.getElementById('themeToggle');
+      const sun = document.getElementById('sunIcon');
+      const moon = document.getElementById('moonIcon');
+      const stored = localStorage.getItem('design-demo-theme');
+      const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      let theme = stored || (sysDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+      if (theme === 'dark') { sun.style.display = 'none'; moon.style.display = ''; }
+      else { sun.style.display = ''; moon.style.display = 'none'; }
+      toggle.addEventListener('click', () => {
+        const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('design-demo-theme', next);
+        if (next === 'dark') { sun.style.display = 'none'; moon.style.display = ''; }
+        else { sun.style.display = ''; moon.style.display = 'none'; }
+      });
+
+      // Toast library
+      const stacks = {};
+      const ICONS = {
+        success: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+        error:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
+        warning: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+        info:    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+      };
+      const TITLES = { success: 'Успешно', error: 'Ошибка', warning: 'Внимание', info: 'Информация' };
+      const MESSAGES = {
+        success: 'Операция завершена успешно',
+        error:   'Что-то пошло не так. Попробуйте ещё раз.',
+        warning: 'Это действие требует внимания',
+        info:    'Здесь можно показать полезную информацию',
+        undo:    'Элемент удалён',
+        'with-link': 'Новое сообщение в чате',
+        retry:   'Не удалось загрузить файл',
+      };
+      const ACTIONS = {
+        undo:    { label: 'Отменить', onClick: () => toast('info', 'Действие отменено') },
+        'with-link': { label: 'Открыть', onClick: () => toast('info', 'Открываем чат...') },
+        retry:   { label: 'Повторить', onClick: () => toast('success', 'Загрузка успешна') },
+      };
+
+      function getStack(position) {
+        if (stacks[position]) return stacks[position];
+        const el = document.createElement('div');
+        el.className = 'toast-stack ' + (position || 'top-right');
+        document.body.appendChild(el);
+        stacks[position] = el;
+        return el;
+      }
+
+      function toast(type, message, opts = {}) {
+        const position = opts.position || 'top-right';
+        const duration = opts.duration || 4500;
+        const stack = getStack(position);
+        const el = document.createElement('div');
+        el.className = 'toast ' + type;
+        el.innerHTML = `
+          <div class="toast-icon">${ICONS[type] || ICONS.info}</div>
+          <div class="toast-body">
+            <div class="toast-title">${TITLES[type] || ''}</div>
+            <div class="toast-msg">${message || MESSAGES[type] || ''}</div>
+          </div>
+          <span class="toast-close">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg>
+          </span>
+          <div class="toast-progress" style="animation-duration: ${duration}ms"></div>
+        `;
+        // Action
+        if (opts.action) {
+          const a = document.createElement('button');
+          a.className = 'toast-action';
+          a.style.cssText = 'position:absolute;left:52px;bottom:12px;background:none;border:none;color:var(--accent);font-weight:600;font-size:.82rem;cursor:pointer;padding:0;font-family:inherit;';
+          a.textContent = opts.action.label;
+          a.addEventListener('click', () => { opts.action.onClick(); dismiss(); });
+          el.querySelector('.toast-body').appendChild(a);
+        }
+        // Close
+        el.querySelector('.toast-close').addEventListener('click', dismiss);
+        function dismiss() {
+          el.classList.add('is-leaving');
+          setTimeout(() => el.remove(), 300);
+        }
+        stack.appendChild(el);
+        if (duration > 0) setTimeout(dismiss, duration);
+        return { dismiss };
+      }
+
+      // Wire up demo buttons
+      document.querySelectorAll('[data-toast]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const type = btn.dataset.toast;
+          const position = btn.dataset.position;
+          const action = ACTIONS[type];
+          toast(type, MESSAGES[type], { position, action });
+        });
+      });
+      document.getElementById('toastSpam').addEventListener('click', () => {
+        const types = ['success', 'error', 'warning', 'info'];
+        for (let i = 0; i < 5; i++) {
+          setTimeout(() => {
+            const t = types[i % 4];
+            toast(t, MESSAGES[t], { position: 'bottom-right' });
+          }, i * 200);
+        }
+      });
+      document.getElementById('toastClear').addEventListener('click', () => {
+        Object.values(stacks).forEach(s => {
+          s.querySelectorAll('.toast').forEach(t => {
+            t.classList.add('is-leaving');
+            setTimeout(() => t.remove(), 300);
+          });
+        });
+      });
+
+      // Demo banner close
+      document.getElementById('closeDemoBanner').addEventListener('click', () => {
+        const b = document.getElementById('demoBanner');
+        b.style.transition = 'all .3s';
+        b.style.opacity = '0';
+        b.style.transform = 'translateY(-10px)';
+        setTimeout(() => b.remove(), 300);
+      });
+
+      // View code
+      const viewCodeBtn = document.getElementById('viewCodeBtn');
+      const codePanel = document.getElementById('codePanel');
+      const codeContent = document.getElementById('codeContent');
+      const copyCodeBtn = document.getElementById('copyCodeBtn');
+      viewCodeBtn.addEventListener('click', () => {
+        const isOpen = codePanel.classList.toggle('open');
+        if (isOpen && !codeContent.textContent) {
+          fetch('index.html').then(r => r.text()).then(html => {
+            codeContent.textContent = html.replace(/<script[\s\S]*?<\/script>/g, '<!-- script -->');
+          });
+        }
+        viewCodeBtn.textContent = isOpen ? '✕  Close' : '⌨  View Code';
+      });
+      copyCodeBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(codeContent.textContent).then(() => {
+          copyCodeBtn.textContent = 'Copied!';
+          setTimeout(() => copyCodeBtn.textContent = 'Copy', 1500);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
