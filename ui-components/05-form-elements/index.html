@@ -1,0 +1,1231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Form Elements — UI Component</title>
+  <meta name="description" content="A complete form kit: inputs, textareas, selects, checkboxes, radios, switches, sliders, file upload, search. With all states and mobile considerations.">
+  <style>
+    /* ─── Design tokens (self-contained, mirrors main.css) ─── */
+    :root {
+      --bg: #f5f5f7;
+      --bg-elevated: #ffffff;
+      --surface: #ffffff;
+      --surface-2: #f0f0f5;
+      --surface-3: #e8e8ed;
+      --text: #1c1c1e;
+      --text-2: #636366;
+      --text-3: #8e8e93;
+      --text-inverse: #ffffff;
+      --border: #e5e5ea;
+      --border-strong: #d0d0d6;
+      --accent: #6c5ce7;
+      --accent-hover: #5a4bd1;
+      --accent-soft: rgba(108, 92, 231, 0.08);
+      --accent-glow: rgba(108, 92, 231, 0.25);
+      --success: #00b894;
+      --success-soft: rgba(0, 184, 148, 0.10);
+      --warning: #fdcb6e;
+      --warning-soft: rgba(253, 203, 110, 0.15);
+      --danger: #ff4757;
+      --danger-soft: rgba(255, 71, 87, 0.10);
+      --info: #74b9ff;
+      --info-soft: rgba(116, 185, 255, 0.10);
+      --radius-sm: 6px;
+      --radius: 10px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --radius-full: 9999px;
+      --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.06);
+      --shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
+      --shadow-md: 0 8px 28px rgba(0, 0, 0, 0.09);
+      --ease: cubic-bezier(0.4, 0, 0.2, 1);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --dur-fast: 180ms;
+      --dur: 260ms;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+      --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', 'JetBrains Mono', Menlo, monospace;
+    }
+    [data-theme="dark"] {
+      --bg: #0c0c0e;
+      --surface: #1a1a20;
+      --surface-2: #23232a;
+      --surface-3: #2a2a32;
+      --text: #ececf0;
+      --text-2: #a0a0a8;
+      --text-3: #6e6e76;
+      --border: #2a2a32;
+      --border-strong: #3a3a44;
+      --accent-soft: rgba(108, 92, 231, 0.15);
+      --success-soft: rgba(0, 184, 148, 0.15);
+      --warning-soft: rgba(253, 203, 110, 0.18);
+      --danger-soft: rgba(255, 71, 87, 0.15);
+      --info-soft: rgba(116, 185, 255, 0.15);
+    }
+
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { min-height: 100%; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 32px 16px 80px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .container { max-width: 920px; margin: 0 auto; }
+    ::selection { background: var(--accent); color: var(--text-inverse); }
+
+    /* ─── Header ─── */
+    .page-head {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .page-head h1 {
+      font-size: 2.25rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, var(--text) 0%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 8px;
+    }
+    .page-head p { color: var(--text-2); font-size: 1.05rem; max-width: 520px; margin: 0 auto; }
+
+    /* ─── Theme toggle (mini, top-right) ─── */
+    .theme-toggle {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text-2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      z-index: 100;
+      transition: all var(--dur-fast) var(--ease);
+    }
+    .theme-toggle:hover { transform: scale(1.05); border-color: var(--accent); color: var(--accent); }
+    .theme-toggle svg { width: 16px; height: 16px; }
+
+    /* ─── Section card ─── */
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 32px;
+      margin-bottom: 24px;
+    }
+    .section-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-num {
+      width: 32px; height: 32px;
+      border-radius: 8px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+    }
+    .section-title { font-size: 1.2rem; font-weight: 700; letter-spacing: -0.01em; }
+    .section-sub { color: var(--text-2); font-size: 0.85rem; margin-top: 2px; }
+
+    /* ─── Demo row ─── */
+    .demo-row {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+    .demo-row:last-child { margin-bottom: 0; }
+    .demo-row > * { flex: 1; min-width: 200px; }
+    .demo-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      color: var(--text-3);
+      margin-bottom: 6px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       1. TEXT INPUT
+       ═══════════════════════════════════════════════════════════ */
+    .field {
+      display: block;
+      position: relative;
+    }
+    .field-label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+    .field-label .req { color: var(--danger); margin-left: 2px; }
+    .field-hint {
+      display: block;
+      font-size: 0.78rem;
+      color: var(--text-2);
+      margin-top: 6px;
+    }
+    .field-error {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.78rem;
+      color: var(--danger);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+    .field-success {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.78rem;
+      color: var(--success);
+      margin-top: 6px;
+      font-weight: 500;
+    }
+
+    .input {
+      width: 100%;
+      padding: 12px 14px;
+      font: inherit;
+      font-size: 0.95rem;
+      color: var(--text);
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      transition: all var(--dur-fast) var(--ease);
+      min-height: 44px; /* touch target */
+    }
+    .input::placeholder { color: var(--text-3); }
+    .input:hover:not(:disabled) { border-color: var(--border-strong); }
+    .input:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+    .input.is-error {
+      border-color: var(--danger);
+      background: var(--danger-soft);
+    }
+    .input.is-error:focus { box-shadow: 0 0 0 4px rgba(255, 71, 87, 0.15); }
+    .input.is-success {
+      border-color: var(--success);
+    }
+    .input.is-success:focus { box-shadow: 0 0 0 4px var(--success-soft); }
+    .input:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      background: var(--surface-2);
+    }
+
+    /* With icon */
+    .input-icon {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-3);
+      pointer-events: none;
+      width: 18px; height: 18px;
+    }
+    .input-icon.left  { left: 14px; }
+    .input-icon.right { right: 14px; }
+    .has-icon-left  .input { padding-left: 42px; }
+    .has-icon-right .input { padding-right: 42px; }
+    .has-icon-right .input-icon.right { pointer-events: auto; cursor: pointer; }
+    .has-icon-right .input-icon.right:hover { color: var(--accent); }
+
+    /* Floating label */
+    .float-field {
+      position: relative;
+      margin-top: 18px;
+    }
+    .float-field .input {
+      padding-top: 18px;
+      padding-bottom: 4px;
+    }
+    .float-field .float-label {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.95rem;
+      color: var(--text-3);
+      pointer-events: none;
+      transition: all var(--dur-fast) var(--ease);
+      background: var(--surface);
+      padding: 0 4px;
+    }
+    .float-field .input:focus + .float-label,
+    .float-field .input:not(:placeholder-shown) + .float-label {
+      top: 0;
+      font-size: 0.72rem;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       2. TEXTAREA
+       ═══════════════════════════════════════════════════════════ */
+    .textarea {
+      width: 100%;
+      padding: 12px 14px;
+      font: inherit;
+      font-size: 0.95rem;
+      color: var(--text);
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      transition: all var(--dur-fast) var(--ease);
+      resize: vertical;
+      min-height: 96px;
+      font-family: inherit;
+    }
+    .textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+    .textarea-wrap {
+      position: relative;
+    }
+    .textarea-count {
+      position: absolute;
+      bottom: 10px;
+      right: 12px;
+      font-size: 0.72rem;
+      color: var(--text-3);
+      font-family: var(--font-mono);
+      pointer-events: none;
+      background: var(--surface);
+      padding: 0 4px;
+    }
+    .textarea-count.is-near { color: var(--warning); }
+    .textarea-count.is-over { color: var(--danger); font-weight: 600; }
+
+    /* ═══════════════════════════════════════════════════════════
+       3. CUSTOM SELECT
+       ═══════════════════════════════════════════════════════════ */
+    .select {
+      position: relative;
+    }
+    .select-trigger {
+      width: 100%;
+      padding: 12px 42px 12px 14px;
+      font: inherit;
+      font-size: 0.95rem;
+      color: var(--text);
+      background: var(--surface);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      text-align: left;
+      cursor: pointer;
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      transition: all var(--dur-fast) var(--ease);
+    }
+    .select-trigger:hover { border-color: var(--border-strong); }
+    .select.is-open .select-trigger {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+    .select-chevron {
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 18px; height: 18px;
+      color: var(--text-3);
+      transition: transform var(--dur-fast) var(--ease);
+      pointer-events: none;
+    }
+    .select.is-open .select-chevron { transform: translateY(-50%) rotate(180deg); }
+    .select-menu {
+      position: absolute;
+      top: calc(100% + 6px);
+      left: 0; right: 0;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+      max-height: 240px;
+      overflow-y: auto;
+      z-index: 50;
+      padding: 6px;
+      opacity: 0;
+      transform: translateY(-8px) scale(0.97);
+      pointer-events: none;
+      transition: all var(--dur-fast) var(--ease);
+    }
+    .select.is-open .select-menu {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      pointer-events: auto;
+    }
+    .select-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.92rem;
+      cursor: pointer;
+      transition: background var(--dur-fast) var(--ease);
+      color: var(--text);
+    }
+    .select-option:hover, .select-option.is-active { background: var(--accent-soft); color: var(--accent); }
+    .select-option.is-selected { font-weight: 600; }
+    .select-option .check { margin-left: auto; opacity: 0; }
+    .select-option.is-selected .check { opacity: 1; }
+    .select-option svg { width: 16px; height: 16px; }
+
+    /* ═══════════════════════════════════════════════════════════
+       4. CHECKBOX
+       ═══════════════════════════════════════════════════════════ */
+    .check {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+      font-size: 0.92rem;
+      color: var(--text);
+    }
+    .check input { position: absolute; opacity: 0; pointer-events: none; }
+    .check-box {
+      width: 20px; height: 20px;
+      border: 1.5px solid var(--border-strong);
+      border-radius: 5px;
+      background: var(--surface);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all var(--dur-fast) var(--ease);
+    }
+    .check-box svg { width: 12px; height: 12px; stroke: white; stroke-width: 3; opacity: 0; transform: scale(0.5); transition: all var(--dur-fast) var(--ease-spring); }
+    .check:hover .check-box { border-color: var(--accent); }
+    .check input:checked ~ .check-box {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .check input:checked ~ .check-box svg { opacity: 1; transform: scale(1); }
+    .check input:indeterminate ~ .check-box {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .check input:indeterminate ~ .check-box svg { opacity: 1; transform: scale(1); }
+    .check input:disabled ~ .check-box { opacity: 0.4; cursor: not-allowed; }
+    .check input:focus-visible ~ .check-box { box-shadow: 0 0 0 3px var(--accent-soft); }
+    .check.is-disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ═══════════════════════════════════════════════════════════
+       5. RADIO
+       ═══════════════════════════════════════════════════════════ */
+    .radio {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+      font-size: 0.92rem;
+      color: var(--text);
+    }
+    .radio input { position: absolute; opacity: 0; pointer-events: none; }
+    .radio-mark {
+      width: 20px; height: 20px;
+      border: 1.5px solid var(--border-strong);
+      border-radius: 50%;
+      background: var(--surface);
+      flex-shrink: 0;
+      transition: all var(--dur-fast) var(--ease);
+      position: relative;
+    }
+    .radio-mark::after {
+      content: '';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%) scale(0);
+      width: 10px; height: 10px;
+      border-radius: 50%;
+      background: white;
+      transition: transform var(--dur-fast) var(--ease-spring);
+    }
+    .radio:hover .radio-mark { border-color: var(--accent); }
+    .radio input:checked ~ .radio-mark {
+      background: var(--accent);
+      border-color: var(--accent);
+    }
+    .radio input:checked ~ .radio-mark::after { transform: translate(-50%, -50%) scale(1); }
+    .radio input:focus-visible ~ .radio-mark { box-shadow: 0 0 0 3px var(--accent-soft); }
+    .radio.is-disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* ═══════════════════════════════════════════════════════════
+       6. SWITCH / TOGGLE
+       ═══════════════════════════════════════════════════════════ */
+    .switch {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      user-select: none;
+      font-size: 0.92rem;
+      color: var(--text);
+    }
+    .switch input { position: absolute; opacity: 0; pointer-events: none; }
+    .switch-track {
+      width: 44px; height: 24px;
+      background: var(--border-strong);
+      border-radius: var(--radius-full);
+      position: relative;
+      transition: background var(--dur-fast) var(--ease);
+      flex-shrink: 0;
+    }
+    .switch-track::after {
+      content: '';
+      position: absolute;
+      top: 2px; left: 2px;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+      transition: transform var(--dur-fast) var(--ease-spring);
+    }
+    .switch input:checked ~ .switch-track { background: var(--accent); }
+    .switch input:checked ~ .switch-track::after { transform: translateX(20px); }
+    .switch input:focus-visible ~ .switch-track { box-shadow: 0 0 0 3px var(--accent-soft); }
+    .switch.is-disabled { opacity: 0.4; cursor: not-allowed; }
+
+    /* ═══════════════════════════════════════════════════════════
+       7. SLIDER / RANGE
+       ═══════════════════════════════════════════════════════════ */
+    .slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: var(--radius-full);
+      background: var(--surface-3);
+      outline: none;
+      transition: background var(--dur-fast) var(--ease);
+    }
+    .slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: white;
+      border: 2px solid var(--accent);
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+      transition: transform var(--dur-fast) var(--ease-spring);
+    }
+    .slider::-webkit-slider-thumb:hover { transform: scale(1.15); }
+    .slider::-webkit-slider-thumb:active { transform: scale(1.25); }
+    .slider::-moz-range-thumb {
+      width: 22px; height: 22px;
+      border-radius: 50%;
+      background: white;
+      border: 2px solid var(--accent);
+      cursor: pointer;
+      box-shadow: var(--shadow-sm);
+    }
+    .slider-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .slider-label { font-size: 0.85rem; font-weight: 600; }
+    .slider-value {
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      color: var(--accent);
+      font-weight: 600;
+      padding: 2px 8px;
+      background: var(--accent-soft);
+      border-radius: var(--radius-sm);
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       8. FILE UPLOAD (drop zone)
+       ═══════════════════════════════════════════════════════════ */
+    .dropzone {
+      border: 2px dashed var(--border-strong);
+      border-radius: var(--radius);
+      padding: 40px 24px;
+      text-align: center;
+      background: var(--surface-2);
+      cursor: pointer;
+      transition: all var(--dur-fast) var(--ease);
+    }
+    .dropzone:hover, .dropzone.is-drag {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+    }
+    .dropzone-icon {
+      width: 48px; height: 48px;
+      border-radius: 12px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+    }
+    .dropzone-icon svg { width: 24px; height: 24px; }
+    .dropzone-title { font-weight: 600; margin-bottom: 4px; }
+    .dropzone-hint { font-size: 0.82rem; color: var(--text-2); }
+    .dropzone-hint .accent { color: var(--accent); font-weight: 600; }
+    .dropzone input[type="file"] { display: none; }
+
+    /* ═══════════════════════════════════════════════════════════
+       9. SEGMENTED CONTROL
+       ═══════════════════════════════════════════════════════════ */
+    .segmented {
+      display: inline-flex;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 3px;
+      gap: 2px;
+    }
+    .segmented input { position: absolute; opacity: 0; pointer-events: none; }
+    .segmented-opt {
+      padding: 7px 14px;
+      border-radius: calc(var(--radius) - 3px);
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-2);
+      cursor: pointer;
+      transition: all var(--dur-fast) var(--ease);
+      white-space: nowrap;
+    }
+    .segmented-opt:hover { color: var(--text); }
+    .segmented input:checked + .segmented-opt {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ─── Back & view-code buttons (consistent with catalog) ─── */
+    .back-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: var(--surface);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      color: var(--text);
+      font-size: 0.85rem;
+      font-weight: 500;
+      text-decoration: none;
+      box-shadow: var(--shadow-sm);
+      z-index: 100;
+      transition: all var(--dur-fast) var(--ease);
+    }
+    .back-btn:hover { transform: translateY(-2px); border-color: var(--accent); color: var(--accent); }
+    .back-btn svg { width: 14px; height: 14px; }
+
+    .view-code-btn {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--surface);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border);
+      color: var(--text-2);
+      padding: 8px 16px;
+      border-radius: 100px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      cursor: pointer;
+      z-index: 100;
+      transition: all var(--dur-fast) var(--ease);
+    }
+    .view-code-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .code-panel {
+      position: fixed;
+      bottom: 64px;
+      right: 20px;
+      width: min(640px, calc(100vw - 40px));
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.45s var(--ease), opacity 0.3s;
+      opacity: 0;
+      background: var(--surface);
+      backdrop-filter: blur(20px);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-md);
+      z-index: 99;
+    }
+    .code-panel.open { max-height: 70vh; opacity: 1; }
+    .code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 18px;
+      font-size: 0.72rem;
+      color: var(--text-2);
+      font-weight: 500;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      border-bottom: 1px solid var(--border);
+    }
+    .code-panel pre {
+      padding: 18px;
+      font-size: 0.7rem;
+      line-height: 1.6;
+      color: var(--text-2);
+      overflow: auto;
+      max-height: 60vh;
+      white-space: pre;
+      tab-size: 2;
+      font-family: var(--font-mono);
+    }
+    .copy-btn {
+      background: var(--surface-2);
+      border: none;
+      color: var(--text-2);
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      cursor: pointer;
+      letter-spacing: 0.5px;
+      transition: all var(--dur-fast) var(--ease);
+    }
+    .copy-btn:hover { background: var(--accent-soft); color: var(--accent); }
+
+    /* ─── Responsive ─── */
+    @media (max-width: 720px) {
+      body { padding: 24px 14px 80px; }
+      .page-head h1 { font-size: 1.7rem; }
+      .page-head p { font-size: 0.95rem; }
+      .section { padding: 20px; border-radius: var(--radius-md); }
+      .section-head { flex-wrap: wrap; }
+      .demo-row { flex-direction: column; gap: 14px; }
+      .demo-row > * { min-width: 0; }
+      .back-btn { bottom: 12px; left: 12px; padding: 7px 12px; font-size: 0.78rem; }
+      .view-code-btn { bottom: 12px; right: 12px; padding: 6px 12px; font-size: 0.7rem; }
+      .code-panel { bottom: 50px; right: 12px; left: 12px; width: auto; }
+      .theme-toggle { top: 10px; right: 10px; width: 34px; height: 34px; }
+      .input { font-size: 16px; } /* prevent iOS zoom on focus */
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="sunIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="moonIcon" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+
+  <div class="container">
+    <header class="page-head">
+      <h1>Form Elements</h1>
+      <p>Полный набор форм с состояниями: дефолт, фокус, ошибка, успех, disabled. Mobile-first.</p>
+    </header>
+
+    <!-- 1. TEXT INPUTS -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">1</div>
+        <div>
+          <div class="section-title">Text Inputs</div>
+          <div class="section-sub">Все состояния, с иконками, floating label</div>
+        </div>
+      </div>
+
+      <div class="demo-row">
+        <div>
+          <div class="demo-label">Default</div>
+          <input type="text" class="input" placeholder="Введите имя">
+        </div>
+        <div>
+          <div class="demo-label">Focused</div>
+          <input type="text" class="input" value="Cosmic System" style="border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)">
+        </div>
+        <div>
+          <div class="demo-label">Disabled</div>
+          <input type="text" class="input" value="Недоступно" disabled>
+        </div>
+      </div>
+
+      <div class="demo-row">
+        <div>
+          <div class="demo-label">Error state</div>
+          <input type="text" class="input is-error" value="invalid@">
+          <div class="field-error">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Email невалидный
+          </div>
+        </div>
+        <div>
+          <div class="demo-label">Success state</div>
+          <input type="text" class="input is-success" value="hello@design.demo">
+          <div class="field-success">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Email свободен
+          </div>
+        </div>
+        <div>
+          <div class="demo-label">With hint</div>
+          <input type="text" class="input" placeholder="username">
+          <span class="field-hint">Только латиница, цифры, _</span>
+        </div>
+      </div>
+
+      <div class="demo-row">
+        <div>
+          <div class="demo-label">With left icon</div>
+          <div class="field has-icon-left">
+            <svg class="input-icon left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input type="search" class="input" placeholder="Поиск…">
+          </div>
+        </div>
+        <div>
+          <div class="demo-label">With right icon</div>
+          <div class="field has-icon-right">
+            <input type="password" class="input" value="supersecret" placeholder="Пароль">
+            <svg class="input-icon right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+          </div>
+        </div>
+        <div>
+          <div class="demo-label">Floating label</div>
+          <div class="float-field">
+            <input type="text" class="input" id="float1" placeholder=" ">
+            <label class="float-label" for="float1">Название проекта</label>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. TEXTAREA -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">2</div>
+        <div>
+          <div class="section-title">Textarea</div>
+          <div class="section-sub">С авто-ростом и character count</div>
+        </div>
+      </div>
+
+      <div class="demo-row">
+        <div style="flex: 2; min-width: 280px;">
+          <div class="demo-label">With character counter</div>
+          <div class="textarea-wrap">
+            <textarea class="textarea" id="bioText" maxlength="200" placeholder="Расскажите о себе…">Привет! Делаю UI/UX компоненты для веба и мобилок.</textarea>
+            <div class="textarea-count" id="bioCount">0 / 200</div>
+          </div>
+        </div>
+        <div>
+          <div class="demo-label">Disabled</div>
+          <textarea class="textarea" disabled placeholder="Заблокировано…">Это поле недоступно для редактирования.</textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. CUSTOM SELECT -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">3</div>
+        <div>
+          <div class="section-title">Custom Select</div>
+          <div class="section-sub">Кастомный dropdown с поиском и иконками</div>
+        </div>
+      </div>
+
+      <div class="demo-row">
+        <div>
+          <div class="demo-label">Single select</div>
+          <div class="select" id="select1">
+            <button type="button" class="select-trigger">
+              <span id="select1Label">Выберите план</span>
+            </button>
+            <svg class="select-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+            <div class="select-menu" role="listbox">
+              <div class="select-option" data-value="free">
+                <span>🆓</span> Free
+              </div>
+              <div class="select-option" data-value="pro">
+                <span>⭐</span> Pro
+              </div>
+              <div class="select-option is-selected" data-value="team">
+                <span>👥</span> Team
+                <svg class="check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div class="select-option" data-value="enterprise">
+                <span>🏢</span> Enterprise
+              </div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="demo-label">Disabled</div>
+          <button type="button" class="select-trigger" disabled style="opacity:0.5;cursor:not-allowed">
+            <span style="color:var(--text-3)">Недоступно</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. CHECKBOX -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">4</div>
+        <div>
+          <div class="section-title">Checkbox</div>
+          <div class="section-sub">Все состояния, indeterminate для групп</div>
+        </div>
+      </div>
+
+      <div class="demo-row">
+        <label class="check">
+          <input type="checkbox">
+          <span class="check-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          <span>Unchecked</span>
+        </label>
+        <label class="check">
+          <input type="checkbox" checked>
+          <span class="check-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          <span>Checked</span>
+        </label>
+        <label class="check">
+          <input type="checkbox" id="indeterminate">
+          <span class="check-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round"><line x1="6" y1="12" x2="18" y2="12"/></svg>
+          </span>
+          <span>Indeterminate</span>
+        </label>
+        <label class="check is-disabled">
+          <input type="checkbox" disabled checked>
+          <span class="check-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </span>
+          <span>Disabled</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- 5. RADIO -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">5</div>
+        <div>
+          <div class="section-title">Radio</div>
+          <div class="section-sub">С описанием опций, горизонтально и вертикально</div>
+        </div>
+      </div>
+
+      <div class="demo-row" style="flex-direction: column; gap: 12px;">
+        <label class="radio">
+          <input type="radio" name="plan">
+          <span class="radio-mark"></span>
+          <div>
+            <div style="font-weight: 600;">Free</div>
+            <div style="font-size: 0.78rem; color: var(--text-2);">Базовые компоненты, 1 проект</div>
+          </div>
+        </label>
+        <label class="radio">
+          <input type="radio" name="plan" checked>
+          <span class="radio-mark"></span>
+          <div>
+            <div style="font-weight: 600;">Pro — $12/мес</div>
+            <div style="font-size: 0.78rem; color: var(--text-2);">Все компоненты, unlimited проекты, priority support</div>
+          </div>
+        </label>
+        <label class="radio is-disabled">
+          <input type="radio" name="plan" disabled>
+          <span class="radio-mark"></span>
+          <div>
+            <div style="font-weight: 600;">Enterprise (скоро)</div>
+            <div style="font-size: 0.78rem; color: var(--text-2);">SSO, SLA, custom</div>
+          </div>
+        </label>
+      </div>
+    </section>
+
+    <!-- 6. SWITCH -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">6</div>
+        <div>
+          <div class="section-title">Switch / Toggle</div>
+          <div class="section-sub">Для булевых настроек, моментальное применение</div>
+        </div>
+      </div>
+
+      <div class="demo-row">
+        <label class="switch">
+          <input type="checkbox">
+          <span class="switch-track"></span>
+          <span>Off</span>
+        </label>
+        <label class="switch">
+          <input type="checkbox" checked>
+          <span class="switch-track"></span>
+          <span>On</span>
+        </label>
+        <label class="switch is-disabled">
+          <input type="checkbox" disabled checked>
+          <span class="switch-track"></span>
+          <span>Disabled</span>
+        </label>
+      </div>
+    </section>
+
+    <!-- 7. SLIDER -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">7</div>
+        <div>
+          <div class="section-title">Slider / Range</div>
+          <div class="section-sub">Touch-friendly, с лейблом и текущим значением</div>
+        </div>
+      </div>
+
+      <div class="demo-row" style="flex-direction: column; gap: 24px;">
+        <div>
+          <div class="slider-head">
+            <span class="slider-label">Громкость</span>
+            <span class="slider-value" id="slider1Val">60%</span>
+          </div>
+          <input type="range" class="slider" min="0" max="100" value="60" id="slider1">
+        </div>
+        <div>
+          <div class="slider-head">
+            <span class="slider-label">Цена</span>
+            <span class="slider-value" id="slider2Val">$0 — $250</span>
+          </div>
+          <div style="display:flex; gap: 12px;">
+            <input type="range" class="slider" min="0" max="500" value="0" id="slider2Min">
+            <input type="range" class="slider" min="0" max="500" value="250" id="slider2Max">
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 8. FILE UPLOAD -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">8</div>
+        <div>
+          <div class="section-title">File Upload / Drop Zone</div>
+          <div class="section-sub">Drag-and-drop с состояниями</div>
+        </div>
+      </div>
+
+      <label class="dropzone" id="dropzone">
+        <div class="dropzone-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        </div>
+        <div class="dropzone-title">Перетащите файл сюда или <span class="accent">выберите</span></div>
+        <div class="dropzone-hint">PNG, JPG, SVG до 10MB</div>
+        <input type="file" id="fileInput">
+      </label>
+    </section>
+
+    <!-- 9. SEGMENTED CONTROL -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">9</div>
+        <div>
+          <div class="section-title">Segmented Control</div>
+          <div class="section-sub">Для переключения между 2-4 связанными опциями</div>
+        </div>
+      </div>
+
+      <div class="demo-row" style="gap: 20px;">
+        <div>
+          <div class="demo-label">Theme</div>
+          <div class="segmented">
+            <input type="radio" name="seg1" id="seg1a"><label class="segmented-opt" for="seg1a">☀️ Light</label>
+            <input type="radio" name="seg1" id="seg1b" checked><label class="segmented-opt" for="seg1b">🌗 Auto</label>
+            <input type="radio" name="seg1" id="seg1c"><label class="segmented-opt" for="seg1c">🌙 Dark</label>
+          </div>
+        </div>
+        <div>
+          <div class="demo-label">View</div>
+          <div class="segmented">
+            <input type="radio" name="seg2" id="seg2a"><label class="segmented-opt" for="seg2a">List</label>
+            <input type="radio" name="seg2" id="seg2b" checked><label class="segmented-opt" for="seg2b">Grid</label>
+            <input type="radio" name="seg2" id="seg2c"><label class="segmented-opt" for="seg2c">Map</label>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <a class="back-btn" href="../../">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Back to catalog
+  </a>
+  <button class="view-code-btn" id="viewCodeBtn">⌨ View Code</button>
+  <div class="code-panel" id="codePanel">
+    <div class="code-header">
+      <span>index.html</span>
+      <button class="copy-btn" id="copyCodeBtn">Copy</button>
+    </div>
+    <pre id="codeContent"></pre>
+  </div>
+
+  <script>
+    (function() {
+      'use strict';
+
+      // ── Theme toggle ──
+      const toggle = document.getElementById('themeToggle');
+      const sun = document.getElementById('sunIcon');
+      const moon = document.getElementById('moonIcon');
+      const stored = localStorage.getItem('design-demo-theme');
+      const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      let theme = stored || (sysDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+      if (theme === 'dark') { sun.style.display = 'none'; moon.style.display = ''; }
+      else { sun.style.display = ''; moon.style.display = 'none'; }
+      toggle.addEventListener('click', () => {
+        const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('design-demo-theme', next);
+        if (next === 'dark') { sun.style.display = 'none'; moon.style.display = ''; }
+        else { sun.style.display = ''; moon.style.display = 'none'; }
+      });
+
+      // ── Indeterminate checkbox ──
+      const indet = document.getElementById('indeterminate');
+      if (indet) indet.indeterminate = true;
+
+      // ── Textarea counter ──
+      const bioText = document.getElementById('bioText');
+      const bioCount = document.getElementById('bioCount');
+      function updateCount() {
+        const max = parseInt(bioText.getAttribute('maxlength'), 10);
+        const len = bioText.value.length;
+        bioCount.textContent = `${len} / ${max}`;
+        bioCount.classList.toggle('is-near', len > max * 0.85 && len < max);
+        bioCount.classList.toggle('is-over', len >= max);
+      }
+      bioText.addEventListener('input', updateCount);
+      updateCount();
+
+      // ── Custom select ──
+      const select1 = document.getElementById('select1');
+      const select1Label = document.getElementById('select1Label');
+      const trigger = select1.querySelector('.select-trigger');
+      trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        select1.classList.toggle('is-open');
+      });
+      document.addEventListener('click', (e) => {
+        if (!select1.contains(e.target)) select1.classList.remove('is-open');
+      });
+      select1.querySelectorAll('.select-option').forEach(opt => {
+        opt.addEventListener('click', () => {
+          select1.querySelectorAll('.select-option').forEach(o => o.classList.remove('is-selected'));
+          opt.classList.add('is-selected');
+          const label = opt.textContent.trim();
+          select1Label.textContent = label;
+          select1.classList.remove('is-open');
+        });
+      });
+
+      // ── Sliders ──
+      const slider1 = document.getElementById('slider1');
+      const slider1Val = document.getElementById('slider1Val');
+      slider1.addEventListener('input', () => slider1Val.textContent = slider1.value + '%');
+
+      const s2min = document.getElementById('slider2Min');
+      const s2max = document.getElementById('slider2Max');
+      const s2val = document.getElementById('slider2Val');
+      function updateRange() {
+        let min = parseInt(s2min.value), max = parseInt(s2max.value);
+        if (min > max - 20) { min = max - 20; s2min.value = min; }
+        s2val.textContent = `$${min} — $${max}`;
+        // Visual: fill the track between thumbs
+        const minP = (min / 500) * 100, maxP = (max / 500) * 100;
+        s2min.style.background = `linear-gradient(to right, var(--surface-3) ${minP}%, var(--accent) ${minP}%, var(--accent) ${maxP}%, var(--surface-3) ${maxP}%)`;
+        s2max.style.background = `linear-gradient(to right, var(--surface-3) ${minP}%, var(--accent) ${minP}%, var(--accent) ${maxP}%, var(--surface-3) ${maxP}%)`;
+      }
+      s2min.addEventListener('input', updateRange);
+      s2max.addEventListener('input', updateRange);
+      updateRange();
+
+      // ── Drop zone ──
+      const dz = document.getElementById('dropzone');
+      const fi = document.getElementById('fileInput');
+      ['dragenter', 'dragover'].forEach(ev => dz.addEventListener(ev, (e) => {
+        e.preventDefault();
+        dz.classList.add('is-drag');
+      }));
+      ['dragleave', 'drop'].forEach(ev => dz.addEventListener(ev, (e) => {
+        e.preventDefault();
+        dz.classList.remove('is-drag');
+      }));
+      dz.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files.length) {
+          const title = dz.querySelector('.dropzone-title');
+          title.textContent = `✓ ${files[0].name} (${(files[0].size/1024).toFixed(1)} KB)`;
+        }
+      });
+      fi.addEventListener('change', () => {
+        if (fi.files.length) {
+          const title = dz.querySelector('.dropzone-title');
+          title.textContent = `✓ ${fi.files[0].name} (${(fi.files[0].size/1024).toFixed(1)} KB)`;
+        }
+      });
+
+      // ── View code ──
+      const viewCodeBtn = document.getElementById('viewCodeBtn');
+      const codePanel = document.getElementById('codePanel');
+      const codeContent = document.getElementById('codeContent');
+      const copyCodeBtn = document.getElementById('copyCodeBtn');
+      viewCodeBtn.addEventListener('click', () => {
+        const isOpen = codePanel.classList.toggle('open');
+        if (isOpen && !codeContent.textContent) {
+          fetch('index.html').then(r => r.text()).then(html => {
+            codeContent.textContent = html.replace(/<script[\s\S]*?<\/script>/g, '<!-- script -->');
+          });
+        }
+        viewCodeBtn.textContent = isOpen ? '✕  Close' : '⌨  View Code';
+      });
+      copyCodeBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(codeContent.textContent).then(() => {
+          copyCodeBtn.textContent = 'Copied!';
+          setTimeout(() => copyCodeBtn.textContent = 'Copy', 1500);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
