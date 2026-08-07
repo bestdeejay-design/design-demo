@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Badge & Tag — UI Component</title>
+  <style>
+    :root{--bg:#f5f5f7;--surface:#fff;--surface-2:#f0f0f5;--text:#1c1c1e;--text-2:#636366;--text-3:#8e8e93;--text-inverse:#fff;--border:#e5e5ea;--accent:#6c5ce7;--accent-soft:rgba(108,92,231,.08);--success:#00b894;--success-soft:rgba(0,184,148,.1);--warning:#fdcb6e;--warning-soft:rgba(253,203,110,.18);--danger:#ff4757;--danger-soft:rgba(255,71,87,.1);--info:#74b9ff;--info-soft:rgba(116,185,255,.1);--radius-sm:6px;--radius:10px;--radius-md:12px;--radius-lg:16px;--ease:cubic-bezier(0.4,0,0.2,1);--dur-fast:180ms;--font-sans:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif}
+    [data-theme="dark"]{--bg:#0c0c0e;--surface:#1a1a20;--surface-2:#23232a;--text:#ececf0;--text-2:#a0a0a8;--text-3:#6e6e76;--border:#2a2a32;--accent-soft:rgba(108,92,231,.15)}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);padding:40px 20px 100px;-webkit-font-smoothing:antialiased;line-height:1.6}
+    .container{max-width:920px;margin:0 auto}
+    .page-head{text-align:center;margin-bottom:40px}
+    .page-head h1{font-size:2.2rem;font-weight:800;letter-spacing:-0.02em;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+    .page-head p{color:var(--text-2);font-size:1rem;max-width:540px;margin:0 auto}
+    .theme-toggle{position:fixed;top:16px;right:16px;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:100;transition:all var(--dur-fast) var(--ease)}
+    .theme-toggle:hover{transform:scale(1.05);border-color:var(--accent);color:var(--accent)}
+    .theme-toggle svg{width:16px;height:16px}
+    .section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;margin-bottom:20px}
+    .section-head{display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+    .section-num{width:32px;height:32px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;font-family:'SF Mono',monospace}
+    .section-title{font-size:1.2rem;font-weight:700}
+    .section-sub{color:var(--text-2);font-size:.85rem;margin-top:2px}
+    .demo-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-bottom:16px}
+    .demo-row:last-child{margin-bottom:0}
+    .demo-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-3);width:100%;margin-bottom:6px}
+
+    /* Badge base */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 3px 9px;
+      border-radius: 9999px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      line-height: 1.4;
+      white-space: nowrap;
+    }
+    .badge.sm { padding: 2px 7px; font-size: 0.65rem; }
+    .badge.lg { padding: 5px 12px; font-size: 0.82rem; }
+    .badge.dot::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+    .badge svg { width: 12px; height: 12px; }
+    .badge.neutral { background: var(--surface-2); color: var(--text-2); }
+    .badge.accent  { background: var(--accent); color: var(--text-inverse); }
+    .badge.accent-soft { background: var(--accent-soft); color: var(--accent); }
+    .badge.success { background: var(--success); color: var(--text-inverse); }
+    .badge.success-soft { background: var(--success-soft); color: var(--success); }
+    .badge.warning { background: var(--warning); color: #6a4a00; }
+    .badge.warning-soft { background: var(--warning-soft); color: #a87a1c; }
+    .badge.danger  { background: var(--danger); color: var(--text-inverse); }
+    .badge.danger-soft { background: var(--danger-soft); color: var(--danger); }
+    .badge.info    { background: var(--info); color: var(--text-inverse); }
+    .badge.info-soft { background: var(--info-soft); color: var(--info); }
+    .badge.outline { background: transparent; border: 1.5px solid currentColor; }
+
+    /* Chip (removable) */
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 5px 5px 11px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 9999px;
+      font-size: 0.82rem;
+      font-weight: 500;
+      color: var(--text);
+      transition: all var(--dur-fast) var(--ease);
+    }
+    .chip:hover { border-color: var(--accent); color: var(--accent); }
+    .chip-avatar { width: 20px; height: 20px; border-radius: 50%; background: linear-gradient(135deg, var(--accent), var(--info)); }
+    .chip-close {
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      color: var(--text-3);
+      transition: all var(--dur-fast) var(--ease);
+    }
+    .chip-close:hover { background: var(--danger-soft); color: var(--danger); }
+    .chip-close svg { width: 10px; height: 10px; }
+
+    /* Number badge (notification dot) */
+    .num-badge {
+      position: absolute;
+      top: -4px; right: -4px;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      border-radius: 9999px;
+      background: var(--danger);
+      color: white;
+      font-size: 0.65rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--surface);
+    }
+    .num-badge.sm { min-width: 14px; height: 14px; font-size: 0.6rem; top: -2px; right: -2px; }
+    .num-badge.lg { min-width: 22px; height: 22px; font-size: 0.75rem; top: -6px; right: -6px; }
+    .dot-badge { position: absolute; top: 0; right: 0; width: 10px; height: 10px; border-radius: 50%; background: var(--danger); border: 2px solid var(--surface); }
+    .rel-wrap { position: relative; display: inline-flex; }
+
+    /* Back + view code */
+    .back-btn{position:fixed;bottom:20px;left:20px;display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:100px;color:var(--text);font-size:.85rem;font-weight:500;text-decoration:none;box-shadow:0 2px 12px rgba(0,0,0,.08);z-index:100}
+    .back-btn:hover{transform:translateY(-2px);border-color:var(--accent);color:var(--accent)}
+    .back-btn svg{width:14px;height:14px}
+    .view-code-btn{position:fixed;bottom:20px;right:20px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);color:var(--text-2);padding:8px 16px;border-radius:100px;font-size:.78rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;z-index:100}
+    .view-code-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .code-panel{position:fixed;bottom:64px;right:20px;width:min(640px,calc(100vw - 40px));max-height:0;overflow:hidden;transition:max-height .45s,opacity .3s;opacity:0;background:var(--surface);backdrop-filter:blur(20px);border-radius:var(--radius);border:1px solid var(--border);box-shadow:0 8px 28px rgba(0,0,0,.09);z-index:99}
+    .code-panel.open{max-height:70vh;opacity:1}
+    .code-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;font-size:.72rem;color:var(--text-2);font-weight:500;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+    .code-panel pre{padding:18px;font-size:.7rem;line-height:1.6;color:var(--text-2);overflow:auto;max-height:60vh;white-space:pre;tab-size:2;font-family:'SF Mono','Fira Code',monospace}
+    .copy-btn{background:var(--surface-2);border:none;color:var(--text-2);padding:4px 12px;border-radius:6px;font-size:.72rem;cursor:pointer;font-family:inherit}
+    .copy-btn:hover{background:var(--accent-soft);color:var(--accent)}
+    @media (max-width:720px) { body { padding: 24px 14px; } .page-head h1 { font-size: 1.7rem; } .section { padding: 20px; } }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="sunIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="moonIcon" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+
+  <div class="container">
+    <header class="page-head">
+      <h1>Badge & Tag</h1>
+      <p>Бейджи, теги, чипсы, notification dots, с иконками и счётчиками.</p>
+    </header>
+
+    <section class="section">
+      <div class="section-head"><div class="section-num">1</div><div><div class="section-title">Solid & Soft</div><div class="section-sub">5 цветов в двух вариантах</div></div></div>
+      <div class="demo-row">
+        <span class="badge-label">Solid:</span>
+        <span class="badge neutral">Neutral</span>
+        <span class="badge accent">Accent</span>
+        <span class="badge success">Success</span>
+        <span class="badge warning">Warning</span>
+        <span class="badge danger">Danger</span>
+        <span class="badge info">Info</span>
+      </div>
+      <div class="demo-row">
+        <span class="badge-label">Soft:</span>
+        <span class="badge accent-soft">Accent</span>
+        <span class="badge success-soft">Success</span>
+        <span class="badge warning-soft">Warning</span>
+        <span class="badge danger-soft">Danger</span>
+        <span class="badge info-soft">Info</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div class="section-num">2</div><div><div class="section-title">Sizes & Outline</div><div class="section-sub">sm / default / lg + outlined</div></div></div>
+      <div class="demo-row">
+        <span class="badge sm accent">Small</span>
+        <span class="badge accent">Default</span>
+        <span class="badge lg accent">Large</span>
+        <span class="badge outline accent-soft" style="color:var(--accent)">Outline</span>
+        <span class="badge outline success-soft" style="color:var(--success)">Outline</span>
+        <span class="badge outline danger-soft" style="color:var(--danger)">Outline</span>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div class="section-num">3</div><div><div class="section-title">With Icon & Dot</div><div class="section-sub">SVG-иконка или точка для статуса</div></div></div>
+      <div class="demo-row">
+        <span class="badge success-soft dot">Online</span>
+        <span class="badge warning-soft dot">Away</span>
+        <span class="badge danger-soft dot">Offline</span>
+        <span class="badge accent-soft dot">In meeting</span>
+      </div>
+      <div class="demo-row">
+        <span class="badge accent-soft">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          Pro
+        </span>
+        <span class="badge success-soft">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Verified
+        </span>
+        <span class="badge info-soft">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+          New
+        </span>
+        <span class="badge danger-soft">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+          Warning
+        </span>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div class="section-num">4</div><div><div class="section-title">Chips (Removable)</div><div class="section-sub">С аватаром и кнопкой закрытия</div></div></div>
+      <div class="demo-row" id="chipRow">
+        <span class="chip"><span class="chip-avatar"></span> Анна Петрова <span class="chip-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></span></span>
+        <span class="chip">JavaScript <span class="chip-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></span></span>
+        <span class="chip">TypeScript <span class="chip-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></span></span>
+        <span class="chip">React <span class="chip-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></span></span>
+        <span class="chip">Figma <span class="chip-close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="6" y1="18" x2="18" y2="6"/></svg></span></span>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div class="section-num">5</div><div><div class="section-title">Notification Badges</div><div class="section-sub">На иконках — number badge или dot</div></div></div>
+      <div class="demo-row" style="gap:24px;padding:20px 0">
+        <span class="rel-wrap">
+          <button style="width:44px;height:44px;border-radius:10px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+          </button>
+          <span class="num-badge">3</span>
+        </span>
+        <span class="rel-wrap">
+          <button style="width:44px;height:44px;border-radius:10px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+          </button>
+          <span class="num-badge lg">12</span>
+        </span>
+        <span class="rel-wrap">
+          <button style="width:44px;height:44px;border-radius:10px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+          </button>
+          <span class="num-badge sm">99+</span>
+        </span>
+        <span class="rel-wrap">
+          <button style="width:44px;height:44px;border-radius:10px;background:var(--surface);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;cursor:pointer">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </button>
+          <span class="dot-badge"></span>
+        </span>
+      </div>
+    </section>
+  </div>
+
+  <a class="back-btn" href="../../"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Back to catalog</a>
+  <button class="view-code-btn" id="viewCodeBtn">⌨ View Code</button>
+  <div class="code-panel" id="codePanel">
+    <div class="code-header"><span>index.html</span><button class="copy-btn" id="copyCodeBtn">Copy</button></div>
+    <pre id="codeContent"></pre>
+  </div>
+
+  <script>
+    const t = document.getElementById('themeToggle'), s = document.getElementById('sunIcon'), m = document.getElementById('moonIcon');
+    const stored = localStorage.getItem('design-demo-theme');
+    const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let theme = stored || (sysDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    t.addEventListener('click', () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('design-demo-theme', next);
+      if (next === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    });
+
+    // Chip close
+    document.querySelectorAll('.chip-close').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const chip = btn.closest('.chip');
+        chip.style.transition = 'all .25s';
+        chip.style.opacity = '0';
+        chip.style.transform = 'scale(0.8)';
+        setTimeout(() => chip.remove(), 250);
+      });
+    });
+
+    // View code
+    const v = document.getElementById('viewCodeBtn'), cp = document.getElementById('codePanel'), cc = document.getElementById('codeContent'), cb = document.getElementById('copyCodeBtn');
+    v.addEventListener('click', () => {
+      const isOpen = cp.classList.toggle('open');
+      if (isOpen && !cc.textContent) { fetch('index.html').then(r => r.text()).then(html => { cc.textContent = html.replace(/<script[\s\S]*?<\/script>/g, '<!-- script -->'); }); }
+      v.textContent = isOpen ? '✕  Close' : '⌨  View Code';
+    });
+    cb.addEventListener('click', () => { navigator.clipboard.writeText(cc.textContent).then(() => { cb.textContent = 'Copied!'; setTimeout(() => cb.textContent = 'Copy', 1500); }); });
+  </script>
+</body>
+</html>

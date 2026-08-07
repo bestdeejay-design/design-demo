@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tooltip — UI Component</title>
+  <style>
+    :root {
+      --bg: #f5f5f7; --surface: #fff; --surface-2: #f0f0f5;
+      --text: #1c1c1e; --text-2: #636366; --text-3: #8e8e93; --text-inverse: #fff;
+      --border: #e5e5ea; --accent: #6c5ce7; --accent-soft: rgba(108,92,231,.08);
+      --radius: 10px; --radius-sm: 6px;
+      --shadow-md: 0 8px 28px rgba(0,0,0,.09);
+      --ease: cubic-bezier(0.4,0,0.2,1); --dur-fast: 180ms; --dur: 260ms;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+    }
+    [data-theme="dark"] { --bg: #0c0c0e; --surface: #1a1a20; --surface-2: #23232a; --text: #ececf0; --text-2: #a0a0a8; --text-3: #6e6e76; --border: #2a2a32; --accent-soft: rgba(108,92,231,.15); }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);padding:80px 20px;-webkit-font-smoothing:antialiased;line-height:1.6}
+    .container{max-width:920px;margin:0 auto}
+    ::selection{background:var(--accent);color:var(--text-inverse)}
+    .page-head{text-align:center;margin-bottom:48px}
+    .page-head h1{font-size:2.2rem;font-weight:800;letter-spacing:-0.02em;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+    .page-head p{color:var(--text-2);font-size:1rem;max-width:540px;margin:0 auto}
+    .theme-toggle{position:fixed;top:16px;right:16px;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:100;transition:all var(--dur-fast) var(--ease)}
+    .theme-toggle:hover{transform:scale(1.05);border-color:var(--accent);color:var(--accent)}
+    .theme-toggle svg{width:16px;height:16px}
+    .section{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:32px;margin-bottom:20px}
+    .section-head{display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+    .section-num{width:32px;height:32px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;font-family:'SF Mono',monospace}
+    .section-title{font-size:1.2rem;font-weight:700}
+    .section-sub{color:var(--text-2);font-size:.85rem;margin-top:2px}
+
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;gap:8px;padding:11px 20px;border-radius:var(--radius);font-size:.9rem;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;border:none;transition:all var(--dur-fast) var(--ease)}
+    .btn-primary{background:var(--accent);color:var(--text-inverse);box-shadow:0 2px 6px rgba(108,92,231,.3)}
+    .btn-secondary{background:var(--surface);color:var(--text);border:1px solid var(--border)}
+    .btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
+    .btn-icon{width:40px;height:40px;padding:0;display:inline-flex;align-items:center;justify-content:center;border-radius:10px;background:var(--surface);color:var(--text-2);border:1px solid var(--border);cursor:pointer;font-family:inherit;transition:all var(--dur-fast) var(--ease)}
+    .btn-icon:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+    .btn-icon svg{width:18px;height:18px}
+    .demo-row{display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:center;padding:60px 0}
+    .demo-row.fixed-h{min-height:240px}
+
+    /* Tooltip core */
+    .tt {
+      position: relative;
+      display: inline-flex;
+    }
+    .tt-pop {
+      position: absolute;
+      background: #1a1a20;
+      color: white;
+      font-size: 0.78rem;
+      font-weight: 500;
+      padding: 6px 10px;
+      border-radius: 6px;
+      white-space: nowrap;
+      pointer-events: none;
+      opacity: 0;
+      transform: scale(0.95);
+      transition: opacity 150ms var(--ease), transform 150ms var(--ease);
+      z-index: 100;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    .tt-pop::after {
+      content: '';
+      position: absolute;
+      width: 0; height: 0;
+      border: 5px solid transparent;
+    }
+    /* Positions */
+    .tt-top .tt-pop { bottom: calc(100% + 10px); left: 50%; transform-origin: bottom; transform: translateX(-50%) scale(0.95); }
+    .tt-top .tt-pop::after { top: 100%; left: 50%; transform: translateX(-50%); border-top-color: #1a1a20; }
+    .tt-bottom .tt-pop { top: calc(100% + 10px); left: 50%; transform-origin: top; transform: translateX(-50%) scale(0.95); }
+    .tt-bottom .tt-pop::after { bottom: 100%; left: 50%; transform: translateX(-50%); border-bottom-color: #1a1a20; }
+    .tt-left .tt-pop { right: calc(100% + 10px); top: 50%; transform-origin: right; transform: translateY(-50%) scale(0.95); }
+    .tt-left .tt-pop::after { left: 100%; top: 50%; transform: translateY(-50%); border-left-color: #1a1a20; }
+    .tt-right .tt-pop { left: calc(100% + 10px); top: 50%; transform-origin: left; transform: translateY(-50%) scale(0.95); }
+    .tt-right .tt-pop::after { right: 100%; top: 50%; transform: translateY(-50%); border-right-color: #1a1a20; }
+    /* Hover trigger (desktop) */
+    @media (hover: hover) {
+      .tt:hover .tt-pop { opacity: 1; transform: translateX(-50%) scale(1); }
+      .tt-top:hover .tt-pop, .tt-bottom:hover .tt-pop { transform: translateX(-50%) scale(1); }
+      .tt-left:hover .tt-pop, .tt-right:hover .tt-pop { transform: translateY(-50%) scale(1); }
+    }
+    /* Click trigger (mobile / always) */
+    .tt.is-open .tt-pop { opacity: 1; }
+    .tt.is-open.tt-top .tt-pop, .tt.is-open.tt-bottom .tt-pop { transform: translateX(-50%) scale(1); }
+    .tt.is-open.tt-left .tt-pop, .tt.is-open.tt-right .tt-pop { transform: translateY(-50%) scale(1); }
+
+    /* Light variant */
+    .tt.tt-light .tt-pop { background: var(--surface); color: var(--text); border: 1px solid var(--border); box-shadow: var(--shadow-md); }
+    .tt.tt-light.tt-top .tt-pop::after { border-top-color: var(--surface); }
+    .tt.tt-light.tt-bottom .tt-pop::after { border-bottom-color: var(--surface); }
+    .tt.tt-light.tt-left .tt-pop::after { border-left-color: var(--surface); }
+    .tt.tt-light.tt-right .tt-pop::after { border-right-color: var(--surface); }
+    .tt.tt-light.tt-top .tt-pop::after { filter: drop-shadow(0 1px 0 var(--border)); }
+
+    /* With arrow tail (rich content) */
+    .tt-rich .tt-pop {
+      padding: 10px 14px;
+      max-width: 240px;
+      white-space: normal;
+      text-align: left;
+      line-height: 1.5;
+    }
+    .tt-rich .tt-pop strong { display: block; font-size: 0.85rem; margin-bottom: 2px; }
+    .tt-rich .tt-pop span { font-size: 0.75rem; color: rgba(255,255,255,0.7); }
+
+    /* Triggers inline with text */
+    .text-block { max-width: 600px; line-height: 1.8; color: var(--text-2); }
+    .text-block p { margin-bottom: 14px; }
+    .text-block mark {
+      background: var(--accent-soft);
+      color: var(--accent);
+      padding: 1px 4px;
+      border-radius: 3px;
+      font-weight: 600;
+      cursor: help;
+      border-bottom: 1px dashed var(--accent);
+    }
+
+    .back-btn{position:fixed;bottom:20px;left:20px;display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:100px;color:var(--text);font-size:.85rem;font-weight:500;text-decoration:none;box-shadow:0 2px 12px rgba(0,0,0,.08);z-index:100}
+    .back-btn:hover{transform:translateY(-2px);border-color:var(--accent);color:var(--accent)}
+    .back-btn svg{width:14px;height:14px}
+    .view-code-btn{position:fixed;bottom:20px;right:20px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);color:var(--text-2);padding:8px 16px;border-radius:100px;font-size:.78rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;z-index:100}
+    .view-code-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .code-panel{position:fixed;bottom:64px;right:20px;width:min(640px,calc(100vw - 40px));max-height:0;overflow:hidden;transition:max-height .45s var(--ease),opacity .3s;opacity:0;background:var(--surface);backdrop-filter:blur(20px);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-md);z-index:99}
+    .code-panel.open{max-height:70vh;opacity:1}
+    .code-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;font-size:.72rem;color:var(--text-2);font-weight:500;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+    .code-panel pre{padding:18px;font-size:.7rem;line-height:1.6;color:var(--text-2);overflow:auto;max-height:60vh;white-space:pre;tab-size:2;font-family:'SF Mono','Fira Code',monospace}
+    .copy-btn{background:var(--surface-2);border:none;color:var(--text-2);padding:4px 12px;border-radius:6px;font-size:.72rem;cursor:pointer;font-family:inherit}
+    .copy-btn:hover{background:var(--accent-soft);color:var(--accent)}
+    @media (max-width:720px) { body { padding: 24px 14px; } .page-head h1 { font-size: 1.7rem; } .section { padding: 20px; } .demo-row { padding: 40px 0; } }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="sunIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="moonIcon" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+
+  <div class="container">
+    <header class="page-head">
+      <h1>Tooltip</h1>
+      <p>4 направления, light/dark, богатый контент, hover на десктопе и tap на мобиле.</p>
+    </header>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">1</div>
+        <div>
+          <div class="section-title">4 Directions</div>
+          <div class="section-sub">Top, bottom, left, right</div>
+        </div>
+      </div>
+      <div class="demo-row">
+        <span class="tt tt-top">
+          <button class="btn btn-primary">Top</button>
+          <span class="tt-pop">Tooltip сверху</span>
+        </span>
+        <span class="tt tt-bottom">
+          <button class="btn btn-primary">Bottom</button>
+          <span class="tt-pop">Tooltip снизу</span>
+        </span>
+        <span class="tt tt-left">
+          <button class="btn btn-primary">Left</button>
+          <span class="tt-pop">Tooltip слева</span>
+        </span>
+        <span class="tt tt-right">
+          <button class="btn btn-primary">Right</button>
+          <span class="tt-pop">Tooltip справа</span>
+        </span>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">2</div>
+        <div>
+          <div class="section-title">Light Variant</div>
+          <div class="section-sub">Светлый tooltip для тёмного UI или наоборот</div>
+        </div>
+      </div>
+      <div class="demo-row">
+        <span class="tt tt-light tt-top">
+          <button class="btn btn-secondary">Light top</button>
+          <span class="tt-pop">Светлый tooltip</span>
+        </span>
+        <span class="tt tt-light tt-bottom">
+          <button class="btn btn-secondary">Light bottom</button>
+          <span class="tt-pop">С border + shadow</span>
+        </span>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">3</div>
+        <div>
+          <div class="section-title">Rich Content</div>
+          <div class="section-sub">С заголовком, описанием, кнопкой</div>
+        </div>
+      </div>
+      <div class="demo-row">
+        <span class="tt tt-rich tt-right">
+          <button class="btn btn-icon" aria-label="Help">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </button>
+          <span class="tt-pop">
+            <strong>Нужна помощь?</strong>
+            <span>Наша поддержка отвечает в течение 5 минут</span>
+          </span>
+        </span>
+        <span class="tt tt-rich tt-top">
+          <button class="btn btn-icon" aria-label="Pro">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+          </button>
+          <span class="tt-pop">
+            <strong>Pro Plan</strong>
+            <span>Все компоненты, unlimited проекты</span>
+          </span>
+        </span>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">4</div>
+        <div>
+          <div class="section-title">Inline in Text</div>
+          <div class="section-sub">Для пояснений в статьях и длинных текстах</div>
+        </div>
+      </div>
+      <div class="text-block">
+        <p>
+          В TypeScript <span class="tt tt-top"><mark>дженерики</mark><span class="tt-pop">Параметризованные типы, которые могут работать с разными типами данных</span></span>
+          позволяют писать гибкий переиспользуемый код. А <span class="tt tt-top"><mark>union types</mark><span class="tt-pop">Объединение нескольких типов в один: string | number</span></span>
+          дают выразительность без потери безопасности.
+        </p>
+        <p>
+          Если вы когда-нибудь <span class="tt tt-top"><mark>сталкивались с any</mark><span class="tt-pop">Тип, который отключает проверку типов — используйте только в крайнем случае</span></span>
+          в большом проекте, вы знаете, как быстро код превращается в спагетти.
+        </p>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">5</div>
+        <div>
+          <div class="section-title">On Icon Buttons</div>
+          <div class="section-sub">Самый частый кейс — пояснить иконку</div>
+        </div>
+      </div>
+      <div class="demo-row">
+        <span class="tt tt-top">
+          <button class="btn btn-icon" aria-label="Копировать">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+          <span class="tt-pop">Копировать</span>
+        </span>
+        <span class="tt tt-top">
+          <button class="btn btn-icon" aria-label="Поделиться">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
+          </button>
+          <span class="tt-pop">Поделиться</span>
+        </span>
+        <span class="tt tt-top">
+          <button class="btn btn-icon" aria-label="Настройки">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+          </button>
+          <span class="tt-pop">Настройки</span>
+        </span>
+        <span class="tt tt-top">
+          <button class="btn btn-icon" aria-label="Удалить">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-2 14a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L5 6"/></svg>
+          </button>
+          <span class="tt-pop">Удалить</span>
+        </span>
+      </div>
+    </section>
+  </div>
+
+  <a class="back-btn" href="../../">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Back to catalog
+  </a>
+  <button class="view-code-btn" id="viewCodeBtn">⌨ View Code</button>
+  <div class="code-panel" id="codePanel">
+    <div class="code-header"><span>index.html</span><button class="copy-btn" id="copyCodeBtn">Copy</button></div>
+    <pre id="codeContent"></pre>
+  </div>
+
+  <script>
+    // Theme + view code (same pattern as before)
+    const toggle = document.getElementById('themeToggle');
+    const sun = document.getElementById('sunIcon');
+    const moon = document.getElementById('moonIcon');
+    const stored = localStorage.getItem('design-demo-theme');
+    const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let theme = stored || (sysDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') { sun.style.display = 'none'; moon.style.display = ''; }
+    else { sun.style.display = ''; moon.style.display = 'none'; }
+    toggle.addEventListener('click', () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('design-demo-theme', next);
+      if (next === 'dark') { sun.style.display = 'none'; moon.style.display = ''; }
+      else { sun.style.display = ''; moon.style.display = 'none'; }
+    });
+
+    // Mobile: tap to toggle tooltip
+    document.querySelectorAll('.tt').forEach(tt => {
+      tt.addEventListener('click', (e) => {
+        if (window.matchMedia('(hover: none)').matches) {
+          // Close others, toggle this
+          document.querySelectorAll('.tt.is-open').forEach(other => { if (other !== tt) other.classList.remove('is-open'); });
+          tt.classList.toggle('is-open');
+        }
+      });
+    });
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.tt')) {
+        document.querySelectorAll('.tt.is-open').forEach(tt => tt.classList.remove('is-open'));
+      }
+    });
+
+    // View code
+    const vcb = document.getElementById('viewCodeBtn');
+    const cp = document.getElementById('codePanel');
+    const cc = document.getElementById('codeContent');
+    const ccb = document.getElementById('copyCodeBtn');
+    vcb.addEventListener('click', () => {
+      const isOpen = cp.classList.toggle('open');
+      if (isOpen && !cc.textContent) {
+        fetch('index.html').then(r => r.text()).then(html => {
+          cc.textContent = html.replace(/<script[\s\S]*?<\/script>/g, '<!-- script -->');
+        });
+      }
+      vcb.textContent = isOpen ? '✕  Close' : '⌨  View Code';
+    });
+    ccb.addEventListener('click', () => {
+      navigator.clipboard.writeText(cc.textContent).then(() => {
+        ccb.textContent = 'Copied!';
+        setTimeout(() => ccb.textContent = 'Copy', 1500);
+      });
+    });
+  </script>
+</body>
+</html>

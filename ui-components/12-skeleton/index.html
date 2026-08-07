@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Skeleton Loader — UI Component</title>
+  <style>
+    :root{--bg:#f5f5f7;--surface:#fff;--surface-2:#f0f0f5;--surface-3:#e8e8ed;--text:#1c1c1e;--text-2:#636366;--text-3:#8e8e93;--border:#e5e5ea;--accent:#6c5ce7;--accent-soft:rgba(108,92,231,.08);--radius-sm:6px;--radius:10px;--radius-md:12px;--radius-lg:16px;--ease:cubic-bezier(0.4,0,0.2,1);--dur:1500ms;--font-sans:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif}
+    [data-theme="dark"]{--bg:#0c0c0e;--surface:#1a1a20;--surface-2:#23232a;--surface-3:#2a2a32;--text:#ececf0;--text-2:#a0a0a8;--text-3:#6e6e76;--border:#2a2a32;--accent-soft:rgba(108,92,231,.15)}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);padding:40px 20px 100px;-webkit-font-smoothing:antialiased;line-height:1.6}
+    .container{max-width:920px;margin:0 auto}
+    .page-head{text-align:center;margin-bottom:40px}
+    .page-head h1{font-size:2.2rem;font-weight:800;letter-spacing:-0.02em;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+    .page-head p{color:var(--text-2);font-size:1rem;max-width:540px;margin:0 auto}
+    .theme-toggle{position:fixed;top:16px;right:16px;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:100;transition:all .18s var(--ease)}
+    .theme-toggle:hover{transform:scale(1.05);border-color:var(--accent);color:var(--accent)}
+    .theme-toggle svg{width:16px;height:16px}
+    .section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;margin-bottom:20px}
+    .section-head{display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+    .section-num{width:32px;height:32px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;font-family:'SF Mono',monospace}
+    .section-title{font-size:1.2rem;font-weight:700}
+    .section-sub{color:var(--text-2);font-size:.85rem;margin-top:2px}
+
+    /* Shimmer animation */
+    @keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+    .sk {
+      background: linear-gradient(90deg, var(--surface-2) 0%, var(--surface-3) 50%, var(--surface-2) 100%);
+      background-size: 200% 100%;
+      animation: shimmer var(--dur) ease-in-out infinite;
+      border-radius: 6px;
+      display: block;
+    }
+    .sk.circle { border-radius: 50%; }
+    .sk.no-anim { animation: none; }
+
+    /* Demo grid */
+    .demo-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+    .demo-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .demo-row-stack { display: flex; flex-direction: column; gap: 8px; }
+
+    /* Real card to compare */
+    .real-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px;
+      display: flex;
+      gap: 12px;
+    }
+    .real-card-img { width: 60px; height: 60px; border-radius: 8px; background: linear-gradient(135deg, var(--accent), var(--info)); flex-shrink: 0; }
+    .real-card-body { flex: 1; }
+    .real-card-title { font-weight: 700; margin-bottom: 4px; }
+    .real-card-text { color: var(--text-2); font-size: 0.85rem; }
+
+    /* Text lines */
+    .text-skeleton { display: flex; flex-direction: column; gap: 8px; }
+    .text-skeleton .sk { height: 12px; }
+    .text-skeleton .sk:last-child { width: 70%; }
+
+    /* Avatar + text combo */
+    .user-skeleton { display: flex; align-items: center; gap: 12px; }
+    .user-skeleton .sk.circle { width: 48px; height: 48px; flex-shrink: 0; }
+    .user-skeleton .text-skeleton { flex: 1; }
+
+    .back-btn{position:fixed;bottom:20px;left:20px;display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:100px;color:var(--text);font-size:.85rem;font-weight:500;text-decoration:none;box-shadow:0 2px 12px rgba(0,0,0,.08);z-index:100}
+    .back-btn:hover{transform:translateY(-2px);border-color:var(--accent);color:var(--accent)}
+    .back-btn svg{width:14px;height:14px}
+    .view-code-btn{position:fixed;bottom:20px;right:20px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);color:var(--text-2);padding:8px 16px;border-radius:100px;font-size:.78rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;z-index:100}
+    .view-code-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .code-panel{position:fixed;bottom:64px;right:20px;width:min(640px,calc(100vw - 40px));max-height:0;overflow:hidden;transition:max-height .45s,opacity .3s;opacity:0;background:var(--surface);backdrop-filter:blur(20px);border-radius:var(--radius);border:1px solid var(--border);box-shadow:0 8px 28px rgba(0,0,0,.09);z-index:99}
+    .code-panel.open{max-height:70vh;opacity:1}
+    .code-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;font-size:.72rem;color:var(--text-2);font-weight:500;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+    .code-panel pre{padding:18px;font-size:.7rem;line-height:1.6;color:var(--text-2);overflow:auto;max-height:60vh;white-space:pre;tab-size:2;font-family:'SF Mono','Fira Code',monospace}
+    .copy-btn{background:var(--surface-2);border:none;color:var(--text-2);padding:4px 12px;border-radius:6px;font-size:.72rem;cursor:pointer;font-family:inherit}
+    .copy-btn:hover{background:var(--accent-soft);color:var(--accent)}
+    @media (max-width:720px) { body { padding: 24px 14px; } .page-head h1 { font-size: 1.7rem; } .section { padding: 20px; } }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="sunIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="moonIcon" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+
+  <div class="container">
+    <header class="page-head">
+      <h1>Skeleton Loader</h1>
+      <p>Шиммер-плейсхолдеры для карточек, списков, таблиц. Реальные примеры рядом со скелетонами для сравнения.</p>
+    </header>
+
+    <section class="section">
+      <div class="section-head"><div class="section-num">1</div><div><div class="section-title">Card Skeleton</div><div class="section-sub">Image + title + 2 lines + button</div></div></div>
+      <div class="demo-grid">
+        <div class="demo-card">
+          <div class="sk" style="height:120px;border-radius:8px"></div>
+          <div class="sk" style="height:14px;width:60%"></div>
+          <div class="sk" style="height:10px"></div>
+          <div class="sk" style="height:10px;width:80%"></div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <div class="sk" style="height:32px;width:80px;border-radius:8px"></div>
+            <div class="sk" style="height:32px;width:80px;border-radius:8px"></div>
+          </div>
+        </div>
+        <div class="real-card">
+          <div class="real-card-img"></div>
+          <div class="real-card-body">
+            <div class="real-card-title">Cosmos</div>
+            <div class="real-card-text">Реальная карточка для сравнения — тут заголовок и описание.</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div class="section-num">2</div><div><div class="section-title">User List Skeleton</div><div class="section-sub">Avatar + 2 lines</div></div></div>
+      <div class="demo-row-stack">
+        <div class="user-skeleton">
+          <div class="sk circle"></div>
+          <div class="text-skeleton">
+            <div class="sk" style="width:30%;height:14px"></div>
+            <div class="sk" style="height:10px"></div>
+          </div>
+        </div>
+        <div class="user-skeleton">
+          <div class="sk circle"></div>
+          <div class="text-skeleton">
+            <div class="sk" style="width:40%;height:14px"></div>
+            <div class="sk" style="height:10px"></div>
+          </div>
+        </div>
+        <div class="user-skeleton">
+          <div class="sk circle"></div>
+          <div class="text-skeleton">
+            <div class="sk" style="width:25%;height:14px"></div>
+            <div class="sk" style="height:10px"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div class="section-num">3</div><div><div class="section-title">Article Skeleton</div><div class="section-sub">Hero + 5 lines + image</div></div></div>
+      <div class="demo-row-stack" style="max-width:600px">
+        <div class="sk" style="height:24px;width:70%"></div>
+        <div class="sk" style="height:10px;width:40%"></div>
+        <div style="height:16px"></div>
+        <div class="sk" style="height:10px"></div>
+        <div class="sk" style="height:10px"></div>
+        <div class="sk" style="height:10px;width:90%"></div>
+        <div class="sk" style="height:180px;border-radius:8px"></div>
+        <div style="height:16px"></div>
+        <div class="sk" style="height:10px"></div>
+        <div class="sk" style="height:10px;width:80%"></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div class="section-num">4</div><div><div class="section-title">Table Skeleton</div><div class="section-sub">Headers + rows</div></div></div>
+      <div style="border:1px solid var(--border);border-radius:var(--radius);overflow:hidden">
+        <div style="display:grid;grid-template-columns:2fr 1fr 1fr 1fr 80px;gap:12px;padding:14px 16px;background:var(--surface-2);border-bottom:1px solid var(--border);font-size:0.75rem;font-weight:600;color:var(--text-2);text-transform:uppercase;letter-spacing:0.5px">
+          <div>Name</div><div>Status</div><div>Role</div><div>Last seen</div><div></div>
+        </div>
+        <div id="skTable">
+          <!-- 5 rows of skeleton -->
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div class="section-num">5</div><div><div class="section-title">Colors & Sizes</div><div class="section-sub">Кастомизация через CSS</div></div></div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div class="sk" style="height:14px;width:50%"></div>
+        <div class="sk" style="height:14px;width:50%;background:linear-gradient(90deg, var(--accent-soft) 0%, var(--accent) 50%, var(--accent-soft) 100%);background-size:200% 100%;animation:shimmer var(--dur) ease-in-out infinite"></div>
+        <div class="sk no-anim" style="height:14px;width:50%;background:var(--surface-3);animation:none"></div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <div class="sk circle" style="width:24px;height:24px"></div>
+          <div class="sk circle" style="width:32px;height:32px"></div>
+          <div class="sk circle" style="width:48px;height:48px"></div>
+          <div class="sk circle" style="width:64px;height:64px"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <a class="back-btn" href="../../"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Back to catalog</a>
+  <button class="view-code-btn" id="viewCodeBtn">⌨ View Code</button>
+  <div class="code-panel" id="codePanel">
+    <div class="code-header"><span>index.html</span><button class="copy-btn" id="copyCodeBtn">Copy</button></div>
+    <pre id="codeContent"></pre>
+  </div>
+
+  <script>
+    const t = document.getElementById('themeToggle'), s = document.getElementById('sunIcon'), m = document.getElementById('moonIcon');
+    const stored = localStorage.getItem('design-demo-theme');
+    const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let theme = stored || (sysDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    t.addEventListener('click', () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('design-demo-theme', next);
+      if (next === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    });
+
+    // Fill table
+    const skTable = document.getElementById('skTable');
+    for (let i = 0; i < 5; i++) {
+      const row = document.createElement('div');
+      row.style.cssText = 'display:grid;grid-template-columns:2fr 1fr 1fr 1fr 80px;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border);align-items:center';
+      if (i === 4) row.style.borderBottom = 'none';
+      row.innerHTML = `
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="sk circle" style="width:32px;height:32px;flex-shrink:0"></div>
+          <div class="sk" style="height:12px;width:80%"></div>
+        </div>
+        <div class="sk" style="height:22px;width:80px;border-radius:9999px"></div>
+        <div class="sk" style="height:12px;width:60%"></div>
+        <div class="sk" style="height:12px;width:50%"></div>
+        <div class="sk circle" style="width:24px;height:24px;justify-self:end"></div>
+      `;
+      skTable.appendChild(row);
+    }
+
+    // View code
+    const v = document.getElementById('viewCodeBtn'), cp = document.getElementById('codePanel'), cc = document.getElementById('codeContent'), cb = document.getElementById('copyCodeBtn');
+    v.addEventListener('click', () => {
+      const isOpen = cp.classList.toggle('open');
+      if (isOpen && !cc.textContent) { fetch('index.html').then(r => r.text()).then(html => { cc.textContent = html.replace(/<script[\s\S]*?<\/script>/g, '<!-- script -->'); }); }
+      v.textContent = isOpen ? '✕  Close' : '⌨  View Code';
+    });
+    cb.addEventListener('click', () => { navigator.clipboard.writeText(cc.textContent).then(() => { cb.textContent = 'Copied!'; setTimeout(() => cb.textContent = 'Copy', 1500); }); });
+  </script>
+</body>
+</html>

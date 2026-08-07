@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Progress — UI Component</title>
+  <style>
+    :root{--bg:#f5f5f7;--surface:#fff;--surface-2:#f0f0f5;--surface-3:#e8e8ed;--text:#1c1c1e;--text-2:#636366;--text-3:#8e8e93;--text-inverse:#fff;--border:#e5e5ea;--border-strong:#d0d0d6;--accent:#6c5ce7;--accent-soft:rgba(108,92,231,.08);--success:#00b894;--success-soft:rgba(0,184,148,.1);--warning:#fdcb6e;--danger:#ff4757;--info:#74b9ff;--radius-sm:6px;--radius:10px;--radius-md:12px;--radius-lg:16px;--radius-full:9999px;--ease:cubic-bezier(0.4,0,0.2,1);--ease-spring:cubic-bezier(0.34,1.56,0.64,1);--dur-fast:180ms;--dur:400ms;--font-sans:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif}
+    [data-theme="dark"]{--bg:#0c0c0e;--surface:#1a1a20;--surface-2:#23232a;--surface-3:#2a2a32;--text:#ececf0;--text-2:#a0a0a8;--text-3:#6e6e76;--border:#2a2a32;--border-strong:#3a3a44;--accent-soft:rgba(108,92,231,.15)}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);padding:40px 20px 100px;-webkit-font-smoothing:antialiased;line-height:1.6}
+    .container{max-width:920px;margin:0 auto}
+    .page-head{text-align:center;margin-bottom:40px}
+    .page-head h1{font-size:2.2rem;font-weight:800;letter-spacing:-0.02em;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+    .page-head p{color:var(--text-2);font-size:1rem;max-width:540px;margin:0 auto}
+    .theme-toggle{position:fixed;top:16px;right:16px;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:100;transition:all var(--dur-fast) var(--ease)}
+    .theme-toggle:hover{transform:scale(1.05);border-color:var(--accent);color:var(--accent)}
+    .theme-toggle svg{width:16px;height:16px}
+    .section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;margin-bottom:20px}
+    .section-head{display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+    .section-num{width:32px;height:32px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;font-family:'SF Mono',monospace}
+    .section-title{font-size:1.2rem;font-weight:700}
+    .section-sub{color:var(--text-2);font-size:.85rem;margin-top:2px}
+    .demo-row{display:flex;flex-direction:column;gap:24px;margin-bottom:24px}
+    .demo-row:last-child{margin-bottom:0}
+    .demo-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-3);margin-bottom:4px}
+
+    /* Linear bar */
+    .p-bar {
+      position: relative;
+      height: 8px;
+      background: var(--surface-3);
+      border-radius: var(--radius-full);
+      overflow: hidden;
+    }
+    .p-bar-fill {
+      height: 100%;
+      background: var(--accent);
+      border-radius: var(--radius-full);
+      transition: width var(--dur) var(--ease);
+    }
+    .p-bar.success .p-bar-fill { background: var(--success); }
+    .p-bar.warning .p-bar-fill { background: var(--warning); }
+    .p-bar.danger  .p-bar-fill { background: var(--danger); }
+    .p-bar.info    .p-bar-fill { background: var(--info); }
+    .p-bar.lg { height: 12px; }
+    .p-bar.sm { height: 4px; }
+    .p-bar.indeterminate .p-bar-fill { width: 30% !important; animation: indeterminate 1.4s var(--ease) infinite; }
+    @keyframes indeterminate { 0% { transform: translateX(-100%); } 100% { transform: translateX(370%); } }
+    .p-bar.striped .p-bar-fill {
+      background-image: linear-gradient(45deg, rgba(255,255,255,.15) 25%, transparent 25%, transparent 50%, rgba(255,255,255,.15) 50%, rgba(255,255,255,.15) 75%, transparent 75%, transparent);
+      background-size: 16px 16px;
+      animation: stripe 1s linear infinite;
+    }
+    @keyframes stripe { 0% { background-position: 0 0; } 100% { background-position: 16px 0; } }
+
+    .p-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 0.85rem; }
+    .p-head-label { font-weight: 600; }
+    .p-head-value { font-family: 'SF Mono', monospace; color: var(--accent); font-weight: 600; }
+
+    /* Circular */
+    .p-circle {
+      position: relative;
+      width: 120px;
+      height: 120px;
+    }
+    .p-circle svg { transform: rotate(-90deg); }
+    .p-circle-bg { fill: none; stroke: var(--surface-3); stroke-width: 8; }
+    .p-circle-fg { fill: none; stroke: var(--accent); stroke-width: 8; stroke-linecap: round; transition: stroke-dashoffset var(--dur) var(--ease); }
+    .p-circle-text {
+      position: absolute; inset: 0;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+    }
+    .p-circle-pct { font-size: 1.5rem; font-weight: 800; line-height: 1; }
+    .p-circle-lbl { font-size: 0.7rem; color: var(--text-2); margin-top: 2px; }
+    .p-row { display: flex; gap: 24px; flex-wrap: wrap; align-items: center; justify-content: center; }
+    .p-circle.sm { width: 64px; height: 64px; }
+    .p-circle.sm .p-circle-bg, .p-circle.sm .p-circle-fg { stroke-width: 6; }
+    .p-circle.sm .p-circle-pct { font-size: 0.95rem; }
+
+    /* Stepper */
+    .steps { display: flex; align-items: center; }
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex: 1;
+      min-width: 0;
+    }
+    .step-bubble {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--surface-3);
+      color: var(--text-3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      flex-shrink: 0;
+      transition: all var(--dur) var(--ease);
+    }
+    .step.is-done .step-bubble { background: var(--success); color: white; }
+    .step.is-active .step-bubble { background: var(--accent); color: white; box-shadow: 0 0 0 4px var(--accent-soft); }
+    .step-label { font-size: 0.85rem; color: var(--text-2); font-weight: 500; white-space: nowrap; }
+    .step.is-active .step-label, .step.is-done .step-label { color: var(--text); font-weight: 600; }
+    .step-connector {
+      flex: 1;
+      height: 2px;
+      background: var(--surface-3);
+      margin: 0 8px;
+      position: relative;
+      overflow: hidden;
+    }
+    .step-connector.is-done { background: var(--success); }
+
+    /* Indeterminate & spinner */
+    .p-spinner {
+      width: 24px; height: 24px;
+      border: 2.5px solid var(--accent-soft);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .back-btn{position:fixed;bottom:20px;left:20px;display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:100px;color:var(--text);font-size:.85rem;font-weight:500;text-decoration:none;box-shadow:0 2px 12px rgba(0,0,0,.08);z-index:100}
+    .back-btn:hover{transform:translateY(-2px);border-color:var(--accent);color:var(--accent)}
+    .back-btn svg{width:14px;height:14px}
+    .view-code-btn{position:fixed;bottom:20px;right:20px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);color:var(--text-2);padding:8px 16px;border-radius:100px;font-size:.78rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;z-index:100}
+    .view-code-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .code-panel{position:fixed;bottom:64px;right:20px;width:min(640px,calc(100vw - 40px));max-height:0;overflow:hidden;transition:max-height .45s,opacity .3s;opacity:0;background:var(--surface);backdrop-filter:blur(20px);border-radius:var(--radius);border:1px solid var(--border);box-shadow:0 8px 28px rgba(0,0,0,.09);z-index:99}
+    .code-panel.open{max-height:70vh;opacity:1}
+    .code-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;font-size:.72rem;color:var(--text-2);font-weight:500;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+    .code-panel pre{padding:18px;font-size:.7rem;line-height:1.6;color:var(--text-2);overflow:auto;max-height:60vh;white-space:pre;tab-size:2;font-family:'SF Mono','Fira Code',monospace}
+    .copy-btn{background:var(--surface-2);border:none;color:var(--text-2);padding:4px 12px;border-radius:6px;font-size:.72rem;cursor:pointer;font-family:inherit}
+    .copy-btn:hover{background:var(--accent-soft);color:var(--accent)}
+    @media (max-width:720px) { body { padding: 24px 14px; } .page-head h1 { font-size: 1.7rem; } .section { padding: 20px; } .p-circle { width: 90px; height: 90px; } .step-label { display: none; } }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="sunIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="moonIcon" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+
+  <div class="container">
+    <header class="page-head">
+      <h1>Progress</h1>
+      <p>Линейный, круговой, степпер, индикаторы загрузки — все варианты progress-индикаторов.</p>
+    </header>
+
+    <section class="section">
+      <div class="section-head"><div class="section-num">1</div><div><div class="section-title">Linear Bars</div><div class="section-sub">5 цветов, 3 размера</div></div></div>
+      <div class="demo-row">
+        <div>
+          <div class="p-head"><span class="p-head-label">Default</span><span class="p-head-value" id="val1">45%</span></div>
+          <div class="p-bar"><div class="p-bar-fill" id="bar1" style="width:45%"></div></div>
+        </div>
+        <div>
+          <div class="p-head"><span class="p-head-label">Success</span><span class="p-head-value" style="color:var(--success)">100%</span></div>
+          <div class="p-bar success"><div class="p-bar-fill" style="width:100%"></div></div>
+        </div>
+        <div>
+          <div class="p-head"><span class="p-head-label">Warning</span><span class="p-head-value" style="color:#d4a13d">75%</span></div>
+          <div class="p-bar warning"><div class="p-bar-fill" style="width:75%"></div></div>
+        </div>
+        <div>
+          <div class="p-head"><span class="p-head-label">Danger</span><span class="p-head-value" style="color:var(--danger)">30%</span></div>
+          <div class="p-bar danger"><div class="p-bar-fill" style="width:30%"></div></div>
+        </div>
+        <div>
+          <div class="p-head"><span class="p-head-label">Indeterminate</span></div>
+          <div class="p-bar indeterminate"><div class="p-bar-fill"></div></div>
+        </div>
+        <div>
+          <div class="p-head"><span class="p-head-label">Striped</span></div>
+          <div class="p-bar striped"><div class="p-bar-fill" style="width:60%"></div></div>
+        </div>
+        <div>
+          <div class="demo-label">Sizes</div>
+          <div class="p-bar sm" style="margin-bottom:12px"><div class="p-bar-fill" style="width:50%"></div></div>
+          <div class="p-bar" style="margin-bottom:12px"><div class="p-bar-fill" style="width:50%"></div></div>
+          <div class="p-bar lg"><div class="p-bar-fill" style="width:50%"></div></div>
+        </div>
+        <div>
+          <div class="p-head"><span class="p-head-label">Animated (click to start)</span><span class="p-head-value" id="val8">0%</span></div>
+          <div class="p-bar" id="barWrap" style="cursor:pointer">
+            <div class="p-bar-fill" id="bar8" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div class="section-num">2</div><div><div class="section-title">Circular</div><div class="section-sub">Для дашбордов, скиллов, прогресса загрузки</div></div></div>
+      <div class="p-row">
+        <div class="p-circle">
+          <svg width="120" height="120"><circle class="p-circle-bg" cx="60" cy="60" r="52"/><circle class="p-circle-fg" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="65.3"/></svg>
+          <div class="p-circle-text"><div class="p-circle-pct">80%</div><div class="p-circle-lbl">Storage</div></div>
+        </div>
+        <div class="p-circle">
+          <svg width="120" height="120"><circle class="p-circle-bg" cx="60" cy="60" r="52"/><circle class="p-circle-fg" cx="60" cy="60" r="52" stroke-dasharray="326.7" stroke-dashoffset="98" style="stroke:var(--success)"/></svg>
+          <div class="p-circle-text"><div class="p-circle-pct" style="color:var(--success)">70%</div><div class="p-circle-lbl">Tasks</div></div>
+        </div>
+        <div class="p-circle sm">
+          <svg width="64" height="64"><circle class="p-circle-bg" cx="32" cy="32" r="26"/><circle class="p-circle-fg" cx="32" cy="32" r="26" stroke-dasharray="163.4" stroke-dashoffset="65.4" style="stroke:var(--warning)"/></svg>
+          <div class="p-circle-text"><div class="p-circle-pct" style="color:var(--warning)">60%</div></div>
+        </div>
+        <div class="p-circle sm">
+          <svg width="64" height="64"><circle class="p-circle-bg" cx="32" cy="32" r="26"/><circle class="p-circle-fg" cx="32" cy="32" r="26" stroke-dasharray="163.4" stroke-dashoffset="32.7" style="stroke:var(--info)"/></svg>
+          <div class="p-circle-text"><div class="p-circle-pct" style="color:var(--info)">80%</div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div class="section-num">3</div><div><div class="section-title">Stepper</div><div class="section-sub">Для многошаговых процессов — checkout, onboarding, формы</div></div></div>
+      <div class="steps" id="stepper">
+        <div class="step is-done" data-step="1">
+          <div class="step-bubble">1</div>
+          <div class="step-label">Корзина</div>
+        </div>
+        <div class="step-connector is-done"></div>
+        <div class="step is-active" data-step="2">
+          <div class="step-bubble">2</div>
+          <div class="step-label">Адрес</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step" data-step="3">
+          <div class="step-bubble">3</div>
+          <div class="step-label">Оплата</div>
+        </div>
+        <div class="step-connector"></div>
+        <div class="step" data-step="4">
+          <div class="step-bubble">4</div>
+          <div class="step-label">Готово</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:8px;justify-content:center;margin-top:20px">
+        <button class="btn btn-secondary" id="stepPrev" style="padding:8px 16px;font-size:.82rem;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;cursor:pointer;color:var(--text)">← Назад</button>
+        <button class="btn btn-primary" id="stepNext" style="padding:8px 16px;font-size:.82rem;background:var(--accent);color:white;border:none;border-radius:8px;cursor:pointer">Далее →</button>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div class="section-num">4</div><div><div class="section-title">Spinners</div><div class="section-sub">Для кнопок и загрузки</div></div></div>
+      <div class="p-row" style="gap:32px">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <div class="p-spinner"></div>
+          <div style="font-size:.78rem;color:var(--text-2)">Default</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <div class="p-spinner" style="width:32px;height:32px;border-width:3px"></div>
+          <div style="font-size:.78rem;color:var(--text-2)">Large</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:8px">
+          <div class="p-spinner" style="width:16px;height:16px;border-width:2px"></div>
+          <div style="font-size:.78rem;color:var(--text-2)">Small</div>
+        </div>
+        <button style="background:var(--accent);color:white;border:none;padding:10px 20px;border-radius:10px;font-weight:600;font-size:.85rem;cursor:pointer;display:inline-flex;align-items:center;gap:8px">
+          <div class="p-spinner" style="width:14px;height:14px;border-width:2px;border-color:rgba(255,255,255,.3);border-top-color:white"></div>
+          Сохранение...
+        </button>
+      </div>
+    </section>
+  </div>
+
+  <a class="back-btn" href="../../"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Back to catalog</a>
+  <button class="view-code-btn" id="viewCodeBtn">⌨ View Code</button>
+  <div class="code-panel" id="codePanel">
+    <div class="code-header"><span>index.html</span><button class="copy-btn" id="copyCodeBtn">Copy</button></div>
+    <pre id="codeContent"></pre>
+  </div>
+
+  <script>
+    const t = document.getElementById('themeToggle'), s = document.getElementById('sunIcon'), m = document.getElementById('moonIcon');
+    const stored = localStorage.getItem('design-demo-theme');
+    const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let theme = stored || (sysDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    t.addEventListener('click', () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('design-demo-theme', next);
+      if (next === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    });
+
+    // Click bar to animate
+    let animating = false;
+    document.getElementById('barWrap').addEventListener('click', () => {
+      if (animating) return;
+      animating = true;
+      const bar = document.getElementById('bar8');
+      const val = document.getElementById('val8');
+      bar.style.width = '0%';
+      setTimeout(() => {
+        let p = 0;
+        const interval = setInterval(() => {
+          p += 2;
+          bar.style.width = p + '%';
+          val.textContent = p + '%';
+          if (p >= 100) { clearInterval(interval); animating = false; }
+        }, 30);
+      }, 100);
+    });
+
+    // Stepper
+    let currentStep = 2;
+    function renderSteps() {
+      const steps = document.querySelectorAll('.step[data-step]');
+      const connectors = document.querySelectorAll('.step-connector');
+      steps.forEach((s, i) => {
+        s.classList.remove('is-done', 'is-active');
+        if (i + 1 < currentStep) s.classList.add('is-done');
+        else if (i + 1 === currentStep) s.classList.add('is-active');
+      });
+      connectors.forEach((c, i) => {
+        c.classList.toggle('is-done', i + 1 < currentStep);
+      });
+    }
+    document.getElementById('stepNext').addEventListener('click', () => {
+      if (currentStep < 4) { currentStep++; renderSteps(); }
+    });
+    document.getElementById('stepPrev').addEventListener('click', () => {
+      if (currentStep > 1) { currentStep--; renderSteps(); }
+    });
+    document.querySelectorAll('.step[data-step]').forEach(s => {
+      s.style.cursor = 'pointer';
+      s.addEventListener('click', () => { currentStep = parseInt(s.dataset.step, 10); renderSteps(); });
+    });
+
+    // View code
+    const v = document.getElementById('viewCodeBtn'), cp = document.getElementById('codePanel'), cc = document.getElementById('codeContent'), cb = document.getElementById('copyCodeBtn');
+    v.addEventListener('click', () => {
+      const isOpen = cp.classList.toggle('open');
+      if (isOpen && !cc.textContent) { fetch('index.html').then(r => r.text()).then(html => { cc.textContent = html.replace(/<script[\s\S]*?<\/script>/g, '<!-- script -->'); }); }
+      v.textContent = isOpen ? '✕  Close' : '⌨  View Code';
+    });
+    cb.addEventListener('click', () => { navigator.clipboard.writeText(cc.textContent).then(() => { cb.textContent = 'Copied!'; setTimeout(() => cb.textContent = 'Copy', 1500); }); });
+  </script>
+</body>
+</html>

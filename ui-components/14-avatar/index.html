@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Avatar — UI Component</title>
+  <style>
+    :root{--bg:#f5f5f7;--surface:#fff;--surface-2:#f0f0f5;--surface-3:#e8e8ed;--text:#1c1c1e;--text-2:#636366;--text-3:#8e8e93;--text-inverse:#fff;--border:#e5e5ea;--accent:#6c5ce7;--accent-soft:rgba(108,92,231,.08);--success:#00b894;--warning:#fdcb6e;--danger:#ff4757;--info:#74b9ff;--radius-sm:6px;--radius:10px;--radius-md:12px;--radius-lg:16px;--ease:cubic-bezier(0.4,0,0.2,1);--ease-spring:cubic-bezier(0.34,1.56,0.64,1);--dur-fast:180ms;--dur:260ms;--font-sans:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif}
+    [data-theme="dark"]{--bg:#0c0c0e;--surface:#1a1a20;--surface-2:#23232a;--surface-3:#2a2a32;--text:#ececf0;--text-2:#a0a0a8;--text-3:#6e6e76;--border:#2a2a32;--accent-soft:rgba(108,92,231,.15)}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);padding:40px 20px 100px;-webkit-font-smoothing:antialiased;line-height:1.6}
+    .container{max-width:920px;margin:0 auto}
+    .page-head{text-align:center;margin-bottom:40px}
+    .page-head h1{font-size:2.2rem;font-weight:800;letter-spacing:-0.02em;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+    .page-head p{color:var(--text-2);font-size:1rem;max-width:540px;margin:0 auto}
+    .theme-toggle{position:fixed;top:16px;right:16px;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:100;transition:all var(--dur-fast) var(--ease)}
+    .theme-toggle:hover{transform:scale(1.05);border-color:var(--accent);color:var(--accent)}
+    .theme-toggle svg{width:16px;height:16px}
+    .section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;margin-bottom:20px}
+    .section-head{display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+    .section-num{width:32px;height:32px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;font-family:'SF Mono',monospace}
+    .section-title{font-size:1.2rem;font-weight:700}
+    .section-sub{color:var(--text-2);font-size:.85rem;margin-top:2px}
+    .demo-row{display:flex;flex-wrap:wrap;gap:16px;align-items:center;margin-bottom:16px}
+    .demo-row:last-child{margin-bottom:0}
+    .demo-label{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.8px;color:var(--text-3);width:100%;margin-bottom:6px}
+
+    /* Avatar base */
+    .avatar {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--info));
+      color: white;
+      font-weight: 700;
+      flex-shrink: 0;
+      user-select: none;
+      overflow: visible;
+    }
+    .avatar img { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: 50%; }
+    .avatar .initials { line-height: 1; }
+    /* Sizes */
+    .avatar.xs { width: 24px; height: 24px; font-size: 10px; }
+    .avatar.sm { width: 32px; height: 32px; font-size: 12px; }
+    .avatar.md { width: 40px; height: 40px; font-size: 14px; }
+    .avatar.lg { width: 56px; height: 56px; font-size: 18px; }
+    .avatar.xl { width: 80px; height: 80px; font-size: 26px; }
+    .avatar.xxl { width: 120px; height: 120px; font-size: 38px; }
+
+    /* Variants */
+    .avatar.rounded { border-radius: 12px; }
+    .avatar.squared { border-radius: 4px; }
+    .avatar.outline { box-shadow: 0 0 0 3px var(--surface); }
+
+    /* Status dot */
+    .avatar-status {
+      position: absolute;
+      bottom: 0; right: 0;
+      width: 28%; height: 28%;
+      min-width: 10px; min-height: 10px;
+      border-radius: 50%;
+      border: 2px solid var(--surface);
+      background: var(--text-3);
+    }
+    .avatar-status.online { background: var(--success); }
+    .avatar-status.away   { background: var(--warning); }
+    .avatar-status.busy   { background: var(--danger); }
+    .avatar-status.offline { background: var(--text-3); }
+    .avatar-status.pulsing::after {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      background: var(--success);
+      opacity: 0.3;
+      animation: pulse 2s ease-out infinite;
+    }
+    @keyframes pulse { 0% { transform: scale(1); opacity: 0.4; } 100% { transform: scale(2); opacity: 0; } }
+
+    /* Group / stack */
+    .av-group { display: inline-flex; }
+    .av-group .avatar { border: 2.5px solid var(--surface); margin-left: -10px; transition: transform var(--dur-fast) var(--ease); }
+    .av-group .avatar:first-child { margin-left: 0; }
+    .av-group .avatar:hover { transform: translateY(-4px); z-index: 2; }
+    .av-group .more {
+      background: var(--surface-2);
+      color: var(--text-2);
+      border: 2.5px solid var(--surface);
+    }
+
+    /* With badge count */
+    .av-badge {
+      position: absolute;
+      top: -4px; right: -4px;
+      min-width: 18px; height: 18px;
+      padding: 0 4px;
+      border-radius: 9999px;
+      background: var(--danger);
+      color: white;
+      font-size: 10px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 2px solid var(--surface);
+    }
+
+    /* Gradient variants */
+    .avatar.g1 { background: linear-gradient(135deg, #6c5ce7, #a29bfe); }
+    .avatar.g2 { background: linear-gradient(135deg, #ff4757, #ff6b81); }
+    .avatar.g3 { background: linear-gradient(135deg, #00b894, #55efc4); }
+    .avatar.g4 { background: linear-gradient(135deg, #fdcb6e, #e17055); }
+    .avatar.g5 { background: linear-gradient(135deg, #74b9ff, #0984e3); }
+    .avatar.g6 { background: linear-gradient(135deg, #fd79a8, #e84393); }
+    .avatar.g7 { background: linear-gradient(135deg, #00cec9, #6c5ce7); }
+
+    .back-btn{position:fixed;bottom:20px;left:20px;display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:100px;color:var(--text);font-size:.85rem;font-weight:500;text-decoration:none;box-shadow:0 2px 12px rgba(0,0,0,.08);z-index:100}
+    .back-btn:hover{transform:translateY(-2px);border-color:var(--accent);color:var(--accent)}
+    .back-btn svg{width:14px;height:14px}
+    .view-code-btn{position:fixed;bottom:20px;right:20px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);color:var(--text-2);padding:8px 16px;border-radius:100px;font-size:.78rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;z-index:100}
+    .view-code-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .code-panel{position:fixed;bottom:64px;right:20px;width:min(640px,calc(100vw - 40px));max-height:0;overflow:hidden;transition:max-height .45s,opacity .3s;opacity:0;background:var(--surface);backdrop-filter:blur(20px);border-radius:var(--radius);border:1px solid var(--border);box-shadow:0 8px 28px rgba(0,0,0,.09);z-index:99}
+    .code-panel.open{max-height:70vh;opacity:1}
+    .code-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;font-size:.72rem;color:var(--text-2);font-weight:500;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+    .code-panel pre{padding:18px;font-size:.7rem;line-height:1.6;color:var(--text-2);overflow:auto;max-height:60vh;white-space:pre;tab-size:2;font-family:'SF Mono','Fira Code',monospace}
+    .copy-btn{background:var(--surface-2);border:none;color:var(--text-2);padding:4px 12px;border-radius:6px;font-size:.72rem;cursor:pointer;font-family:inherit}
+    .copy-btn:hover{background:var(--accent-soft);color:var(--accent)}
+    @media (max-width:720px) { body { padding: 24px 14px; } .page-head h1 { font-size: 1.7rem; } .section { padding: 20px; } }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="sunIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="moonIcon" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+
+  <div class="container">
+    <header class="page-head">
+      <h1>Avatar</h1>
+      <p>Одиночные, группа, со статусом, инициалами или фото. 6 размеров и 7 цветовых пресетов.</p>
+    </header>
+
+    <section class="section">
+      <div class="section-head"><div class="section-num">1</div><div><div class="section-title">Sizes</div><div class="section-sub">xs / sm / md / lg / xl / xxl</div></div></div>
+      <div class="demo-row" style="align-items:flex-end">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div class="avatar xs g1"><span class="initials">А</span></div><div style="font-size:.65rem;color:var(--text-3)">xs · 24</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div class="avatar sm g2"><span class="initials">Б</span></div><div style="font-size:.65rem;color:var(--text-3)">sm · 32</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div class="avatar md g3"><span class="initials">В</span></div><div style="font-size:.65rem;color:var(--text-3)">md · 40</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div class="avatar lg g4"><span class="initials">Г</span></div><div style="font-size:.65rem;color:var(--text-3)">lg · 56</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div class="avatar xl g5"><span class="initials">Д</span></div><div style="font-size:.65rem;color:var(--text-3)">xl · 80</div></div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px"><div class="avatar xxl g6"><span class="initials">Е</span></div><div style="font-size:.65rem;color:var(--text-3)">xxl · 120</div></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div class="section-num">2</div><div><div class="section-title">Shapes</div><div class="section-sub">Circle, rounded, squared</div></div></div>
+      <div class="demo-row">
+        <div class="avatar lg g1"><span class="initials">А</span></div>
+        <div class="avatar lg g1 rounded"><span class="initials">А</span></div>
+        <div class="avatar lg g1 squared"><span class="initials">А</span></div>
+        <div class="avatar lg outline g2"><span class="initials">Б</span></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div class="section-num">3</div><div><div class="section-title">Gradient Presets</div><div class="section-sub">7 готовых градиентов для быстрого старта</div></div></div>
+      <div class="demo-row">
+        <div class="avatar lg g1"><span class="initials">А</span></div>
+        <div class="avatar lg g2"><span class="initials">Б</span></div>
+        <div class="avatar lg g3"><span class="initials">В</span></div>
+        <div class="avatar lg g4"><span class="initials">Г</span></div>
+        <div class="avatar lg g5"><span class="initials">Д</span></div>
+        <div class="avatar lg g6"><span class="initials">Е</span></div>
+        <div class="avatar lg g7"><span class="initials">Ж</span></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div class="section-num">4</div><div><div class="section-title">Status Indicator</div><div class="section-sub">online, away, busy, offline + pulsing</div></div></div>
+      <div class="demo-row">
+        <div class="avatar lg g1"><span class="initials">А</span><span class="avatar-status online pulsing"></span></div>
+        <div class="avatar lg g2"><span class="initials">Б</span><span class="avatar-status online"></span></div>
+        <div class="avatar lg g3"><span class="initials">В</span><span class="avatar-status away"></span></div>
+        <div class="avatar lg g4"><span class="initials">Г</span><span class="avatar-status busy"></span></div>
+        <div class="avatar lg g5"><span class="initials">Д</span><span class="avatar-status offline"></span></div>
+        <div class="avatar md g6"><span class="initials">Е</span><span class="avatar-status online"></span></div>
+        <div class="avatar sm g7"><span class="initials">Ж</span><span class="avatar-status online"></span></div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div class="section-num">5</div><div><div class="section-title">Avatar Group (Stacked)</div><div class="section-sub">С перекрытием и "+N" индикатором</div></div></div>
+      <div class="demo-row" style="flex-direction:column;align-items:flex-start;gap:16px">
+        <div class="av-group">
+          <div class="avatar md g1"><span class="initials">А</span></div>
+          <div class="avatar md g2"><span class="initials">Б</span></div>
+          <div class="avatar md g3"><span class="initials">В</span></div>
+          <div class="avatar md g4"><span class="initials">Г</span></div>
+          <div class="avatar md g5"><span class="initials">Д</span></div>
+          <div class="avatar md more">+5</div>
+        </div>
+        <div class="av-group">
+          <div class="avatar md g1"><span class="initials">А</span></div>
+          <div class="avatar md g3"><span class="initials">В</span></div>
+          <div class="avatar md g5"><span class="initials">Д</span></div>
+        </div>
+        <div class="av-group">
+          <div class="avatar sm g1"><span class="initials">А</span></div>
+          <div class="avatar sm g2"><span class="initials">Б</span></div>
+          <div class="avatar sm g3"><span class="initials">В</span></div>
+          <div class="avatar sm g4"><span class="initials">Г</span></div>
+          <div class="avatar sm more">+12</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head"><div class="section-num">6</div><div><div class="section-title">With Notification Badge</div><div class="section-sub">Бейдж со счётчиком поверх аватара</div></div></div>
+      <div class="demo-row">
+        <div class="avatar lg g1"><span class="initials">А</span><span class="av-badge">3</span></div>
+        <div class="avatar lg g2"><span class="initials">Б</span><span class="av-badge">12</span></div>
+        <div class="avatar lg g3"><span class="initials">В</span><span class="av-badge">99+</span></div>
+        <div class="avatar lg g4"><span class="initials">Г</span><span class="av-badge">1</span></div>
+      </div>
+    </section>
+  </div>
+
+  <a class="back-btn" href="../../"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg> Back to catalog</a>
+  <button class="view-code-btn" id="viewCodeBtn">⌨ View Code</button>
+  <div class="code-panel" id="codePanel">
+    <div class="code-header"><span>index.html</span><button class="copy-btn" id="copyCodeBtn">Copy</button></div>
+    <pre id="codeContent"></pre>
+  </div>
+
+  <script>
+    const t = document.getElementById('themeToggle'), s = document.getElementById('sunIcon'), m = document.getElementById('moonIcon');
+    const stored = localStorage.getItem('design-demo-theme');
+    const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let theme = stored || (sysDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    t.addEventListener('click', () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('design-demo-theme', next);
+      if (next === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    });
+    const v = document.getElementById('viewCodeBtn'), cp = document.getElementById('codePanel'), cc = document.getElementById('codeContent'), cb = document.getElementById('copyCodeBtn');
+    v.addEventListener('click', () => {
+      const isOpen = cp.classList.toggle('open');
+      if (isOpen && !cc.textContent) { fetch('index.html').then(r => r.text()).then(html => { cc.textContent = html.replace(/<script[\s\S]*?<\/script>/g, '<!-- script -->'); }); }
+      v.textContent = isOpen ? '✕  Close' : '⌨  View Code';
+    });
+    cb.addEventListener('click', () => { navigator.clipboard.writeText(cc.textContent).then(() => { cb.textContent = 'Copied!'; setTimeout(() => cb.textContent = 'Copy', 1500); }); });
+  </script>
+</body>
+</html>
