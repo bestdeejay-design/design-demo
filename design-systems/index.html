@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Design Tokens — Foundations</title>
+  <style>
+    :root {
+      --bg: #f5f5f7; --surface: #fff; --surface-2: #f0f0f5; --surface-3: #e8e8ed;
+      --text: #1c1c1e; --text-2: #636366; --text-3: #8e8e93; --text-inverse: #fff;
+      --border: #e5e5ea; --accent: #6c5ce7; --accent-soft: rgba(108,92,231,.08);
+      --success: #00b894; --warning: #fdcb6e; --danger: #ff4757; --info: #74b9ff;
+      --radius-sm: 6px; --radius: 10px; --radius-md: 12px; --radius-lg: 16px;
+      --shadow: 0 4px 16px rgba(0,0,0,0.07); --shadow-md: 0 8px 28px rgba(0,0,0,0.09);
+      --ease: cubic-bezier(0.4,0,0.2,1); --dur-fast: 180ms;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+      --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', 'JetBrains Mono', Menlo, monospace;
+    }
+    [data-theme="dark"] {
+      --bg: #0c0c0e; --surface: #1a1a20; --surface-2: #23232a; --surface-3: #2a2a32;
+      --text: #ececf0; --text-2: #a0a0a8; --text-3: #6e6e76;
+      --border: #2a2a32; --accent-soft: rgba(108,92,231,.15);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);padding:0;-webkit-font-smoothing:antialiased;line-height:1.6}
+
+    /* Top bar */
+    .topbar{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between}
+    .topbar-title{font-weight:700;font-size:1rem}
+    .topbar-right{display:flex;align-items:center;gap:8px}
+    .icon-btn{width:36px;height:36px;border-radius:8px;background:transparent;border:1px solid transparent;color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s}
+    .icon-btn:hover{background:var(--surface-2);color:var(--text)}
+    .icon-btn svg{width:18px;height:18px}
+
+    /* Layout */
+    .layout{display:grid;grid-template-columns:240px 1fr;max-width:1400px;margin:0 auto}
+    .toc{padding:24px 16px;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto}
+    .toc-title{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-3);padding:0 12px;margin-bottom:8px}
+    .toc-link{display:block;padding:7px 12px;border-radius:6px;color:var(--text-2);text-decoration:none;font-size:0.85rem;transition:all 0.15s}
+    .toc-link:hover{background:var(--surface-2);color:var(--text)}
+    .toc-link.is-active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+
+    .content{padding:40px 48px 80px;min-width:0}
+    .content section{margin-bottom:64px;scroll-margin-top:80px}
+    .section-num{font-family:var(--font-mono);font-size:0.78rem;color:var(--text-3);font-weight:600}
+    .section-title{font-size:1.85rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px}
+    .section-sub{color:var(--text-2);font-size:1rem;margin-bottom:24px;max-width:600px}
+
+    /* Color tokens */
+    .color-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;margin-bottom:24px}
+    .color-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;cursor:pointer;transition:all 0.2s}
+    .color-card:hover{transform:translateY(-2px);box-shadow:var(--shadow)}
+    .color-swatch{height:80px;display:flex;align-items:flex-end;padding:8px;color:white;font-family:var(--font-mono);font-size:0.7rem;font-weight:600;text-shadow:0 1px 2px rgba(0,0,0,0.3)}
+    .color-info{padding:10px 12px}
+    .color-name{font-weight:600;font-size:0.85rem}
+    .color-hex{font-family:var(--font-mono);font-size:0.72rem;color:var(--text-3)}
+
+    /* Type scale */
+    .type-sample{padding:16px 20px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:8px;display:flex;align-items:baseline;gap:16px;flex-wrap:wrap}
+    .type-label{font-family:var(--font-mono);font-size:0.72rem;color:var(--text-3);min-width:90px}
+    .type-specimen{color:var(--text);letter-spacing:-0.01em}
+    .type-meta{font-family:var(--font-mono);font-size:0.7rem;color:var(--text-3);margin-left:auto}
+
+    /* Spacing */
+    .spacing-row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--border)}
+    .spacing-row:last-child{border-bottom:none}
+    .spacing-name{font-family:var(--font-mono);font-size:0.78rem;min-width:80px;color:var(--text-3)}
+    .spacing-bar{height:14px;background:linear-gradient(90deg,var(--accent),var(--accent-light));border-radius:2px;flex-shrink:0}
+    .spacing-val{font-family:var(--font-mono);font-size:0.78rem;color:var(--text-2)}
+
+    /* Radius */
+    .radius-row{display:flex;gap:12px;flex-wrap:wrap}
+    .radius-tile{width:90px;height:90px;background:linear-gradient(135deg,var(--accent),var(--accent-light));display:flex;align-items:flex-end;justify-content:center;padding:6px;color:white;font-size:0.7rem;font-weight:600;font-family:var(--font-mono);text-shadow:0 1px 2px rgba(0,0,0,0.3)}
+
+    /* Shadow */
+    .shadow-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:24px}
+    .shadow-tile{background:var(--surface);border-radius:var(--radius);padding:24px;display:flex;align-items:center;justify-content:center;min-height:120px;text-align:center}
+    .shadow-tile-name{font-family:var(--font-mono);font-size:0.78rem;color:var(--text-2);font-weight:600}
+
+    .back-btn{position:fixed;top:14px;right:120px;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:100px;color:var(--text);font-size:0.78rem;font-weight:500;text-decoration:none;z-index:60;transition:all 0.15s}
+    .back-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .back-btn svg{width:12px;height:12px}
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .toc { display: none; }
+      .content { padding: 24px 20px 80px; }
+      .back-btn { right: 60px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-title">🎨 Design System / Foundations</div>
+    <div class="topbar-right">
+      <button class="icon-btn" id="themeToggle" title="Toggle theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="sunIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="moonIcon" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <a class="back-btn" href="../../">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Каталог
+  </a>
+
+  <div class="layout">
+    <nav class="toc" id="toc">
+      <div class="toc-title">На этой странице</div>
+      <a href="#colors" class="toc-link is-active">Цвета</a>
+      <a href="#typography" class="toc-link">Типографика</a>
+      <a href="#spacing" class="toc-link">Отступы</a>
+      <a href="#radius" class="toc-link">Радиусы</a>
+      <a href="#shadows" class="toc-link">Тени</a>
+    </nav>
+
+    <main class="content">
+
+      <section id="colors">
+        <div class="section-num">01</div>
+        <h1 class="section-title">Цвета</h1>
+        <p class="section-sub">Палитра из 4 семантических групп: brand, surface, text, status. Каждый цвет имеет light и dark варианты.</p>
+
+        <h3 style="margin:24px 0 12px;font-size:1.1rem;font-weight:700">Brand</h3>
+        <div class="color-grid">
+          <div class="color-card"><div class="color-swatch" style="background:var(--accent)">--accent</div><div class="color-info"><div class="color-name">Accent</div><div class="color-hex">#6c5ce7</div></div></div>
+          <div class="color-card"><div class="color-swatch" style="background:var(--accent-light);color:#333;text-shadow:none">--accent-light</div><div class="color-info"><div class="color-name">Accent Light</div><div class="color-hex">#a29bfe</div></div></div>
+          <div class="color-card"><div class="color-swatch" style="background:var(--accent-soft);color:#333;text-shadow:none;border:1px solid var(--border)">--accent-soft</div><div class="color-info"><div class="color-name">Accent Soft</div><div class="color-hex">rgba(108,92,231,.08)</div></div></div>
+        </div>
+
+        <h3 style="margin:24px 0 12px;font-size:1.1rem;font-weight:700">Surface & Text</h3>
+        <div class="color-grid">
+          <div class="color-card"><div class="color-swatch" style="background:var(--bg);color:#333;text-shadow:none;border:1px solid var(--border)">--bg</div><div class="color-info"><div class="color-name">Background</div><div class="color-hex">#f5f5f7</div></div></div>
+          <div class="color-card"><div class="color-swatch" style="background:var(--surface);color:#333;text-shadow:none;border:1px solid var(--border)">--surface</div><div class="color-info"><div class="color-name">Surface</div><div class="color-hex">#ffffff</div></div></div>
+          <div class="color-card"><div class="color-swatch" style="background:var(--surface-2);color:#333;text-shadow:none;border:1px solid var(--border)">--surface-2</div><div class="color-info"><div class="color-name">Surface 2</div><div class="color-hex">#f0f0f5</div></div></div>
+          <div class="color-card"><div class="color-swatch" style="background:var(--text);color:#fff">--text</div><div class="color-info"><div class="color-name">Text</div><div class="color-hex">#1c1c1e</div></div></div>
+          <div class="color-card"><div class="color-swatch" style="background:var(--text-2)">--text-2</div><div class="color-info"><div class="color-name">Text 2</div><div class="color-hex">#636366</div></div></div>
+          <div class="color-card"><div class="color-swatch" style="background:var(--text-3)">--text-3</div><div class="color-info"><div class="color-name">Text 3</div><div class="color-hex">#8e8e93</div></div></div>
+          <div class="color-card"><div class="color-swatch" style="background:var(--border);color:#333;text-shadow:none">--border</div><div class="color-info"><div class="color-name">Border</div><div class="color-hex">#e5e5ea</div></div></div>
+        </div>
+
+        <h3 style="margin:24px 0 12px;font-size:1.1rem;font-weight:700">Status (Semantic)</h3>
+        <div class="color-grid">
+          <div class="color-card"><div class="color-swatch" style="background:var(--success)">--success</div><div class="color-info"><div class="color-name">Success</div><div class="color-hex">#00b894</div></div></div>
+          <div class="color-card"><div class="color-swatch" style="background:var(--warning);color:#6a4a00">--warning</div><div class="color-info"><div class="color-name">Warning</div><div class="color-hex">#fdcb6e</div></div></div>
+          <div class="color-card"><div class="color-swatch" style="background:var(--danger)">--danger</div><div class="color-info"><div class="color-name">Danger</div><div class="color-hex">#ff4757</div></div></div>
+          <div class="color-card"><div class="color-swatch" style="background:var(--info)">--info</div><div class="color-info"><div class="color-name">Info</div><div class="color-hex">#74b9ff</div></div></div>
+        </div>
+      </section>
+
+      <section id="typography">
+        <div class="section-num">02</div>
+        <h1 class="section-title">Типографика</h1>
+        <p class="section-sub">SF Pro Display на Apple-устройствах, fallback на системный sans-serif. Шкала от 11px до 64px.</p>
+
+        <div class="type-sample"><span class="type-label">text-5xl</span><span class="type-specimen" style="font-size:4rem;font-weight:800;letter-spacing:-0.03em;line-height:1.05">Aa Дизайн</span><span class="type-meta">64px / 800</span></div>
+        <div class="type-sample"><span class="type-label">text-4xl</span><span class="type-specimen" style="font-size:3rem;font-weight:800;letter-spacing:-0.02em;line-height:1.1">Aa Дизайн</span><span class="type-meta">48px / 800</span></div>
+        <div class="type-sample"><span class="type-label">text-3xl</span><span class="type-specimen" style="font-size:2.25rem;font-weight:800;letter-spacing:-0.02em">Aa Дизайн</span><span class="type-meta">36px / 800</span></div>
+        <div class="type-sample"><span class="type-label">text-2xl</span><span class="type-specimen" style="font-size:1.75rem;font-weight:700;letter-spacing:-0.01em">Aa Дизайн</span><span class="type-meta">28px / 700</span></div>
+        <div class="type-sample"><span class="type-label">text-xl</span><span class="type-specimen" style="font-size:1.4rem;font-weight:700">Aa Дизайн</span><span class="type-meta">22px / 700</span></div>
+        <div class="type-sample"><span class="type-label">text-lg</span><span class="type-specimen" style="font-size:1.15rem;font-weight:600">Aa Дизайн</span><span class="type-meta">18px / 600</span></div>
+        <div class="type-sample"><span class="type-label">text-md</span><span class="type-specimen" style="font-size:1rem">Aa Дизайн</span><span class="type-meta">16px / 400</span></div>
+        <div class="type-sample"><span class="type-label">text-base</span><span class="type-specimen" style="font-size:0.95rem">Aa Дизайн</span><span class="type-meta">15px / 400</span></div>
+        <div class="type-sample"><span class="type-label">text-sm</span><span class="type-specimen" style="font-size:0.82rem">Aa Дизайн</span><span class="type-meta">13px / 400</span></div>
+        <div class="type-sample"><span class="type-label">text-xs</span><span class="type-specimen" style="font-size:0.72rem;text-transform:uppercase;letter-spacing:0.5px;font-weight:600">Aa Дизайн</span><span class="type-meta">11.5px / 600</span></div>
+      </section>
+
+      <section id="spacing">
+        <div class="section-num">03</div>
+        <h1 class="section-title">Отступы</h1>
+        <p class="section-sub">Шкала на основе 4px. Используется для padding, margin и gap.</p>
+
+        <div class="card" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:8px 20px">
+          <div class="spacing-row"><span class="spacing-name">--space-1</span><div class="spacing-bar" style="width:4px"></div><span class="spacing-val">4px</span></div>
+          <div class="spacing-row"><span class="spacing-name">--space-2</span><div class="spacing-bar" style="width:8px"></div><span class="spacing-val">8px</span></div>
+          <div class="spacing-row"><span class="spacing-name">--space-3</span><div class="spacing-bar" style="width:12px"></div><span class="spacing-val">12px</span></div>
+          <div class="spacing-row"><span class="spacing-name">--space-4</span><div class="spacing-bar" style="width:16px"></div><span class="spacing-val">16px</span></div>
+          <div class="spacing-row"><span class="spacing-name">--space-6</span><div class="spacing-bar" style="width:24px"></div><span class="spacing-val">24px</span></div>
+          <div class="spacing-row"><span class="spacing-name">--space-8</span><div class="spacing-bar" style="width:32px"></div><span class="spacing-val">32px</span></div>
+          <div class="spacing-row"><span class="spacing-name">--space-10</span><div class="spacing-bar" style="width:40px"></div><span class="spacing-val">40px</span></div>
+          <div class="spacing-row"><span class="spacing-name">--space-12</span><div class="spacing-bar" style="width:48px"></div><span class="spacing-val">48px</span></div>
+          <div class="spacing-row"><span class="spacing-name">--space-16</span><div class="spacing-bar" style="width:64px"></div><span class="spacing-val">64px</span></div>
+          <div class="spacing-row"><span class="spacing-name">--space-20</span><div class="spacing-bar" style="width:80px"></div><span class="spacing-val">80px</span></div>
+        </div>
+      </section>
+
+      <section id="radius">
+        <div class="section-num">04</div>
+        <h1 class="section-title">Радиусы</h1>
+        <p class="section-sub">От sharp до full — для разных типов поверхностей.</p>
+
+        <div class="radius-row">
+          <div style="text-align:center"><div class="radius-tile" style="border-radius:4px">4</div><div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-3);margin-top:6px">--radius-xs</div></div>
+          <div style="text-align:center"><div class="radius-tile" style="border-radius:6px">6</div><div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-3);margin-top:6px">--radius-sm</div></div>
+          <div style="text-align:center"><div class="radius-tile" style="border-radius:10px">10</div><div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-3);margin-top:6px">--radius</div></div>
+          <div style="text-align:center"><div class="radius-tile" style="border-radius:12px">12</div><div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-3);margin-top:6px">--radius-md</div></div>
+          <div style="text-align:center"><div class="radius-tile" style="border-radius:16px">16</div><div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-3);margin-top:6px">--radius-lg</div></div>
+          <div style="text-align:center"><div class="radius-tile" style="border-radius:20px">20</div><div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-3);margin-top:6px">--radius-xl</div></div>
+          <div style="text-align:center"><div class="radius-tile" style="border-radius:50%">∞</div><div style="font-family:var(--font-mono);font-size:0.72rem;color:var(--text-3);margin-top:6px">--radius-full</div></div>
+        </div>
+      </section>
+
+      <section id="shadows">
+        <div class="section-num">05</div>
+        <h1 class="section-title">Тени</h1>
+        <p class="section-sub">6 уровней элевации. Используются для глубины и иерархии.</p>
+
+        <div class="shadow-row">
+          <div class="shadow-tile" style="box-shadow:0 1px 2px rgba(0,0,0,.04)"><div><div class="shadow-tile-name">xs</div><div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-3)">0 1px 2px</div></div></div>
+          <div class="shadow-tile" style="box-shadow:0 2px 6px rgba(0,0,0,.06)"><div><div class="shadow-tile-name">sm</div><div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-3)">0 2px 6px</div></div></div>
+          <div class="shadow-tile" style="box-shadow:0 4px 16px rgba(0,0,0,.07)"><div><div class="shadow-tile-name">default</div><div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-3)">0 4px 16px</div></div></div>
+          <div class="shadow-tile" style="box-shadow:0 8px 28px rgba(0,0,0,.09)"><div><div class="shadow-tile-name">md</div><div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-3)">0 8px 28px</div></div></div>
+          <div class="shadow-tile" style="box-shadow:0 16px 48px rgba(0,0,0,.12)"><div><div class="shadow-tile-name">lg</div><div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-3)">0 16px 48px</div></div></div>
+          <div class="shadow-tile" style="box-shadow:0 24px 64px rgba(0,0,0,.16)"><div><div class="shadow-tile-name">xl</div><div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-3)">0 24px 64px</div></div></div>
+          <div class="shadow-tile" style="box-shadow:0 8px 24px rgba(108,92,231,0.28)"><div><div class="shadow-tile-name" style="color:var(--accent)">accent</div><div style="font-family:var(--font-mono);font-size:0.7rem;color:var(--text-3)">colored</div></div></div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    // Theme
+    const tgl = document.getElementById('themeToggle');
+    const s = document.getElementById('sunIcon');
+    const m = document.getElementById('moonIcon');
+    const stored = localStorage.getItem('design-demo-theme');
+    const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let theme = stored || (sysDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    tgl.addEventListener('click', () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('design-demo-theme', next);
+      if (next === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    });
+
+    // Scroll-spy for TOC
+    const links = document.querySelectorAll('.toc-link');
+    const sections = [...document.querySelectorAll('main section')];
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY + 100;
+      let active = sections[0];
+      sections.forEach(s => { if (s.offsetTop <= y) active = s; });
+      links.forEach(l => l.classList.toggle('is-active', l.getAttribute('href') === '#' + active.id));
+    });
+    links.forEach(l => l.addEventListener('click', (e) => {
+      e.preventDefault();
+      const id = l.getAttribute('href').slice(1);
+      document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+    }));
+
+    // Copy on color card click
+    document.querySelectorAll('.color-card').forEach(card => {
+      card.addEventListener('click', () => {
+        const hex = card.querySelector('.color-hex').textContent;
+        navigator.clipboard.writeText(hex).then(() => {
+          card.style.outline = '2px solid var(--accent)';
+          setTimeout(() => { card.style.outline = ''; }, 600);
+        });
+      });
+    });
+  </script>
+</body>
+</html>

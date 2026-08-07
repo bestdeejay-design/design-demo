@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Error States Pattern</title>
+  <style>
+    :root{--bg:#f5f5f7;--surface:#fff;--surface-2:#f0f0f5;--text:#1c1c1e;--text-2:#636366;--text-3:#8e8e93;--text-inverse:#fff;--border:#e5e5ea;--accent:#6c5ce7;--accent-soft:rgba(108,92,231,.08);--warning:#fdcb6e;--warning-soft:rgba(253,203,110,.18);--danger:#ff4757;--danger-soft:rgba(255,71,87,.08);--info:#74b9ff;--info-soft:rgba(116,185,255,.1);--success:#00b894;--success-soft:rgba(0,184,148,.1);--radius:10px;--radius-md:12px;--radius-lg:16px;--shadow:0 4px 16px rgba(0,0,0,.07);--font-sans:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif}
+    [data-theme="dark"]{--bg:#0c0c0e;--surface:#1a1a20;--surface-2:#23232a;--text:#ececf0;--text-2:#a0a0a8;--text-3:#6e6e76;--border:#2a2a32;--accent-soft:rgba(108,92,231,.15)}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);min-height:100vh);padding:24px;-webkit-font-smoothing:antialiased;line-height:1.5}
+    .container{max-width:1100px;margin:0 auto}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+    h1{font-size:1.4rem;font-weight:800;letter-spacing:-0.02em}
+    .back-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;background:var(--surface);border:1px solid var(--border);border-radius:100px;color:var(--text);font-size:0.8rem;font-weight:500;text-decoration:none}
+    .back-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .back-btn svg{width:12px;height:12px}
+    .theme-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer}
+    .theme-btn svg{width:16px;height:16px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px}
+    .scene{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:48px 32px;min-height:420px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center}
+    .scene-num{font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-3);margin-bottom:20px}
+    .emoji{font-size:5rem;margin-bottom:24px;line-height:1}
+    .code{font-family:'SF Mono',monospace;font-size:4.5rem;font-weight:800;color:var(--text);margin-bottom:8px;letter-spacing:-0.02em}
+    .code.danger{color:var(--danger)}
+    .code.warning{color:#a87a1c}
+    .title{font-size:1.4rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:12px}
+    .desc{color:var(--text-2);font-size:0.95rem;max-width:420px;line-height:1.6;margin-bottom:24px}
+    .actions{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+    .btn{display:inline-flex;align-items:center;gap:6px;padding:11px 20px;background:var(--accent);color:white;border:none;border-radius:var(--radius);font-size:0.88rem;font-weight:600;cursor:pointer;transition:all 0.15s;font-family:inherit}
+    .btn:hover{background:#5a4bd1;transform:translateY(-1px)}
+    .btn-secondary{background:transparent;color:var(--text-2);border:1px solid var(--border)}
+    .btn-secondary:hover{background:var(--surface-2);color:var(--text);transform:none}
+    .btn-danger{background:var(--danger)}
+    .btn-danger:hover{background:#e63e4d}
+    .detail{background:var(--surface-2);border-radius:var(--radius);padding:12px 16px;font-family:'SF Mono',monospace;font-size:0.78rem;color:var(--text-2);max-width:360px;text-align:left;margin-bottom:20px;word-break:break-all}
+    .detail b{color:var(--text)}
+    .links-row{display:flex;gap:16px;font-size:0.85rem;margin-top:8px}
+    .links-row a{color:var(--accent);text-decoration:none;font-weight:600}
+    .links-row a:hover{text-decoration:underline}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:16px">
+        <a class="back-btn" href="../../">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          Каталог
+        </a>
+        <h1>Error States</h1>
+      </div>
+      <button class="theme-btn" id="themeToggle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="sunIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="moonIcon" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </header>
+
+    <div class="grid">
+
+      <div class="scene">
+        <div class="scene-num">404 — Page Not Found</div>
+        <div class="emoji">🛰️</div>
+        <div class="code">404</div>
+        <h2 class="title">Эта страница улетела в космос</h2>
+        <p class="desc">Мы не можем найти запрашиваемую страницу. Возможно, она была перемещена или удалена.</p>
+        <div class="actions">
+          <button class="btn">← На главную</button>
+          <button class="btn btn-secondary">Связаться с нами</button>
+        </div>
+        <div class="links-row">
+          <a href="#">Помощь</a>
+          <a href="#">Статус системы</a>
+          <a href="#">Сообщить об ошибке</a>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="scene-num">500 — Server Error</div>
+        <div class="emoji">💥</div>
+        <div class="code danger">500</div>
+        <h2 class="title">Что-то сломалось на нашей стороне</h2>
+        <p class="desc">Мы уже работаем над этим. Попробуйте обновить страницу через пару минут. Приносим извинения за неудобства.</p>
+        <div class="detail">
+          <b>Request ID:</b> req_8f7a3b2c1d<br>
+          <b>Timestamp:</b> 2026-08-07 14:23:11 UTC
+        </div>
+        <div class="actions">
+          <button class="btn">↻ Обновить</button>
+          <button class="btn btn-secondary">Статус системы</button>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="scene-num">Network Error</div>
+        <div class="emoji">📡</div>
+        <h2 class="title">Не удаётся подключиться</h2>
+        <p class="desc">Проверьте подключение к интернету. Некоторые функции могут быть недоступны в офлайн-режиме.</p>
+        <div class="actions">
+          <button class="btn">↻ Повторить попытку</button>
+          <button class="btn btn-secondary">Офлайн-режим</button>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="scene-num">Form Error</div>
+        <div class="emoji">⚠️</div>
+        <h2 class="title">Исправьте ошибки в форме</h2>
+        <p class="desc">Проверьте подсвеченные поля и попробуйте отправить форму ещё раз.</p>
+        <div class="detail" style="background:rgba(255,71,87,0.05);border:1px solid rgba(255,71,87,0.2);color:var(--danger)">
+          <b>Ошибка:</b> 2 поля не заполнены корректно
+        </div>
+        <div class="actions">
+          <button class="btn">К форме</button>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="scene-num">403 — Forbidden</div>
+        <div class="emoji">🔒</div>
+        <div class="code warning">403</div>
+        <h2 class="title">Доступ запрещён</h2>
+        <p class="desc">У вашего аккаунта нет прав для просмотра этой страницы. Обратитесь к администратору для получения доступа.</p>
+        <div class="actions">
+          <button class="btn">Запросить доступ</button>
+          <button class="btn btn-secondary">Выйти</button>
+        </div>
+      </div>
+
+      <div class="scene">
+        <div class="scene-num">Maintenance</div>
+        <div class="emoji">🔧</div>
+        <h2 class="title">Мы на техобслуживании</h2>
+        <p class="desc">Сайт временно недоступен. Мы вернёмся через 30 минут с крутыми улучшениями. Спасибо за терпение!</p>
+        <div class="detail">
+          <b>Начало:</b> 14:00 UTC<br>
+          <b>Окончание:</b> ~14:30 UTC
+        </div>
+        <div class="actions">
+          <button class="btn">Статус</button>
+          <button class="btn btn-secondary">Подписаться</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const tgl = document.getElementById('themeToggle');
+    const s = document.getElementById('sunIcon');
+    const m = document.getElementById('moonIcon');
+    const stored = localStorage.getItem('design-demo-theme');
+    const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let theme = stored || (sysDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    tgl.addEventListener('click', () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('design-demo-theme', next);
+      if (next === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    });
+  </script>
+</body>
+</html>

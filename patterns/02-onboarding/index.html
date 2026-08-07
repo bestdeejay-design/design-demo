@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Onboarding Pattern</title>
+  <style>
+    :root{--bg:#f5f5f7;--surface:#fff;--surface-2:#f0f0f5;--text:#1c1c1e;--text-2:#636366;--text-3:#8e8e93;--text-inverse:#fff;--border:#e5e5ea;--accent:#6c5ce7;--accent-soft:rgba(108,92,231,.08);--success:#00b894;--radius:10px;--radius-md:12px;--shadow-md:0 8px 28px rgba(0,0,0,.09);--ease:cubic-bezier(0.4,0,0.2,1);--font-sans:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif}
+    [data-theme="dark"]{--bg:#0c0c0e;--surface:#1a1a20;--surface-2:#23232a;--text:#ececf0;--text-2:#a0a0a8;--text-3:#6e6e76;--border:#2a2a32;--accent-soft:rgba(108,92,231,.15)}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;-webkit-font-smoothing:antialiased}
+    .demo{width:100%;max-width:480px;background:var(--surface);border-radius:24px;box-shadow:var(--shadow-md);overflow:hidden;border:1px solid var(--border);position:relative}
+    .skip{position:absolute;top:20px;right:24px;background:none;border:none;color:var(--text-3);font-size:0.85rem;cursor:pointer;z-index:2;font-family:inherit}
+    .skip:hover{color:var(--text)}
+    .art{height:280px;background:linear-gradient(135deg,var(--accent-soft) 0%,rgba(116,185,255,0.15) 100%);display:flex;align-items:center;justify-content:center;font-size:7rem;position:relative;overflow:hidden}
+    .art::before{content:'';position:absolute;width:300px;height:300px;background:radial-gradient(circle,rgba(255,255,255,0.6),transparent 70%);border-radius:50%;top:-100px;right:-50px}
+    .body{padding:32px 32px 24px}
+    .step-num{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--accent);margin-bottom:8px}
+    .title{font-size:1.6rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:12px;line-height:1.2}
+    .desc{color:var(--text-2);font-size:0.95rem;line-height:1.55;margin-bottom:24px}
+    .dots{display:flex;justify-content:center;gap:8px;margin-bottom:24px}
+    .dot{width:8px;height:8px;border-radius:50%;background:var(--border-strong);transition:all 0.3s;cursor:pointer}
+    .dot.is-active{width:24px;background:var(--accent);border-radius:4px}
+    .actions{display:flex;justify-content:space-between;align-items:center}
+    .btn{padding:11px 24px;background:var(--accent);color:white;border:none;border-radius:var(--radius);font-weight:600;font-size:0.9rem;cursor:pointer;transition:all 0.2s;font-family:inherit}
+    .btn:hover{background:#5a4bd1;transform:translateY(-1px);box-shadow:0 6px 16px rgba(108,92,231,0.4)}
+    .btn-text{background:none;border:none;color:var(--text-2);font-size:0.88rem;cursor:pointer;padding:8px;font-family:inherit}
+    .btn-text:hover{color:var(--text)}
+    .pane{display:none;flex-direction:column;min-height:520px}
+    .pane.is-active{display:flex}
+    .back-btn{position:fixed;top:14px;right:20px;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:100px;color:var(--text);font-size:0.8rem;font-weight:500;text-decoration:none;z-index:60}
+    .back-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .back-btn svg{width:12px;height:12px}
+    .theme-fab{position:fixed;top:14px;right:140px;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:60}
+    .theme-fab svg{width:16px;height:16px}
+    .ctrl{display:flex;gap:6px;position:fixed;bottom:24px;left:24px;background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:6px}
+    .ctrl button{background:transparent;border:none;padding:5px 10px;font-size:0.75rem;color:var(--text-2);cursor:pointer;border-radius:100px;font-family:inherit}
+    .ctrl button:hover{background:var(--surface-2);color:var(--text)}
+  </style>
+</head>
+<body>
+  <button class="theme-fab" id="themeToggle">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="sunIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="moonIcon" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+  <a class="back-btn" href="../../">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Каталог
+  </a>
+
+  <div class="demo">
+    <button class="skip" onclick="goPane(3)">Пропустить →</button>
+
+    <div class="pane is-active" data-pane="1">
+      <div class="art">🎨</div>
+      <div class="body">
+        <div class="step-num">Шаг 1 из 3</div>
+        <h2 class="title">Создавай за минуты</h2>
+        <p class="desc">Готовые шаблоны, drag-n-drop и AI-помощник — собери свой первый проект за 5 минут, не часов.</p>
+        <div class="dots"><span class="dot is-active" data-goto="1"></span><span class="dot" data-goto="2"></span><span class="dot" data-goto="3"></span></div>
+        <div class="actions"><button class="btn-text">Назад</button><button class="btn" onclick="goPane(2)">Далее →</button></div>
+      </div>
+    </div>
+
+    <div class="pane" data-pane="2">
+      <div class="art" style="background:linear-gradient(135deg,rgba(0,184,148,0.15),var(--accent-soft))">🚀</div>
+      <div class="body">
+        <div class="step-num">Шаг 2 из 3</div>
+        <h2 class="title">Деплой в один клик</h2>
+        <p class="desc">Нажми кнопку — и твой проект уже в продакшне. Без настроек серверов, без сложных пайплайнов, без боли.</p>
+        <div class="dots"><span class="dot" data-goto="1"></span><span class="dot is-active" data-goto="2"></span><span class="dot" data-goto="3"></span></div>
+        <div class="actions"><button class="btn-text" onclick="goPane(1)">← Назад</button><button class="btn" onclick="goPane(3)">Далее →</button></div>
+      </div>
+    </div>
+
+    <div class="pane" data-pane="3">
+      <div class="art" style="background:linear-gradient(135deg,rgba(116,185,255,0.15),rgba(253,203,110,0.15))">🌟</div>
+      <div class="body">
+        <div class="step-num">Шаг 3 из 3</div>
+        <h2 class="title">Пригласи команду</h2>
+        <p class="desc">До 5 коллег бесплатно. Работайте вместе в реальном времени с комментариями, шерингом и уведомлениями.</p>
+        <div class="dots"><span class="dot" data-goto="1"></span><span class="dot" data-goto="2"></span><span class="dot is-active" data-goto="3"></span></div>
+        <div class="actions"><button class="btn-text" onclick="goPane(2)">← Назад</button><button class="btn">Начать 🚀</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ctrl">
+    <button onclick="goPane(1)">1</button>
+    <button onclick="goPane(2)">2</button>
+    <button onclick="goPane(3)">3</button>
+  </div>
+
+  <script>
+    const tgl = document.getElementById('themeToggle');
+    const s = document.getElementById('sunIcon');
+    const m = document.getElementById('moonIcon');
+    const stored = localStorage.getItem('design-demo-theme');
+    const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let theme = stored || (sysDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    tgl.addEventListener('click', () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('design-demo-theme', next);
+      if (next === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    });
+    window.goPane = (n) => {
+      document.querySelectorAll('.pane').forEach(p => p.classList.toggle('is-active', +p.dataset.pane === n));
+      document.querySelectorAll('.dot').forEach(d => d.classList.toggle('is-active', +d.dataset.goto === n));
+    };
+    document.querySelectorAll('.dot').forEach(d => d.addEventListener('click', () => goPane(+d.dataset.goto)));
+  </script>
+</body>
+</html>

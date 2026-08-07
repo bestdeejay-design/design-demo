@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Search & Filter Pattern</title>
+  <style>
+    :root{--bg:#f5f5f7;--surface:#fff;--surface-2:#f0f0f5;--surface-3:#e8e8ed;--text:#1c1c1e;--text-2:#636366;--text-3:#8e8e93;--text-inverse:#fff;--border:#e5e5ea;--accent:#6c5ce7;--accent-soft:rgba(108,92,231,.08);--radius:10px;--radius-md:12px;--radius-lg:16px;--shadow:0 4px 16px rgba(0,0,0,.07);--font-sans:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif}
+    [data-theme="dark"]{--bg:#0c0c0e;--surface:#1a1a20;--surface-2:#23232a;--surface-3:#2a2a32;--text:#ececf0;--text-2:#a0a0a8;--text-3:#6e6e76;--border:#2a2a32;--accent-soft:rgba(108,92,231,.15)}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);min-height:100vh);padding:24px;-webkit-font-smoothing:antialiased;line-height:1.5}
+    .container{max-width:960px;margin:0 auto}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+    h1{font-size:1.4rem;font-weight:800;letter-spacing:-0.02em}
+    .theme-btn{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer}
+    .theme-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .theme-btn svg{width:16px;height:16px}
+    .back-btn{display:inline-flex;align-items:center;gap:6px;padding:7px 12px;background:var(--surface);border:1px solid var(--border);border-radius:100px;color:var(--text);font-size:0.8rem;font-weight:500;text-decoration:none}
+    .back-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .back-btn svg{width:12px;height:12px}
+    .searchbar{position:relative;margin-bottom:16px}
+    .searchbar input{width:100%;padding:14px 14px 14px 44px;font:inherit;font-size:1rem;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius-md);color:var(--text);transition:all 0.2s}
+    .searchbar input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+    .searchbar svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--text-3)}
+    .toolbar{display:flex;gap:8px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+    .chip{padding:6px 12px;background:var(--surface);border:1px solid var(--border);border-radius:9999px;font-size:0.82rem;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-family:inherit;color:var(--text);transition:all 0.15s}
+    .chip:hover{border-color:var(--accent)}
+    .chip.is-active{background:var(--accent);color:white;border-color:var(--accent)}
+    .chip .x{opacity:0.6;margin-left:2px}
+    .sort{margin-left:auto;display:flex;align-items:center;gap:8px;color:var(--text-2);font-size:0.85rem}
+    .sort select{padding:6px 10px;background:var(--surface);border:1px solid var(--border);border-radius:8px;font:inherit;color:var(--text);cursor:pointer}
+    .results-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;padding:0 4px;font-size:0.85rem;color:var(--text-2)}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;transition:all 0.2s;cursor:pointer}
+    .card:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:var(--shadow)}
+    .card-thumb{height:120px;border-radius:var(--radius-sm);background:linear-gradient(135deg,#6c5ce7,#a29bfe);margin-bottom:12px;display:flex;align-items:center;justify-content:center;font-size:2.5rem;color:white}
+    .card-title{font-weight:700;margin-bottom:4px}
+    .card-meta{font-size:0.78rem;color:var(--text-2);display:flex;align-items:center;gap:6px}
+    .tag{padding:1px 6px;background:var(--surface-2);border-radius:4px;font-size:0.7rem}
+    .empty{padding:60px 20px;text-align:center;color:var(--text-2)}
+    .empty-emoji{font-size:3rem;margin-bottom:12px;opacity:0.5}
+    .empty-title{font-weight:700;margin-bottom:4px;color:var(--text)}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header class="topbar">
+      <div style="display:flex;align-items:center;gap:16px">
+        <a class="back-btn" href="../../">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+          Каталог
+        </a>
+        <h1>Каталог проектов</h1>
+      </div>
+      <button class="theme-btn" id="themeToggle">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="sunIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="moonIcon" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </header>
+
+    <div class="searchbar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="search" id="search" placeholder="Поиск проектов, шаблонов, команд…">
+    </div>
+
+    <div class="toolbar">
+      <button class="chip is-active" data-tag="all">Все <span class="x">×</span></button>
+      <button class="chip" data-tag="dashboard">Dashboard</button>
+      <button class="chip" data-tag="landing">Landing</button>
+      <button class="chip" data-tag="ecommerce">E-commerce</button>
+      <button class="chip" data-tag="mobile">Mobile</button>
+      <button class="chip" data-tag="dashboard">Dashboard <span class="x">×</span></button>
+      <div class="sort">
+        <span>Сортировка:</span>
+        <select>
+          <option>По популярности</option>
+          <option>Новые</option>
+          <option>По названию</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="results-header">
+      <span>Найдено: <strong style="color:var(--text)" id="resultCount">12</strong> проектов</span>
+      <span>Средняя цена: <strong style="color:var(--text)">$48</strong></span>
+    </div>
+
+    <div class="grid" id="grid">
+      <div class="card" data-tags="dashboard">
+        <div class="card-thumb" style="background:linear-gradient(135deg,#6c5ce7,#a29bfe)">📊</div>
+        <div class="card-title">Cosmos Dashboard</div>
+        <div class="card-meta"><span class="tag">dashboard</span><span>·</span><span>$49</span><span>·</span><span>★★★★★ 4.8</span></div>
+      </div>
+      <div class="card" data-tags="landing">
+        <div class="card-thumb" style="background:linear-gradient(135deg,#ff4757,#fdcb6e)">🚀</div>
+        <div class="card-title">Startup Landing</div>
+        <div class="card-meta"><span class="tag">landing</span><span>·</span><span>$29</span><span>·</span><span>★★★★★ 4.9</span></div>
+      </div>
+      <div class="card" data-tags="ecommerce">
+        <div class="card-thumb" style="background:linear-gradient(135deg,#00b894,#55efc4)">🛍️</div>
+        <div class="card-title">Shop Kit Pro</div>
+        <div class="card-meta"><span class="tag">ecommerce</span><span>·</span><span>$89</span><span>·</span><span>★★★★★ 4.7</span></div>
+      </div>
+      <div class="card" data-tags="mobile">
+        <div class="card-thumb" style="background:linear-gradient(135deg,#74b9ff,#0984e3)">📱</div>
+        <div class="card-title">Mobile Pack</div>
+        <div class="card-meta"><span class="tag">mobile</span><span>·</span><span>$39</span><span>·</span><span>★★★★★ 4.6</span></div>
+      </div>
+      <div class="card" data-tags="dashboard landing">
+        <div class="card-thumb" style="background:linear-gradient(135deg,#fd79a8,#e84393)">💎</div>
+        <div class="card-title">Premium Bundle</div>
+        <div class="card-meta"><span class="tag">dashboard</span><span>·</span><span>$129</span><span>·</span><span>★★★★★ 5.0</span></div>
+      </div>
+      <div class="card" data-tags="landing">
+        <div class="card-thumb" style="background:linear-gradient(135deg,#00cec9,#6c5ce7)">✨</div>
+        <div class="card-title">Agency Site</div>
+        <div class="card-meta"><span class="tag">landing</span><span>·</span><span>$35</span><span>·</span><span>★★★★☆ 4.4</span></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const tgl = document.getElementById('themeToggle');
+    const s = document.getElementById('sunIcon');
+    const m = document.getElementById('moonIcon');
+    const stored = localStorage.getItem('design-demo-theme');
+    const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let theme = stored || (sysDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    tgl.addEventListener('click', () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('design-demo-theme', next);
+      if (next === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    });
+
+    // Filter logic
+    const search = document.getElementById('search');
+    const grid = document.getElementById('grid');
+    const cards = grid.querySelectorAll('.card');
+    const count = document.getElementById('resultCount');
+
+    function filter() {
+      const q = search.value.toLowerCase();
+      const activeChip = document.querySelector('.chip.is-active');
+      const tag = activeChip ? activeChip.dataset.tag : 'all';
+      let visible = 0;
+      cards.forEach(card => {
+        const tags = (card.dataset.tags || '').split(' ');
+        const title = card.querySelector('.card-title').textContent.toLowerCase();
+        const matchTag = tag === 'all' || tags.includes(tag);
+        const matchQ = !q || title.includes(q);
+        const show = matchTag && matchQ;
+        card.style.display = show ? '' : 'none';
+        if (show) visible++;
+      });
+      count.textContent = visible;
+    }
+
+    search.addEventListener('input', filter);
+    document.querySelectorAll('.chip').forEach(c => c.addEventListener('click', () => {
+      document.querySelectorAll('.chip').forEach(x => x.classList.remove('is-active'));
+      c.classList.add('is-active');
+      filter();
+    }));
+  </script>
+</body>
+</html>

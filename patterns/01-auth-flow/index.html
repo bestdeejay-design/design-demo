@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auth Flow Pattern</title>
+  <style>
+    :root{--bg:#f5f5f7;--surface:#fff;--surface-2:#f0f0f5;--text:#1c1c1e;--text-2:#636366;--text-3:#8e8e93;--text-inverse:#fff;--border:#e5e5ea;--accent:#6c5ce7;--accent-soft:rgba(108,92,231,.08);--success:#00b894;--success-soft:rgba(0,184,148,.1);--radius:10px;--radius-md:12px;--shadow:0 4px 16px rgba(0,0,0,.07);--shadow-md:0 8px 28px rgba(0,0,0,.09);--ease:cubic-bezier(0.4,0,0.2,1);--dur:260ms;--font-sans:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif}
+    [data-theme="dark"]{--bg:#0c0c0e;--surface:#1a1a20;--surface-2:#23232a;--text:#ececf0;--text-2:#a0a0a8;--text-3:#6e6e76;--border:#2a2a32;--accent-soft:rgba(108,92,231,.15)}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;-webkit-font-smoothing:antialiased}
+    .demo-phone{width:100%;max-width:420px;background:var(--surface);border-radius:24px;box-shadow:var(--shadow-md);overflow:hidden;border:1px solid var(--border)}
+    .step-bar{display:flex;background:var(--surface-2);padding:8px}
+    .step-pill{flex:1;height:4px;border-radius:2px;background:var(--border);margin:0 2px;transition:background 0.3s}
+    .step-pill.is-done{background:var(--success)}
+    .step-pill.is-active{background:var(--accent)}
+    .step-pane{padding:32px 28px;min-height:480px;display:flex;flex-direction:column;transition:opacity 0.3s}
+    .step-pane[hidden]{display:none}
+    .step-emoji{font-size:3rem;margin-bottom:16px}
+    .step-title{font-size:1.5rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px}
+    .step-sub{color:var(--text-2);font-size:0.95rem;margin-bottom:24px;line-height:1.5}
+    .input{width:100%;padding:12px 14px;font:inherit;font-size:0.95rem;color:var(--text);background:var(--surface);border:1.5px solid var(--border);border-radius:var(--radius);margin-bottom:12px;transition:all 0.2s}
+    .input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+    .btn{width:100%;padding:13px;background:var(--accent);color:white;border:none;border-radius:var(--radius);font-size:0.95rem;font-weight:600;cursor:pointer;transition:all 0.2s;display:flex;align-items:center;justify-content:center;gap:8px}
+    .btn:hover{background:#5a4bd1;transform:translateY(-1px);box-shadow:0 6px 20px rgba(108,92,231,0.4)}
+    .btn-secondary{background:transparent;color:var(--text-2);border:none;padding:8px;font-size:0.85rem;cursor:pointer;margin-top:8px}
+    .btn-secondary:hover{color:var(--text)}
+    .code-row{display:flex;gap:8px;margin-bottom:16px}
+    .code-row .input{margin-bottom:0;text-align:center;font-family:'SF Mono',monospace;letter-spacing:6px;font-weight:700;font-size:1.1rem}
+    .verify-icon{width:64px;height:64px;border-radius:50%;background:var(--success-soft);color:var(--success);display:flex;align-items:center;justify-content:center;margin:0 auto 20px}
+    .verify-icon svg{width:32px;height:32px}
+    .step-actions{margin-top:auto;display:flex;flex-direction:column}
+    .back-btn{position:fixed;top:14px;right:20px;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:100px;color:var(--text);font-size:0.8rem;font-weight:500;text-decoration:none;z-index:60}
+    .back-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .back-btn svg{width:12px;height:12px}
+    .ctrl-row{display:flex;gap:8px;justify-content:center;margin-top:16px}
+    .ctrl-row button{background:transparent;border:1px solid var(--border);padding:6px 10px;border-radius:6px;font-size:0.75rem;color:var(--text-2);cursor:pointer;font-family:inherit}
+    .ctrl-row button:hover{border-color:var(--accent);color:var(--accent)}
+    .theme-fab{position:fixed;top:14px;right:140px;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:60}
+    .theme-fab svg{width:16px;height:16px}
+  </style>
+</head>
+<body>
+  <button class="theme-fab" id="themeToggle">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="sunIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="moonIcon" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+  <a class="back-btn" href="../../">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Каталог
+  </a>
+
+  <div class="demo-phone">
+    <div class="step-bar" id="stepBar">
+      <div class="step-pill" data-step="1"></div>
+      <div class="step-pill" data-step="2"></div>
+      <div class="step-pill" data-step="3"></div>
+      <div class="step-pill" data-step="4"></div>
+    </div>
+
+    <!-- Step 1: Email -->
+    <div class="step-pane" data-step-pane="1">
+      <div class="step-emoji">✉️</div>
+      <h2 class="step-title">Создайте аккаунт</h2>
+      <p class="step-sub">Введите email — пришлём код подтверждения</p>
+      <input type="email" class="input" placeholder="you@design.demo" value="anna@design.demo">
+      <div class="step-actions">
+        <button class="btn" onclick="goStep(2)">Продолжить →</button>
+        <button class="btn-secondary">У меня уже есть аккаунт</button>
+      </div>
+    </div>
+
+    <!-- Step 2: Verify -->
+    <div class="step-pane" data-step-pane="2" hidden>
+      <div class="verify-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h2 class="step-title">Подтвердите email</h2>
+      <p class="step-sub" style="text-align:center">Мы отправили 6-значный код на<br><strong style="color:var(--text)">anna@design.demo</strong></p>
+      <div class="code-row">
+        <input type="text" class="input" maxlength="1" value="4">
+        <input type="text" class="input" maxlength="1" value="2">
+        <input type="text" class="input" maxlength="1" value="8">
+        <input type="text" class="input" maxlength="1" value="1">
+        <input type="text" class="input" maxlength="1" value="9">
+        <input type="text" class="input" maxlength="1" value="3">
+      </div>
+      <div class="step-actions">
+        <button class="btn" onclick="goStep(3)">Подтвердить</button>
+        <button class="btn-secondary">Не пришёл код? Отправить ещё раз</button>
+      </div>
+    </div>
+
+    <!-- Step 3: Password -->
+    <div class="step-pane" data-step-pane="3" hidden>
+      <div class="step-emoji">🔐</div>
+      <h2 class="step-title">Придумайте пароль</h2>
+      <p class="step-sub">Минимум 8 символов, используйте цифры и спецсимволы</p>
+      <input type="password" class="input" placeholder="Новый пароль">
+      <input type="password" class="input" placeholder="Повторите пароль">
+      <div class="step-actions">
+        <button class="btn" onclick="goStep(4)">Создать аккаунт</button>
+      </div>
+    </div>
+
+    <!-- Step 4: Welcome -->
+    <div class="step-pane" data-step-pane="4" hidden>
+      <div class="step-emoji" style="text-align:center;width:100%">🎉</div>
+      <h2 class="step-title" style="text-align:center">Добро пожаловать!</h2>
+      <p class="step-sub" style="text-align:center">Аккаунт создан. Готовы начать?</p>
+      <div style="background:var(--accent-soft);border-radius:12px;padding:16px;margin:20px 0">
+        <div style="font-size:0.78rem;color:var(--accent);font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px">Бонус за регистрацию</div>
+        <div style="font-weight:700">+500 стартовых монет 🎁</div>
+        <div style="font-size:0.85rem;color:var(--text-2)">На создание первого проекта</div>
+      </div>
+      <div class="step-actions">
+        <button class="btn">Перейти в дашборд →</button>
+        <button class="btn-secondary" onclick="goStep(1)">Пройти онбординг</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="ctrl-row">
+    <button onclick="goStep(1)">1 · Email</button>
+    <button onclick="goStep(2)">2 · Verify</button>
+    <button onclick="goStep(3)">3 · Password</button>
+    <button onclick="goStep(4)">4 · Welcome</button>
+  </div>
+
+  <script>
+    const tgl = document.getElementById('themeToggle');
+    const s = document.getElementById('sunIcon');
+    const m = document.getElementById('moonIcon');
+    const stored = localStorage.getItem('design-demo-theme');
+    const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let theme = stored || (sysDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    tgl.addEventListener('click', () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('design-demo-theme', next);
+      if (next === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    });
+
+    window.goStep = function(n) {
+      document.querySelectorAll('.step-pane').forEach((p, i) => { p.hidden = (i + 1) !== n; });
+      document.querySelectorAll('.step-pill').forEach((p, i) => {
+        p.classList.toggle('is-done', i + 1 < n);
+        p.classList.toggle('is-active', i + 1 === n);
+      });
+    };
+  </script>
+</body>
+</html>
