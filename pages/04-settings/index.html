@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings</title>
+  <style>
+    :root{--bg:#f5f5f7;--bg-elevated:#fff;--surface:#fff;--surface-2:#f0f0f5;--surface-3:#e8e8ed;--text:#1c1c1e;--text-2:#636366;--text-3:#8e8e93;--text-inverse:#fff;--border:#e5e5ea;--accent:#6c5ce7;--accent-soft:rgba(108,92,231,.08);--success:#00b894;--danger:#ff4757;--warning:#fdcb6e;--radius-sm:6px;--radius:10px;--radius-md:12px;--radius-lg:16px;--ease:cubic-bezier(0.4,0,0.2,1);--dur-fast:180ms;--font-sans:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif}
+    [data-theme="dark"]{--bg:#0c0c0e;--bg-elevated:#14141a;--surface:#1a1a20;--surface-2:#23232a;--surface-3:#2a2a32;--text:#ececf0;--text-2:#a0a0a8;--text-3:#6e6e76;--border:#2a2a32;--accent-soft:rgba(108,92,231,.15)}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;line-height:1.5}
+    .layout{display:grid;grid-template-columns:280px 1fr;width:100%;min-height:100vh}
+    .side{background:var(--bg-elevated);border-right:1px solid var(--border);padding:24px 16px;position:sticky;top:0;height:100vh;overflow-y:auto}
+    .side-title{font-size:1.1rem;font-weight:800;letter-spacing:-0.02em;padding:0 12px 18px;display:flex;align-items:center;gap:8px}
+    .side-title-icon{width:28px;height:28px;border-radius:8px;background:linear-gradient(135deg,var(--accent-light),var(--accent));display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:14px;box-shadow:0 4px 12px rgba(108,92,231,0.3)}
+    .side-nav{display:flex;flex-direction:column;gap:2px}
+    .side-section{font-size:0.65rem;font-weight:700;text-transform:uppercase;letter-spacing:0.8px;color:var(--text-3);padding:14px 12px 6px}
+    .side-link{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;color:var(--text-2);text-decoration:none;font-size:0.88rem;font-weight:500;transition:all 0.15s;cursor:pointer;border:none;background:none;width:100%;text-align:left;font-family:inherit}
+    .side-link:hover{background:var(--surface-2);color:var(--text)}
+    .side-link.is-active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+    .side-link svg{width:18px;height:18px;flex-shrink:0}
+    .main{padding:32px 40px;max-width:920px;width:100%}
+    .page-head{margin-bottom:32px}
+    .page-head h1{font-size:1.75rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:4px}
+    .page-head p{color:var(--text-2);font-size:0.95rem}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:24px;margin-bottom:20px}
+    .card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+    .card-title{font-size:1.05rem;font-weight:700}
+    .card-sub{font-size:0.82rem;color:var(--text-2);margin-top:2px}
+    .field-row{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+    .field-row:last-child{margin-bottom:0}
+    .field{display:flex;flex-direction:column;gap:6px}
+    .field.full{grid-column:1/-1}
+    .field-label{font-size:0.82rem;font-weight:600;color:var(--text)}
+    .field-hint{font-size:0.75rem;color:var(--text-2)}
+    .input{padding:10px 14px;font:inherit;font-size:0.92rem;color:var(--text);background:var(--surface);border:1.5px solid var(--border);border-radius:8px;transition:all 0.15s}
+    .input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+    .textarea{min-height:80px;resize:vertical;font-family:inherit}
+    .avatar-row{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+    .big-avatar{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,#ff4757,#fdcb6e);display:flex;align-items:center;justify-content:center;color:white;font-weight:800;font-size:1.5rem}
+    .btn{padding:9px 18px;border-radius:8px;font:inherit;font-size:0.85rem;font-weight:600;cursor:pointer;transition:all 0.15s;border:1px solid var(--border);background:var(--surface);color:var(--text);display:inline-flex;align-items:center;gap:6px}
+    .btn:hover{border-color:var(--accent);color:var(--accent)}
+    .btn-primary{background:var(--accent);color:var(--text-inverse);border-color:var(--accent);box-shadow:0 2px 8px rgba(108,92,231,0.3)}
+    .btn-primary:hover{background:var(--accent-hover);color:white;border-color:var(--accent-hover)}
+    .btn-danger{color:var(--danger);border-color:rgba(255,71,87,0.3)}
+    .btn-danger:hover{background:var(--danger-soft);border-color:var(--danger);color:var(--danger)}
+    .toggle-row{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--border)}
+    .toggle-row:last-child{border-bottom:none}
+    .toggle-label{flex:1}
+    .toggle-name{font-weight:600;font-size:0.92rem;margin-bottom:2px}
+    .toggle-desc{font-size:0.82rem;color:var(--text-2);line-height:1.5}
+    .switch{position:relative;width:44px;height:24px;flex-shrink:0}
+    .switch input{position:absolute;opacity:0;pointer-events:none}
+    .switch-track{width:100%;height:100%;background:var(--border-strong);border-radius:9999px;position:relative;transition:background 0.2s;cursor:pointer}
+    .switch-track::after{content:'';position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:white;box-shadow:0 1px 3px rgba(0,0,0,0.2);transition:transform 0.2s}
+    .switch input:checked~.switch-track{background:var(--accent)}
+    .switch input:checked~.switch-track::after{transform:translateX(20px)}
+    .select{padding:10px 14px;font:inherit;font-size:0.92rem;color:var(--text);background:var(--surface);border:1.5px solid var(--border);border-radius:8px;width:100%;cursor:pointer}
+    .select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+    .team-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border)}
+    .team-row:last-child{border-bottom:none}
+    .team-avatar{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:white;font-weight:700;font-size:0.82rem;flex-shrink:0}
+    .team-info{flex:1;min-width:0}
+    .team-name{font-weight:600;font-size:0.9rem}
+    .team-email{font-size:0.78rem;color:var(--text-2)}
+    .team-role{font-size:0.72rem;font-weight:600;color:var(--text-3);text-transform:uppercase;letter-spacing:0.5px}
+    .danger-zone{border:1px solid rgba(255,71,87,0.3);background:rgba(255,71,87,0.02)}
+    .danger-zone .card-head{border-bottom-color:rgba(255,71,87,0.15)}
+    .danger-zone .card-title{color:var(--danger)}
+    .pane{display:none}
+    .pane.is-active{display:block}
+    .back-btn{position:fixed;top:20px;right:20px;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;background:var(--bg-elevated);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:100px;color:var(--text);font-size:0.8rem;font-weight:500;text-decoration:none;z-index:10;transition:all 0.2s}
+    .back-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .back-btn svg{width:12px;height:12px}
+    .theme-fab{position:fixed;top:20px;right:140px;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--bg-elevated);color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:10;transition:all 0.2s}
+    .theme-fab:hover{border-color:var(--accent);color:var(--accent)}
+    .theme-fab svg{width:16px;height:16px}
+    @media (max-width:920px){.layout{grid-template-columns:1fr}.side{position:static;height:auto;border-right:none;border-bottom:1px solid var(--border)}.main{padding:24px 20px}}
+    @media (max-width:720px){.field-row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <aside class="side">
+      <div class="side-title"><div class="side-title-icon">D</div>Настройки</div>
+      <nav class="side-nav">
+        <div class="side-section">Аккаунт</div>
+        <button class="side-link is-active" data-pane="profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Профиль</button>
+        <button class="side-link" data-pane="security"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>Безопасность</button>
+        <button class="side-link" data-pane="team"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>Команда</button>
+        <button class="side-link" data-pane="billing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Биллинг</button>
+        <div class="side-section">Приложение</div>
+        <button class="side-link" data-pane="notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Уведомления</button>
+        <button class="side-link" data-pane="appearance"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>Внешний вид</button>
+        <button class="side-link" data-pane="integrations"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>Интеграции</button>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="page-head">
+        <h1>Настройки</h1>
+        <p>Управление аккаунтом, командой и приложением</p>
+      </header>
+
+      <div class="pane is-active" data-pane="profile">
+        <div class="card">
+          <div class="card-head">
+            <div><div class="card-title">Публичный профиль</div><div class="card-sub">Эту информацию видят другие пользователи</div></div>
+            <button class="btn btn-primary">Сохранить</button>
+          </div>
+          <div class="avatar-row">
+            <div class="big-avatar">А</div>
+            <div>
+              <button class="btn">Загрузить фото</button>
+              <button class="btn">Удалить</button>
+            </div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label class="field-label">Имя</label><input type="text" class="input" value="Анна Петрова"></div>
+            <div class="field"><label class="field-label">Username</label><input type="text" class="input" value="@anna_design"></div>
+          </div>
+          <div class="field-row">
+            <div class="field full"><label class="field-label">Email</label><input type="email" class="input" value="anna@design.demo"></div>
+          </div>
+          <div class="field-row">
+            <div class="field full"><label class="field-label">О себе</label><textarea class="input textarea">Дизайнер интерфейсов. Люблю космос, чистый минимализм и хороший кофе ☕</textarea></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">Приватность</div><div class="card-sub">Кто видит ваш профиль</div></div></div>
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <div class="toggle-name">Публичный профиль</div>
+              <div class="toggle-desc">Любой пользователь может посмотреть ваш профиль</div>
+            </div>
+            <label class="switch"><input type="checkbox" checked><span class="switch-track"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <div class="toggle-name">Показывать email</div>
+              <div class="toggle-desc">Email будет виден другим участникам команды</div>
+            </div>
+            <label class="switch"><input type="checkbox"><span class="switch-track"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-label">
+              <div class="toggle-name">Индексация поисковиками</div>
+              <div class="toggle-desc">Разрешить Google/Yandex индексировать ваш профиль</div>
+            </div>
+            <label class="switch"><input type="checkbox"><span class="switch-track"></span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="pane" data-pane="security">
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">Пароль</div><div class="card-sub">Последний раз менялся 3 месяца назад</div></div></div>
+          <div class="field-row">
+            <div class="field full"><label class="field-label">Текущий пароль</label><input type="password" class="input"></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label class="field-label">Новый пароль</label><input type="password" class="input"></div>
+            <div class="field"><label class="field-label">Повторите</label><input type="password" class="input"></div>
+          </div>
+          <div style="margin-top:16px"><button class="btn btn-primary">Обновить пароль</button></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">Двухфакторная аутентификация</div><div class="card-sub">Дополнительный уровень защиты</div></div></div>
+          <div class="toggle-row">
+            <div class="toggle-label"><div class="toggle-name">2FA через приложение</div><div class="toggle-desc">Использовать Google Authenticator / 1Password</div></div>
+            <label class="switch"><input type="checkbox" checked><span class="switch-track"></span></label>
+          </div>
+          <div class="toggle-row">
+            <div class="toggle-label"><div class="toggle-name">SMS-код</div><div class="toggle-desc">Получать код на телефон +7 (***) ***-**-42</div></div>
+            <label class="switch"><input type="checkbox"><span class="switch-track"></span></label>
+          </div>
+        </div>
+        <div class="card danger-zone">
+          <div class="card-head"><div><div class="card-title">Активные сессии</div></div></div>
+          <div class="team-row">
+            <div class="team-avatar" style="background:linear-gradient(135deg,var(--accent),var(--info))">💻</div>
+            <div class="team-info"><div class="team-name">MacBook Pro · Safari</div><div class="team-email">Москва · Последняя активность: сейчас</div></div>
+            <button class="btn btn-danger">Завершить</button>
+          </div>
+          <div class="team-row">
+            <div class="team-avatar" style="background:linear-gradient(135deg,#ff4757,#fdcb6e)">📱</div>
+            <div class="team-info"><div class="team-name">iPhone 15 · Mobile App</div><div class="team-email">Москва · 2 часа назад</div></div>
+            <button class="btn btn-danger">Завершить</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pane" data-pane="team">
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">Участники команды (5)</div><div class="card-sub">Пригласите коллег для совместной работы</div></div><button class="btn btn-primary">+ Пригласить</button></div>
+          <div class="team-row">
+            <div class="team-avatar" style="background:linear-gradient(135deg,#ff4757,#fdcb6e)">А</div>
+            <div class="team-info"><div class="team-name">Анна Петрова <span style="font-weight:400;color:var(--text-3)">(вы)</span></div><div class="team-email">anna@design.demo</div></div>
+            <span class="team-role">Owner</span>
+          </div>
+          <div class="team-row">
+            <div class="team-avatar" style="background:linear-gradient(135deg,#6c5ce7,#a29bfe)">М</div>
+            <div class="team-info"><div class="team-name">Мария Иванова</div><div class="team-email">maria@design.demo</div></div>
+            <span class="team-role">Admin</span>
+          </div>
+          <div class="team-row">
+            <div class="team-avatar" style="background:linear-gradient(135deg,#00b894,#55efc4)">Д</div>
+            <div class="team-info"><div class="team-name">Дмитрий Соколов</div><div class="team-email">d.sokolov@design.demo</div></div>
+            <span class="team-role">Editor</span>
+          </div>
+          <div class="team-row">
+            <div class="team-avatar" style="background:linear-gradient(135deg,#fdcb6e,#e17055)">О</div>
+            <div class="team-info"><div class="team-name">Ольга Смирнова</div><div class="team-email">olga@design.demo</div></div>
+            <span class="team-role">Editor</span>
+          </div>
+          <div class="team-row">
+            <div class="team-avatar" style="background:linear-gradient(135deg,#74b9ff,#0984e3)">И</div>
+            <div class="team-info"><div class="team-name">Иван Кузнецов</div><div class="team-email">ivan@design.demo</div></div>
+            <span class="team-role">Viewer</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="pane" data-pane="billing">
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">Текущий план</div></div><button class="btn btn-primary">Изменить план</button></div>
+          <div style="display:flex;align-items:center;gap:16px;padding:20px;background:linear-gradient(135deg,var(--accent-soft),rgba(116,185,255,0.1));border-radius:12px;margin-bottom:20px">
+            <div style="width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-hover));color:white;display:flex;align-items:center;justify-content:center"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+            <div style="flex:1"><div style="font-weight:700;font-size:1.05rem">Pro Plan</div><div style="font-size:0.85rem;color:var(--text-2)">$12 / месяц · Следующее списание 5 сентября</div></div>
+          </div>
+          <div class="field-row">
+            <div class="field"><label class="field-label">Способ оплаты</label><select class="select"><option>💳 Visa •••• 4242</option><option>💳 Mastercard •••• 8888</option><option>Добавить новую</option></select></div>
+            <div class="field"><label class="field-label">Валюта</label><select class="select"><option>RUB — Российский рубль</option><option>USD — US Dollar</option><option>EUR — Euro</option></select></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pane" data-pane="notifications">
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">Email уведомления</div></div></div>
+          <div class="toggle-row"><div class="toggle-label"><div class="toggle-name">Новые заказы</div><div class="toggle-desc">Когда клиент оформляет заказ</div></div><label class="switch"><input type="checkbox" checked><span class="switch-track"></span></label></div>
+          <div class="toggle-row"><div class="toggle-label"><div class="toggle-name">Комментарии</div><div class="toggle-desc">Когда кто-то упомянул вас или ответил</div></div><label class="switch"><input type="checkbox" checked><span class="switch-track"></span></label></div>
+          <div class="toggle-row"><div class="toggle-label"><div class="toggle-name">Дайджест за неделю</div><div class="toggle-desc">Еженедельный отчёт по активности команды</div></div><label class="switch"><input type="checkbox"><span class="switch-track"></span></label></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">Push уведомления</div></div></div>
+          <div class="toggle-row"><div class="toggle-label"><div class="toggle-name">Push в браузере</div><div class="toggle-desc">Мгновенные уведомления в правом нижнем углу</div></div><label class="switch"><input type="checkbox" checked><span class="switch-track"></span></label></div>
+          <div class="toggle-row"><div class="toggle-label"><div class="toggle-name">Звук</div><div class="toggle-desc">Воспроизводить звук при получении</div></div><label class="switch"><input type="checkbox"><span class="switch-track"></span></label></div>
+        </div>
+      </div>
+
+      <div class="pane" data-pane="appearance">
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">Тема</div><div class="card-sub">Светлая, тёмная или по системе</div></div></div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px">
+            <button class="btn" style="flex-direction:column;height:auto;padding:16px"><div style="font-size:1.5rem">☀️</div><div>Светлая</div></button>
+            <button class="btn" style="flex-direction:column;height:auto;padding:16px"><div style="font-size:1.5rem">🌙</div><div>Тёмная</div></button>
+            <button class="btn" style="flex-direction:column;height:auto;padding:16px;border-color:var(--accent);color:var(--accent)"><div style="font-size:1.5rem">🌗</div><div>По системе</div></button>
+          </div>
+          <div class="field-row">
+            <div class="field"><label class="field-label">Язык интерфейса</label><select class="select"><option>Русский</option><option>English</option><option>Deutsch</option></select></div>
+            <div class="field"><label class="field-label">Часовой пояс</label><select class="select"><option>Europe/Moscow (UTC+3)</option><option>UTC</option><option>America/New_York (UTC-5)</option></select></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pane" data-pane="integrations">
+        <div class="card">
+          <div class="card-head"><div><div class="card-title">Подключённые сервисы</div></div></div>
+          <div class="team-row">
+            <div class="team-avatar" style="background:#24292e">G</div>
+            <div class="team-info"><div class="team-name">GitHub</div><div class="team-email">Синхронизация репозиториев · Подключено</div></div>
+            <button class="btn btn-danger">Отключить</button>
+          </div>
+          <div class="team-row">
+            <div class="team-avatar" style="background:#5865F2">S</div>
+            <div class="team-info"><div class="team-name">Slack</div><div class="team-email">Уведомления в каналы · Подключено</div></div>
+            <button class="btn btn-danger">Отключить</button>
+          </div>
+          <div class="team-row">
+            <div class="team-avatar" style="background:#0ACF83">F</div>
+            <div class="team-info"><div class="team-name">Figma</div><div class="team-email">Импорт дизайнов · Не подключено</div></div>
+            <button class="btn btn-primary">Подключить</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="card danger-zone" style="margin-top:32px">
+        <div class="card-head"><div><div class="card-title" style="color:var(--danger)">Опасная зона</div><div class="card-sub">Необратимые действия</div></div></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0">
+          <div><div style="font-weight:600">Удалить аккаунт</div><div style="font-size:0.82rem;color:var(--text-2)">Все ваши данные будут удалены безвозвратно</div></div>
+          <button class="btn btn-danger">Удалить аккаунт</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <button class="theme-fab" id="themeToggle" aria-label="Toggle theme">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="sunIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="moonIcon" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+  <a class="back-btn" href="../../">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Каталог
+  </a>
+
+  <script>
+    const tgl = document.getElementById('themeToggle');
+    const s = document.getElementById('sunIcon');
+    const m = document.getElementById('moonIcon');
+    const stored = localStorage.getItem('design-demo-theme');
+    const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let theme = stored || (sysDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    tgl.addEventListener('click', () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('design-demo-theme', next);
+      if (next === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    });
+    document.querySelectorAll('[data-pane]').forEach(btn => {
+      if (btn.classList.contains('side-link')) {
+        btn.addEventListener('click', () => {
+          const name = btn.dataset.pane;
+          document.querySelectorAll('.side-link').forEach(b => b.classList.toggle('is-active', b === btn));
+          document.querySelectorAll('.pane').forEach(p => p.classList.toggle('is-active', p.dataset.pane === name));
+        });
+      }
+    });
+  </script>
+</body>
+</html>
