@@ -1,26 +1,12 @@
 # Modal & Dialog
 
-Полный набор модальных окон: стандартные, confirm-диалоги, bottom sheets (mobile), drawers (side panels). С правильной обработкой состояний, фокуса и адаптива.
+Standard (3 размера), Confirm (4 типа с иконками), Bottom Sheet (mobile-native), Drawer. Auto-convert to bottom sheet на мобиле. ESC, backdrop click, body scroll lock.
 
 ## Возможности
-- ✅ **Standard Modal** — три размера (sm/md/lg), с бэкдропом + blur, focus-trap
-- ✅ **Confirm Dialogs** — 4 типа (danger, warning, info, success) с иконками
-- ✅ **Bottom Sheet** — выезжает снизу, стандарт для мобильных
-- ✅ **Drawer / Side Panel** — справа, для навигации и фильтров
-- ✅ **Адаптив** — на мобиле все модалки превращаются в bottom sheet
-- ✅ **Клавиатура** — Esc закрывает верхний модал
-- ✅ **Клик на бэкдроп** — закрывает (кроме критичных)
-- ✅ **Body scroll lock** — страница не скроллится под модалкой
-- ✅ **Stacked modals** — можно открыть поверх другого
+- Self-contained — один HTML файл с встроенными стилями и JS
+- Light/dark theme с автоопределением системы
+- View Code кнопка с копированием
+- Адаптив для мобильных
 
 ## Когда использовать
-- Подтверждения удаления / критичных действий
-- Формы, которые требуют внимания (создание проекта, редактирование)
-- Bottom sheet для мобильных меню, share, action lists
-- Drawer для боковой навигации и фильтров
-
-## Анимации
-- Появление: `scale(0.92) → 1` + `translateY(20px) → 0` + opacity, easing `cubic-bezier(0.34, 1.56, 0.64, 1)` (пружинисто)
-- Bottom sheet: `translateY(100%) → 0` за 420ms
-- Drawer: `translateX(100%) → 0` за 420ms
-- Бэкдроп: fade за 260ms
+Стандартный набор Modal & Dialog для типичных UI-сценариев.
