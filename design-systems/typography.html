@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Typography — Design System</title>
+  <style>
+    :root {
+      --bg: #f5f5f7; --surface: #fff; --surface-2: #f0f0f5; --surface-3: #e8e8ed;
+      --text: #1c1c1e; --text-2: #636366; --text-3: #8e8e93; --text-inverse: #fff;
+      --border: #e5e5ea; --accent: #6c5ce7; --accent-soft: rgba(108,92,231,.08);
+      --radius-sm: 6px; --radius: 10px; --radius-md: 12px; --radius-lg: 16px;
+      --shadow: 0 4px 16px rgba(0,0,0,0.07);
+      --ease: cubic-bezier(0.4,0,0.2,1);
+      --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+      --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', 'JetBrains Mono', Menlo, monospace;
+    }
+    [data-theme="dark"] {
+      --bg: #0c0c0e; --surface: #1a1a20; --surface-2: #23232a; --surface-3: #2a2a32;
+      --text: #ececf0; --text-2: #a0a0a8; --text-3: #6e6e76;
+      --border: #2a2a32; --accent-soft: rgba(108,92,231,.15);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);padding:0;-webkit-font-smoothing:antialiased;line-height:1.6}
+
+    .topbar{position:sticky;top:0;z-index:50;background:color-mix(in srgb,var(--bg) 80%,transparent);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 32px;height:60px;display:flex;align-items:center;justify-content:space-between}
+    .topbar-title{font-weight:700;font-size:1rem;display:flex;align-items:center;gap:8px}
+    .topbar-title svg{width:16px;height:16px;color:var(--accent)}
+    .topbar-right{display:flex;align-items:center;gap:8px}
+    .icon-btn{width:36px;height:36px;border-radius:8px;background:transparent;border:1px solid transparent;color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all 0.15s}
+    .icon-btn:hover{background:var(--surface-2);color:var(--text)}
+    .icon-btn svg{width:18px;height:18px}
+
+    .layout{display:grid;grid-template-columns:240px 1fr;max-width:1400px;margin:0 auto}
+    .toc{padding:24px 16px;position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto}
+    .toc-title{font-size:0.7rem;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--text-3);padding:0 12px;margin-bottom:8px}
+    .toc-link{display:block;padding:7px 12px;border-radius:6px;color:var(--text-2);text-decoration:none;font-size:0.85rem;transition:all 0.15s}
+    .toc-link:hover{background:var(--surface-2);color:var(--text)}
+    .toc-link.is-active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+
+    .content{padding:40px 48px 80px;min-width:0}
+    .content section{margin-bottom:64px;scroll-margin-top:80px}
+    .section-num{font-family:var(--font-mono);font-size:0.78rem;color:var(--text-3);font-weight:600}
+    .section-title{font-size:1.85rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px}
+    .section-sub{color:var(--text-2);font-size:1rem;margin-bottom:24px;max-width:640px}
+
+    /* Scale */
+    .scale-list{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+    .scale-row{display:grid;grid-template-columns:180px 1fr;gap:16px;align-items:center;padding:18px 24px;border-bottom:1px solid var(--border)}
+    .scale-row:last-child{border-bottom:none}
+    .scale-meta{display:flex;flex-direction:column;gap:2px}
+    .scale-meta code{font-family:var(--font-mono);font-size:0.78rem;color:var(--accent);font-weight:600}
+    .scale-meta span{font-size:0.7rem;color:var(--text-3);font-family:var(--font-mono)}
+    .scale-sample{letter-spacing:-0.01em;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+    /* Weights */
+    .weight-row{display:grid;grid-template-columns:180px 1fr;gap:16px;align-items:center;padding:18px 24px;border-bottom:1px solid var(--border)}
+    .weight-row:last-child{border-bottom:none}
+    .weight-list{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+    .weight-meta{display:flex;flex-direction:column;gap:2px}
+    .weight-meta code{font-family:var(--font-mono);font-size:0.78rem;color:var(--accent);font-weight:600}
+    .weight-meta span{font-size:0.7rem;color:var(--text-3)}
+    .weight-sample{font-size:1.5rem;letter-spacing:-0.01em}
+
+    /* Line-height */
+    .lh-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+    .lh-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
+    .lh-card .lh-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;font-family:var(--font-mono);font-size:0.74rem;color:var(--accent)}
+    .lh-card p{font-size:0.95rem;color:var(--text-2)}
+
+    /* Headings demo */
+    .headings-demo{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:24px;display:flex;flex-direction:column;gap:14px}
+    .sg-demo{display:flex;align-items:center;gap:16px}
+    .head-tag{font-family:var(--font-mono);font-size:0.7rem;color:var(--text-3);width:40px;flex-shrink:0}
+    [data-h="h1"]{font-size:2.2rem;font-weight:800;letter-spacing:-0.02em;line-height:1.15}
+    [data-h="h2"]{font-size:1.55rem;font-weight:700;letter-spacing:-0.01em;line-height:1.25}
+    [data-h="h3"]{font-size:1.1rem;font-weight:600;line-height:1.35}
+
+    /* Mono */
+    .mono-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+    .mono-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
+    .mono-card h3{font-size:0.74rem;font-weight:700;text-transform:uppercase;letter-spacing:0.4px;color:var(--text-2);margin-bottom:12px}
+    .mono-line{font-family:var(--font-mono);font-size:0.82rem;padding:8px 12px;background:var(--surface-2);border-radius:var(--radius-sm);margin-bottom:8px;color:var(--text)}
+    .tabular{font-variant-numeric:tabular-nums}
+    .mono-note{font-size:0.76rem;color:var(--text-3);margin-top:8px}
+
+    /* Rules */
+    .rules{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
+    .rule-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px}
+    .rule-card .rule-title{font-weight:700;font-size:0.95rem;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+    .rule-card .rule-title svg{width:16px;height:16px;color:var(--accent);flex-shrink:0}
+    .rule-card p{color:var(--text-2);font-size:0.85rem}
+    .rule-card code{font-family:var(--font-mono);font-size:0.76rem;background:var(--surface-2);padding:2px 6px;border-radius:4px;color:var(--text)}
+    .rule-card code.a{color:var(--accent)}
+
+    .back-btn{position:fixed;top:14px;right:120px;display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:100px;color:var(--text);font-size:0.78rem;font-weight:500;text-decoration:none;z-index:60;transition:all 0.15s}
+    .back-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .back-btn svg{width:12px;height:12px}
+
+    @media (max-width: 900px) {
+      .layout { grid-template-columns: 1fr; }
+      .toc { display: none; }
+      .content { padding: 24px 20px 80px; }
+      .back-btn { right: 60px; }
+      .scale-row,.weight-row{grid-template-columns:120px 1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar">
+    <div class="topbar-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg> Design System / Typography</div>
+    <div class="topbar-right">
+      <button class="icon-btn" id="themeToggle" title="Toggle theme">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="sunIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="display:none" id="moonIcon"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <a class="back-btn" href="../../">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Каталог
+  </a>
+
+  <div class="layout">
+    <nav class="toc" id="toc">
+      <div class="toc-title">На этой странице</div>
+      <a href="#overview" class="toc-link is-active">Обзор</a>
+      <a href="#scale" class="toc-link">Типографическая шкала</a>
+      <a href="#weights" class="toc-link">Начертания</a>
+      <a href="#lineheight" class="toc-link">Межстрочные интервалы</a>
+      <a href="#headings" class="toc-link">Заголовки</a>
+      <a href="#mono" class="toc-link">Mono и цифры</a>
+      <a href="#rules" class="toc-link">Правила</a>
+    </nav>
+
+    <main class="content">
+
+      <section id="overview">
+        <div class="section-num">01</div>
+        <h1 class="section-title">Typography</h1>
+        <p class="section-sub">Система на базе системного шрифта Apple SF Pro: размеры кратны 4px, иерархия из 4 уровней заголовков, оптическая настройка межстрочных интервалов для каждого размера.</p>
+      </section>
+
+      <section id="scale">
+        <div class="section-num">02</div>
+        <h1 class="section-title">Типографическая шкала</h1>
+        <p class="section-sub">10 размеров: от подписей 11px до hero-заголовков 96px. Каждый шаг имеет собственную высоту строки — крупнее текст, плотнее интервал.</p>
+        <div class="scale-list">
+          <div class="scale-row">
+            <div class="scale-meta">
+              <code>caption</code>
+              <span>11px / 1.5</span>
+            </div>
+            <div class="scale-sample" style="font-size:11px;line-height:1.5;font-weight:500">Вспомогательные подписи</div>
+          </div>
+          <div class="scale-row">
+            <div class="scale-meta">
+              <code>small</code>
+              <span>12px / 1.5</span>
+            </div>
+            <div class="scale-sample" style="font-size:12px;line-height:1.5;font-weight:500">Мелкий текст интерфейса</div>
+          </div>
+          <div class="scale-row">
+            <div class="scale-meta">
+              <code>body-sm</code>
+              <span>14px / 1.55</span>
+            </div>
+            <div class="scale-sample" style="font-size:14px;line-height:1.55;font-weight:400">Текст внутри карточек и таблиц</div>
+          </div>
+          <div class="scale-row">
+            <div class="scale-meta">
+              <code>body</code>
+              <span>16px / 1.6</span>
+            </div>
+            <div class="scale-sample" style="font-size:16px;line-height:1.6;font-weight:400">Основной текст интерфейса</div>
+          </div>
+          <div class="scale-row">
+            <div class="scale-meta">
+              <code>ui</code>
+              <span>15px / 1.5</span>
+            </div>
+            <div class="scale-sample" style="font-size:15px;line-height:1.5;font-weight:600">Кнопки, поля, навигация</div>
+          </div>
+          <div class="scale-row">
+            <div class="scale-meta">
+              <code>h3</code>
+              <span>20px / 1.35</span>
+            </div>
+            <div class="scale-sample" style="font-size:20px;line-height:1.35;font-weight:600">Заголовки третьего уровня</div>
+          </div>
+          <div class="scale-row">
+            <div class="scale-meta">
+              <code>h2</code>
+              <span>28px / 1.25</span>
+            </div>
+            <div class="scale-sample" style="font-size:28px;line-height:1.25;font-weight:700">Заголовки второго уровня</div>
+          </div>
+          <div class="scale-row">
+            <div class="scale-meta">
+              <code>h1</code>
+              <span>40px / 1.15</span>
+            </div>
+            <div class="scale-sample" style="font-size:40px;line-height:1.15;font-weight:800">Заголовки первого уровня</div>
+          </div>
+          <div class="scale-row">
+            <div class="scale-meta">
+              <code>display</code>
+              <span>64px / 1.05</span>
+            </div>
+            <div class="scale-sample" style="font-size:64px;line-height:1.05;font-weight:800">Hero и лендинги</div>
+          </div>
+          <div class="scale-row">
+            <div class="scale-meta">
+              <code>hero</code>
+              <span>96px / 1</span>
+            </div>
+            <div class="scale-sample" style="font-size:96px;line-height:1;font-weight:800">Главный экран</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="weights">
+        <div class="section-num">03</div>
+        <h1 class="section-title">Начертания</h1>
+        <p class="section-sub">Пять весов, от Regular до Extrabold. Насыщенность задаёт иерархию там, где размер не меняется.</p>
+        <div class="weight-list">
+          <div class="weight-row">
+            <div class="weight-meta"><code>400</code><span>Regular</span></div>
+            <div class="weight-sample" style="font-weight:400">Хороший текст — как разговор</div>
+          </div>
+          <div class="weight-row">
+            <div class="weight-meta"><code>500</code><span>Medium</span></div>
+            <div class="weight-sample" style="font-weight:500">Акценты и подписи</div>
+          </div>
+          <div class="weight-row">
+            <div class="weight-meta"><code>600</code><span>Semibold</span></div>
+            <div class="weight-sample" style="font-weight:600">Кнопки и UI-элементы</div>
+          </div>
+          <div class="weight-row">
+            <div class="weight-meta"><code>700</code><span>Bold</span></div>
+            <div class="weight-sample" style="font-weight:700">Заголовки разделов</div>
+          </div>
+          <div class="weight-row">
+            <div class="weight-meta"><code>800</code><span>Extrabold</span></div>
+            <div class="weight-sample" style="font-weight:800">Крупные заголовки</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="lineheight">
+        <div class="section-num">04</div>
+        <h1 class="section-title">Межстрочные интервалы</h1>
+        <p class="section-sub">Лидерды подбираются индивидуально: читаемый текст — 1.6, крупные заголовки — до 1.0.</p>
+        <div class="lh-grid">
+          <div class="lh-card">
+            <div class="lh-meta"><code>1.6</code><span>тело</span></div>
+            <p>Основной текст. Широкий интервал держит строку читаемой даже на длинных абзацах в две-три колонки.</p>
+          </div>
+          <div class="lh-card">
+            <div class="lh-meta"><code>1.35</code><span>заголовки</span></div>
+            <p>Заголовки до 20px — плотная строка, но хватает места для подстрочных меток и акцентов.</p>
+          </div>
+          <div class="lh-card">
+            <div class="lh-meta"><code>1.15</code><span>h1</span></div>
+            <p>Крупные заголовки спускаются почти вплотную — визуальный ритм блока читается как единый знак.</p>
+          </div>
+          <div class="lh-card">
+            <div class="lh-meta"><code>1.0</code><span>hero</span></div>
+            <p>Hero-текст 96px с интервалом 1.0 — почти логотип. Допустимо только на лендингах.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="headings">
+        <div class="section-num">05</div>
+        <h1 class="section-title">Заголовки</h1>
+        <p class="section-sub">Иерархия h1 — h3 с жёсткой привязкой к весу и кеглю.</p>
+        <div class="headings-demo">
+          
+          <div class="head-demo">
+            <span class="head-tag">h1</span>
+            <div class="head-text" data-h="h1">Создаём системы, а не страницы</div>
+          </div>
+          <div class="head-demo">
+            <span class="head-tag">h2</span>
+            <div class="head-text" data-h="h2">Иконки Feather в интерфейсе</div>
+          </div>
+          <div class="head-demo">
+            <span class="head-tag">h3</span>
+            <div class="head-text" data-h="h3">Типографика подчинена сетке</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="mono">
+        <div class="section-num">06</div>
+        <h1 class="section-title">Mono и цифры</h1>
+        <p class="section-sub">Моноширинные пары для кода и данных. Табличные цифры держат колонки ровными.</p>
+        <div class="mono-grid">
+          <div class="mono-card">
+            <h3>Код</h3>
+            <div class="mono-line">const theme = 'dark'</div>
+            <div class="mono-line">npm run build</div>
+            <div class="mono-line">stroke-width: 2px</div>
+            <div class="mono-note">SF Mono / Fira Code — только для кода и файловых путей</div>
+          </div>
+          <div class="mono-card">
+            <h3>Числа и метрики</h3>
+            <div class="mono-line">+7 495 120-30-40</div>
+            <div class="mono-line tabular">1 024 · 2 048 · 4 096</div>
+            <div class="mono-line tabular">12.45% 08.12%</div>
+            <div class="mono-note">font-variant-numeric: tabular-nums — выравнивание по разрядной сетке</div>
+          </div>
+        </div>
+      </section>
+
+      <section id="rules">
+        <div class="section-num">07</div>
+        <h1 class="section-title">Правила</h1>
+        <p class="section-sub">Шесть принципов типографики.</p>
+        <div class="rules">
+          <div class="rule-card">
+            <div class="rule-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg> Кратность 4px</div>
+            <p>Размеры из шкалы — <code class="a">11–96px</code>, шаг минимален 4px. Не выдумывайте промежуточные кегли.</p>
+          </div>
+          <div class="rule-card">
+            <div class="rule-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="4" y1="9" x2="20" y2="9"/><line x1="4" y1="15" x2="20" y2="15"/><line x1="10" y1="3" x2="8" y2="21"/><line x1="16" y1="3" x2="14" y2="21"/></svg> Одна семья</div>
+            <p>Одна гарнитура с 8 весами; не смешивайте системные шрифты с кастомными без причины.</p>
+          </div>
+          <div class="rule-card">
+            <div class="rule-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Не больше 2 начертаний</div>
+            <p>Один кегль — одно начертание. Semibold в кнопках не сочетайте с Bold в том же контексте.</p>
+          </div>
+          <div class="rule-card">
+            <div class="rule-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="21" y1="6" x2="3" y2="6"/><line x1="15" y1="12" x2="3" y2="12"/><line x1="17" y1="18" x2="3" y2="18"/></svg> Ширина строки</div>
+            <p>Оптимальные <code>45–75 знаков</code>. Слишком широкая строка утомляет — ограничивайте.</p>
+          </div>
+          <div class="rule-card">
+            <div class="rule-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg> Контраст</div>
+            <p>Минимум <code>4.5:1</code> для текста и <code>3:1</code> для крупных заголовков — даже в тёмной теме.</p>
+          </div>
+          <div class="rule-card">
+            <div class="rule-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Тема</div>
+            <p>Кегли и интервалы не меняются при переключении темы — меняются только цвета.</p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <script>
+    // Theme
+    const tgl = document.getElementById('themeToggle');
+    const s = document.getElementById('sunIcon');
+    const m = document.getElementById('moonIcon');
+    const stored = localStorage.getItem('design-demo-theme');
+    const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let theme = stored || (sysDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    tgl.addEventListener('click', () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('design-demo-theme', next);
+      if (next === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    });
+
+    // Scroll-spy
+    const links = document.querySelectorAll('.toc-link');
+    const sections = [...document.querySelectorAll('main section')];
+    window.addEventListener('scroll', () => {
+      const y = window.scrollY + 100;
+      let active = sections[0];
+      // у конца страницы подсвечиваем последнюю секцию (её offsetTop может быть недостижим)
+      if (window.innerHeight + window.scrollY >= document.body.scrollHeight - 4) {
+        active = sections[sections.length - 1];
+      } else {
+        sections.forEach(sect => { if (sect.offsetTop <= y) active = sect; });
+      }
+      links.forEach(l => l.classList.toggle('is-active', l.getAttribute('href') === '#' + active.id));
+    });
+    links.forEach(l => l.addEventListener('click', (e) => {
+      e.preventDefault();
+      document.getElementById(l.getAttribute('href').slice(1)).scrollIntoView({ behavior: 'smooth' });
+    }));
+  </script>
+</body>
+</html>

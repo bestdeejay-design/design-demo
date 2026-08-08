@@ -100,8 +100,8 @@ const SECTIONS = [
     desc: 'Гайдлайны, токены, типографика, иконки, сетка — фундамент дизайн-системы',
     examples: [
       { name: 'Design Tokens',     desc: 'Все токены в одном месте: цвета, шрифты, отступы, тени, движение',  url: 'design-systems/index.html', preview: 'design-systems/preview.png', tags: ['tokens', 'foundations', 'spec'], badge: 'new' },
-      { name: 'Iconography',       desc: 'Иконки feather/lucide, размеры, использование, примеры',              url: 'design-systems/icons.html',     tags: ['icons', 'system'],                badge: 'soon' },
-      { name: 'Typography',        desc: 'Шкала шрифтов, начертания, line-height, заголовки, body',           url: 'design-systems/typography.html', tags: ['typography', 'scale'],            badge: 'soon' },
+      { name: 'Iconography',       desc: 'Иконки feather/lucide, размеры, использование, примеры',              url: 'design-systems/icons.html', preview: 'design-systems/icons-preview.png', tags: ['icons', 'system'],                badge: 'new' },
+      { name: 'Typography',        desc: 'Шкала шрифтов, начертания, line-height, заголовки, body',           url: 'design-systems/typography.html', preview: 'design-systems/typography-preview.png', tags: ['typography', 'scale'],            badge: 'new' },
     ]
   },
   {
