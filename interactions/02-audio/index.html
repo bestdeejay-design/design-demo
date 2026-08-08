@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Audio Visualizer</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{width:100%;height:100%;overflow:hidden;background:#000;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',system-ui,sans-serif;color:#fff}
+    canvas{display:block;width:100%;height:100%}
+    .hud{position:fixed;top:24px;left:24px;z-index:10;pointer-events:none}
+    .hud h1{font-size:1.4rem;font-weight:800;letter-spacing:-0.02em;background:linear-gradient(135deg,#fff,#a29bfe);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .hud p{font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:4px;max-width:300px;line-height:1.5}
+    .controls{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);display:flex;gap:10px;z-index:10}
+    .btn{padding:11px 20px;background:rgba(255,255,255,0.08);backdrop-filter:blur(12px);border:1px solid rgba(255,255,255,0.15);border-radius:100px;color:white;font-size:0.85rem;font-weight:600;cursor:pointer;font-family:inherit;display:flex;align-items:center;gap:8px;transition:all 0.15s}
+    .btn:hover{background:rgba(255,255,255,0.15)}
+    .btn.is-active{background:#6c5ce7;border-color:#6c5ce7}
+    .style-row{position:fixed;top:24px;right:24px;display:flex;gap:6px;z-index:10}
+    .style-btn{padding:6px 12px;background:rgba(255,255,255,0.08);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);border-radius:6px;color:rgba(255,255,255,0.7);font-size:0.75rem;cursor:pointer;font-family:inherit}
+    .style-btn.is-active{background:rgba(108,92,231,0.5);color:white;border-color:#6c5ce7}
+    .stats{position:fixed;bottom:80px;right:24px;display:flex;flex-direction:column;gap:6px;z-index:10;font-family:'SF Mono',monospace;font-size:0.72rem;color:rgba(255,255,255,0.5);text-align:right;pointer-events:none}
+    .back{position:fixed;bottom:24px;right:24px;z-index:10;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:rgba(255,255,255,0.08);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:rgba(255,255,255,0.7);font-size:0.78rem;text-decoration:none}
+    .back svg{width:12px;height:12px}
+  </style>
+</head>
+<body>
+  <canvas id="c"></canvas>
+  <div class="hud">
+    <h1>Audio Visualizer</h1>
+    <p>Микрофон или демо-трек. 4 стиля визуализации. Кликни «Start» и разреши доступ.</p>
+  </div>
+  <div class="style-row">
+    <button class="style-btn is-active" data-style="bars">Bars</button>
+    <button class="style-btn" data-style="wave">Wave</button>
+    <button class="style-btn" data-style="circular">Circular</button>
+    <button class="style-btn" data-style="particles">Particles</button>
+  </div>
+  <div class="stats">
+    <div>BASS <span id="bVal">0</span></div>
+    <div>MID <span id="mVal">0</span></div>
+    <div>TREBLE <span id="tVal">0</span></div>
+  </div>
+  <div class="controls">
+    <button class="btn is-active" id="mic">🎤 Микрофон</button>
+    <button class="btn" id="demo">🎵 Демо-трек</button>
+  </div>
+  <a class="back" href="../../">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Каталог
+  </a>
+
+  <script>
+    const c = document.getElementById('c');
+    const ctx = c.getContext('2d');
+    let W, H, dpr = Math.min(devicePixelRatio || 1, 2);
+
+    function resize() {
+      W = innerWidth; H = innerHeight;
+      c.width = W * dpr; c.height = H * dpr;
+      c.style.width = W + 'px'; c.style.height = H + 'px';
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+    }
+    addEventListener('resize', resize);
+    resize();
+
+    let audioCtx, analyser, dataArray, source, time = 0;
+    let style = 'bars';
+    document.querySelectorAll('[data-style]').forEach(b => b.addEventListener('click', () => {
+      document.querySelectorAll('[data-style]').forEach(x => x.classList.remove('is-active'));
+      b.classList.add('is-active');
+      style = b.dataset.style;
+    }));
+
+    async function startMic() {
+      if (audioCtx) stop();
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        source = audioCtx.createMediaStreamSource(stream);
+        setupAnalyser();
+        document.getElementById('mic').classList.add('is-active');
+        document.getElementById('demo').classList.remove('is-active');
+      } catch (e) { console.warn('Mic denied, using demo'); startDemo(); }
+    }
+
+    function startDemo() {
+      if (audioCtx) stop();
+      audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const lfo = audioCtx.createOscillator();
+      const lfoGain = audioCtx.createGain();
+      const gain = audioCtx.createGain();
+      lfo.frequency.value = 0.5; lfoGain.gain.value = 50; gain.gain.value = 0.3;
+      lfo.connect(lfoGain); lfoGain.connect(osc.frequency);
+      osc.frequency.value = 220; osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      source = audioCtx.createGain(); gain.connect(source);
+      source.connect(audioCtx.destination);
+      osc.start(); lfo.start();
+      setupAnalyser();
+      document.getElementById('demo').classList.add('is-active');
+      document.getElementById('mic').classList.remove('is-active');
+    }
+
+    function setupAnalyser() {
+      analyser = audioCtx.createAnalyser();
+      analyser.fftSize = 256;
+      dataArray = new Uint8Array(analyser.frequencyBinCount);
+      source.connect(analyser);
+    }
+
+    function stop() {
+      try { source && source.disconnect(); analyser && analyser.disconnect(); audioCtx && audioCtx.close(); } catch(e) {}
+      audioCtx = null;
+    }
+
+    function draw() {
+      time += 0.016;
+      ctx.fillStyle = 'rgba(0,0,0,0.25)';
+      ctx.fillRect(0, 0, W, H);
+
+      let bass = 0, mid = 0, treble = 0;
+      if (analyser) {
+        analyser.getByteFrequencyData(dataArray);
+        const n = dataArray.length;
+        for (let i = 0; i < n; i++) {
+          if (i < n/3) bass += dataArray[i];
+          else if (i < 2*n/3) mid += dataArray[i];
+          else treble += dataArray[i];
+        }
+        bass = bass / (n/3) / 255;
+        mid = mid / (n/3) / 255;
+        treble = treble / (n/3) / 255;
+      } else {
+        bass = 0.4 + 0.3 * Math.sin(time * 1.5);
+        mid = 0.5 + 0.3 * Math.sin(time * 2.5);
+        treble = 0.3 + 0.2 * Math.sin(time * 4);
+      }
+      document.getElementById('bVal').textContent = Math.round(bass * 100);
+      document.getElementById('mVal').textContent = Math.round(mid * 100);
+      document.getElementById('tVal').textContent = Math.round(treble * 100);
+
+      const energy = (bass + mid + treble) / 3;
+      const hue = 240 + energy * 60;
+
+      if (style === 'bars') {
+        const bars = analyser ? dataArray.length : 64;
+        const w = W / bars;
+        for (let i = 0; i < bars; i++) {
+          const v = analyser ? dataArray[i] / 255 : 0.3 + 0.5 * Math.sin(time * 3 + i * 0.3);
+          const h = v * H * 0.7;
+          const g = ctx.createLinearGradient(0, H, 0, H - h);
+          g.addColorStop(0, `hsla(${hue}, 70%, 50%, 0.9)`);
+          g.addColorStop(1, `hsla(${hue + 40}, 80%, 70%, 0.9)`);
+          ctx.fillStyle = g;
+          ctx.fillRect(i * w + 1, H - h, w - 2, h);
+        }
+      } else if (style === 'wave') {
+        ctx.strokeStyle = `hsla(${hue}, 80%, 70%, 0.8)`;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        const points = analyser ? dataArray.length : 80;
+        for (let i = 0; i < points; i++) {
+          const v = analyser ? dataArray[i] / 255 : 0.4 + 0.4 * Math.sin(time * 2 + i * 0.2);
+          const x = (i / points) * W;
+          const y = H/2 + (v - 0.5) * H * 0.6 * Math.sin(time + i * 0.1);
+          if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      } else if (style === 'circular') {
+        const cx = W/2, cy = H/2, r = Math.min(W, H) * 0.25;
+        const bars = analyser ? dataArray.length : 64;
+        for (let i = 0; i < bars; i++) {
+          const v = analyser ? dataArray[i] / 255 : 0.3 + 0.5 * Math.sin(time * 3 + i * 0.2);
+          const ang = (i / bars) * Math.PI * 2;
+          const len = r + v * Math.min(W, H) * 0.25;
+          ctx.strokeStyle = `hsla(${hue + i * 2}, 70%, 60%, 0.8)`;
+          ctx.lineWidth = 3;
+          ctx.beginPath();
+          ctx.moveTo(cx + Math.cos(ang) * r, cy + Math.sin(ang) * r);
+          ctx.lineTo(cx + Math.cos(ang) * len, cy + Math.sin(ang) * len);
+          ctx.stroke();
+        }
+      } else if (style === 'particles') {
+        const N = 100;
+        for (let i = 0; i < N; i++) {
+          const a = (i / N) * Math.PI * 2;
+          const v = analyser ? (dataArray[i % dataArray.length] / 255) : 0.3 + 0.4 * Math.sin(time * 2 + i * 0.3);
+          const r = (Math.min(W, H) * 0.15) + v * Math.min(W, H) * 0.3;
+          const x = W/2 + Math.cos(a + time * 0.2) * r;
+          const y = H/2 + Math.sin(a + time * 0.2) * r;
+          ctx.fillStyle = `hsla(${hue + i * 3}, 80%, 70%, ${0.4 + v * 0.6})`;
+          ctx.beginPath();
+          ctx.arc(x, y, 2 + v * 4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      requestAnimationFrame(draw);
+    }
+
+    document.getElementById('mic').addEventListener('click', startMic);
+    document.getElementById('demo').addEventListener('click', startDemo);
+
+    // Auto-start demo for instant visual
+    setTimeout(startDemo, 200);
+    requestAnimationFrame(draw);
+  </script>
+</body>
+</html>

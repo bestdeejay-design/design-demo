@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gauge Panel — Industrial HMI</title>
+  <style>
+    :root{--bg:#0a0e14;--surface:#131820;--surface-2:#1a2030;--border:#2a3140;--text:#e8eaed;--text-2:#9ba3b4;--text-3:#5a6373;--accent:#4a9eff;--success:#22c55e;--success-soft:rgba(34,197,94,.15);--warning:#eab308;--warning-soft:rgba(234,179,8,.15);--danger:#ef4444;--danger-soft:rgba(239,68,68,.15);--info:#06b6d4;--radius:8px;--radius-md:12px;--font-mono:'SF Mono','Fira Code',monospace;--font-sans:-apple-system,BlinkMacSystemFont,'SF Pro Display',system-ui,sans-serif}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);min-height:100vh;padding:24px;-webkit-font-smoothing:antialiased}
+    .container{max-width:1200px;margin:0 auto}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}
+    h1{font-size:1.4rem;font-weight:800;letter-spacing:-0.02em;display:flex;align-items:center;gap:10px}
+    h1::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--success);box-shadow:0 0 8px var(--success);animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+    .meta{font-family:var(--font-mono);font-size:0.78rem;color:var(--text-2)}
+    .back{position:fixed;top:14px;right:20px;z-index:10;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;background:var(--surface);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.78rem;text-decoration:none}
+    .back:hover{border-color:var(--accent);color:var(--accent)}
+    .back svg{width:12px;height:12px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:20px}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:20px}
+    .card-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+    .card-name{font-size:0.85rem;color:var(--text-2);font-weight:500}
+    .card-status{padding:2px 8px;border-radius:9999px;font-size:0.65rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px}
+    .card-status.normal{background:var(--success-soft);color:var(--success)}
+    .card-status.warn{background:var(--warning-soft);color:var(--warning)}
+    .card-status.crit{background:var(--danger-soft);color:var(--danger)}
+
+    /* Radial gauge */
+    .gauge-wrap{position:relative;width:160px;height:160px;margin:8px auto 8px}
+    .gauge-wrap svg{transform:rotate(-90deg)}
+    .gauge-bg{fill:none;stroke:var(--surface-2);stroke-width:14}
+    .gauge-fg{fill:none;stroke-width:14;stroke-linecap:round;transition:stroke-dashoffset 0.6s cubic-bezier(0.4,0,0.2,1)}
+    .gauge-text{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;font-family:var(--font-mono)}
+    .gauge-value{font-size:1.8rem;font-weight:800;line-height:1}
+    .gauge-unit{font-size:0.7rem;color:var(--text-2);margin-top:2px;text-transform:uppercase;letter-spacing:0.5px}
+    .gauge-label{position:absolute;bottom:-22px;left:0;right:0;text-align:center;font-size:0.7rem;color:var(--text-3);font-family:var(--font-mono)}
+
+    /* Bar gauge */
+    .bar-gauge{height:8px;background:var(--surface-2);border-radius:9999px;overflow:hidden;margin:8px 0}
+    .bar-gauge-fill{height:100%;border-radius:9999px;transition:width 0.5s}
+    .bar-stats{display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:0.72rem;color:var(--text-2);margin-top:4px}
+
+    /* Thermometer */
+    .thermo{height:120px;width:24px;background:var(--surface-2);border-radius:9999px;margin:8px auto;position:relative;overflow:hidden}
+    .thermo-fill{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(180deg,var(--danger) 0%,var(--warning) 50%,var(--info) 100%);transition:height 0.5s}
+    .thermo-marker{position:absolute;left:-8px;right:-8px;height:1px;background:var(--text-3);transition:bottom 0.5s}
+
+    /* LED indicator */
+    .led-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px}
+    .led{display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:0.7rem;color:var(--text-2)}
+    .led-dot{width:8px;height:8px;border-radius:50%;background:var(--text-3)}
+    .led-dot.on{background:var(--success);box-shadow:0 0 6px var(--success)}
+    .led-dot.warn{background:var(--warning);box-shadow:0 0 6px var(--warning)}
+    .led-dot.err{background:var(--danger);box-shadow:0 0 6px var(--danger);animation:blink 1s infinite}
+    @keyframes blink{50%{opacity:0.3}}
+
+    .data-table{font-family:var(--font-mono);font-size:0.8rem;width:100%;border-collapse:collapse}
+    .data-table td{padding:6px 0;border-bottom:1px solid var(--border);color:var(--text-2)}
+    .data-table td:last-child{text-align:right;color:var(--text);font-weight:600}
+  </style>
+</head>
+<body>
+  <a class="back" href="../../">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Каталог
+  </a>
+  <div class="container">
+    <header class="topbar">
+      <h1>HMI / Reactor Control · Unit 04</h1>
+      <span class="meta">2026-08-08 14:23:11 · Online</span>
+    </header>
+
+    <div class="grid">
+      <div class="card">
+        <div class="card-head">
+          <span class="card-name">Температура</span>
+          <span class="card-status normal">NORMAL</span>
+        </div>
+        <div class="gauge-wrap">
+          <svg width="160" height="160">
+            <circle class="gauge-bg" cx="80" cy="80" r="64"/>
+            <circle class="gauge-fg" cx="80" cy="80" r="64" stroke="url(#tempGrad)" stroke-dasharray="402" stroke-dashoffset="120"/>
+            <defs><linearGradient id="tempGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#22c55e"/><stop offset="100%" stop-color="#eab308"/></linearGradient></defs>
+          </svg>
+          <div class="gauge-text"><div class="gauge-value" style="color:var(--success)">72°</div><div class="gauge-unit">CELSIUS</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-name">Давление</span>
+          <span class="card-status warn">WARNING</span>
+        </div>
+        <div class="gauge-wrap">
+          <svg width="160" height="160">
+            <circle class="gauge-bg" cx="80" cy="80" r="64"/>
+            <circle class="gauge-fg" cx="80" cy="80" r="64" stroke="url(#presGrad)" stroke-dasharray="402" stroke-dashoffset="60"/>
+            <defs><linearGradient id="presGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#eab308"/><stop offset="100%" stop-color="#ef4444"/></linearGradient></defs>
+          </svg>
+          <div class="gauge-text"><div class="gauge-value" style="color:var(--warning)">3.4</div><div class="gauge-unit">BAR</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-name">Обороты</span>
+          <span class="card-status normal">NORMAL</span>
+        </div>
+        <div class="gauge-wrap">
+          <svg width="160" height="160">
+            <circle class="gauge-bg" cx="80" cy="80" r="64"/>
+            <circle class="gauge-fg" cx="80" cy="80" r="64" stroke="#4a9eff" stroke-dasharray="402" stroke-dashoffset="240"/>
+          </svg>
+          <div class="gauge-text"><div class="gauge-value" style="color:var(--accent)">2840</div><div class="gauge-unit">RPM</div></div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-name">Уровень</span>
+          <span class="card-status normal">NORMAL</span>
+        </div>
+        <div class="thermo">
+          <div class="thermo-fill" style="height:65%"></div>
+          <div class="thermo-marker" style="bottom:65%"></div>
+        </div>
+        <div style="text-align:center;font-family:var(--font-mono);margin-top:30px"><div style="font-size:1.4rem;font-weight:800">65%</div><div style="font-size:0.65rem;color:var(--text-2);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px">RESERVOIR</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-name">Мощность</span>
+          <span class="card-status normal">NORMAL</span>
+        </div>
+        <div class="bar-gauge"><div class="bar-gauge-fill" style="width:78%;background:linear-gradient(90deg,var(--accent),#06b6d4)"></div></div>
+        <div class="bar-stats"><span>0 kW</span><b style="color:var(--text)">780 кВт / 1000</b><span>1000</span></div>
+        <div class="led-row" style="margin-top:18px">
+          <div class="led"><span class="led-dot on"></span>P1</div>
+          <div class="led"><span class="led-dot on"></span>P2</div>
+          <div class="led"><span class="led-dot warn"></span>P3</div>
+          <div class="led"><span class="led-dot on"></span>P4</div>
+          <div class="led"><span class="led-dot on"></span>P5</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head">
+          <span class="card-name">Системы</span>
+          <span class="card-status crit">ALERT</span>
+        </div>
+        <table class="data-table">
+          <tr><td>Охлаждение</td><td><span style="color:var(--success)">● ONLINE</span></td></tr>
+          <tr><td>Насос 1</td><td><span style="color:var(--success)">● ONLINE</span></td></tr>
+          <tr><td>Насос 2</td><td><span style="color:var(--success)">● ONLINE</span></td></tr>
+          <tr><td>Клапан A</td><td><span style="color:var(--warning)">● 87%</span></td></tr>
+          <tr><td>Клапан B</td><td><span style="color:var(--danger)">● ERROR</span></td></tr>
+          <tr><td>Аварийный стоп</td><td><span style="color:var(--success)">● ARMED</span></td></tr>
+        </table>
+        <div class="led-row" style="margin-top:14px">
+          <div class="led"><span class="led-dot on"></span>NET</div>
+          <div class="led"><span class="led-dot err"></span>SENSOR_3</div>
+          <div class="led"><span class="led-dot on"></span>BACKUP</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

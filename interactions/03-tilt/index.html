@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>3D Card Tilt</title>
+  <style>
+    :root{--bg:#0c0c0e;--surface:#1a1a20;--text:#ececf0;--text-2:#a0a0a8;--text-3:#6e6e76;--border:#2a2a32;--accent:#6c5ce7;--ease:cubic-bezier(0.4,0,0.2,1);--font-sans:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html,body{width:100%;min-height:100%;background:radial-gradient(ellipse at top, #1a0e3a 0%, #0c0c0e 60%);color:var(--text);font-family:var(--font-sans);-webkit-font-smoothing:antialiased}
+    .wrap{padding:60px 24px;display:flex;flex-direction:column;align-items:center;gap:48px;min-height:100vh}
+    .head{text-align:center;max-width:600px}
+    .head h1{font-size:2rem;font-weight:800;letter-spacing:-0.02em;background:linear-gradient(135deg,#fff,#a29bfe);-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+    .head p{color:rgba(255,255,255,0.6);font-size:1rem;line-height:1.5}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:24px;max-width:1000px;width:100%}
+
+    .tilt-card{position:relative;border-radius:20px;overflow:hidden;background:linear-gradient(135deg,#1a1a28,#25253a);border:1px solid rgba(255,255,255,0.08);aspect-ratio:4/5;transform-style:preserve-3d;transition:transform 0.1s var(--ease);cursor:pointer}
+    .tilt-inner{position:absolute;inset:0;display:flex;flex-direction:column;justify-content:flex-end;padding:24px;transform:translateZ(40px)}
+    .tilt-glow{position:absolute;inset:0;background:radial-gradient(circle at var(--mx,50%) var(--my,50%),rgba(255,255,255,0.15),transparent 50%);opacity:0;transition:opacity 0.3s;pointer-events:none}
+    .tilt-card:hover .tilt-glow{opacity:1}
+    .tilt-art{position:absolute;top:24px;right:24px;width:60px;height:60px;border-radius:16px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);display:flex;align-items:center;justify-content:center;font-size:1.5rem;color:white;transform:translateZ(60px);box-shadow:0 8px 24px rgba(108,92,231,0.4)}
+    .tilt-tag{font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;color:rgba(255,255,255,0.5);margin-bottom:6px;transform:translateZ(30px)}
+    .tilt-title{font-size:1.5rem;font-weight:800;letter-spacing:-0.02em;margin-bottom:8px;transform:translateZ(50px)}
+    .tilt-desc{color:rgba(255,255,255,0.6);font-size:0.85rem;line-height:1.5;transform:translateZ(30px)}
+    .tilt-price{display:flex;align-items:baseline;gap:6px;margin-top:12px;transform:translateZ(60px)}
+    .tilt-price b{font-size:1.3rem;font-weight:800}
+    .tilt-price s{color:rgba(255,255,255,0.4);font-size:0.85rem}
+    .tilt-btn{margin-top:12px;padding:10px 20px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);color:white;border:none;border-radius:100px;font-weight:600;font-size:0.85rem;cursor:pointer;font-family:inherit;align-self:flex-start;transform:translateZ(70px);box-shadow:0 8px 24px rgba(108,92,231,0.4)}
+    .ctrl{position:fixed;bottom:24px;left:24px;display:flex;gap:8px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);padding:6px;border-radius:100px;border:1px solid rgba(255,255,255,0.1);z-index:10}
+    .ctrl button{background:transparent;border:none;padding:6px 12px;border-radius:100px;font-size:0.75rem;color:rgba(255,255,255,0.6);cursor:pointer;font-family:inherit}
+    .ctrl button.is-active{background:rgba(108,92,231,0.5);color:white}
+    .back{position:fixed;bottom:24px;right:24px;z-index:10;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:rgba(255,255,255,0.08);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:rgba(255,255,255,0.7);font-size:0.78rem;text-decoration:none}
+    .back svg{width:12px;height:12px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="head">
+      <h1>3D Card Tilt</h1>
+      <p>Наведи курсор на карточку — она наклонится в сторону движения мыши. С parallax-бликом и глубиной.</p>
+    </header>
+
+    <div class="grid" id="grid">
+      <div class="tilt-card" data-tilt data-max="20" data-glare>
+        <div class="tilt-glow"></div>
+        <div class="tilt-art">🎨</div>
+        <div class="tilt-inner">
+          <div class="tilt-tag">Premium</div>
+          <div class="tilt-title">Cosmos UI Pack</div>
+          <div class="tilt-desc">200+ адаптивных компонентов для вашего следующего проекта. Включает dark theme.</div>
+          <div class="tilt-price"><b>$89</b><s>$149</s></div>
+          <button class="tilt-btn">Купить</button>
+        </div>
+      </div>
+      <div class="tilt-card" data-tilt data-max="15">
+        <div class="tilt-glow"></div>
+        <div class="tilt-art" style="background:linear-gradient(135deg,#ff4757,#fdcb6e)">🚀</div>
+        <div class="tilt-inner">
+          <div class="tilt-tag">Hot</div>
+          <div class="tilt-title">Startup Bundle</div>
+          <div class="tilt-desc">Landing, dashboard, mobile — всё что нужно для запуска. Готовые секции и шаблоны.</div>
+          <div class="tilt-price"><b>$129</b><s>$249</s></div>
+          <button class="tilt-btn">Купить</button>
+        </div>
+      </div>
+      <div class="tilt-card" data-tilt data-max="25" data-glare>
+        <div class="tilt-glow"></div>
+        <div class="tilt-art" style="background:linear-gradient(135deg,#00b894,#55efc4)">📊</div>
+        <div class="tilt-inner">
+          <div class="tilt-tag">Pro</div>
+          <div class="tilt-title">Admin Suite</div>
+          <div class="tilt-desc">Charts, tables, формы — полный набор для админ-панелей. С TypeScript типами.</div>
+          <div class="tilt-price"><b>$59</b><s>$99</s></div>
+          <button class="tilt-btn">Купить</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="ctrl">
+    <button class="is-active" data-max="20">Subtle</button>
+    <button data-max="35">Strong</button>
+    <button data-max="50">Extreme</button>
+  </div>
+
+  <a class="back" href="../../">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Каталог
+  </a>
+
+  <script>
+    document.querySelectorAll('[data-tilt]').forEach(card => {
+      let max = +card.dataset.max || 20;
+      let rect;
+      function onMove(e) {
+        rect = rect || card.getBoundingClientRect();
+        const x = e.clientX - rect.left, y = e.clientY - rect.top;
+        const cx = rect.width / 2, cy = rect.height / 2;
+        const rx = ((y - cy) / cy) * -max;
+        const ry = ((x - cx) / cx) * max;
+        card.style.transform = `perspective(1000px) rotateX(${rx}deg) rotateY(${ry}deg)`;
+        if (card.hasAttribute('data-glare')) {
+          card.style.setProperty('--mx', (x / rect.width * 100) + '%');
+          card.style.setProperty('--my', (y / rect.height * 100) + '%');
+        }
+      }
+      function onLeave() { card.style.transform = ''; rect = null; }
+      card.addEventListener('mousemove', onMove);
+      card.addEventListener('mouseleave', onLeave);
+      addEventListener('scroll', () => { rect = null; }, { passive: true });
+    });
+
+    document.querySelectorAll('.ctrl button').forEach(btn => btn.addEventListener('click', () => {
+      document.querySelectorAll('.ctrl button').forEach(b => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      const v = +btn.dataset.max;
+      document.querySelectorAll('[data-tilt]').forEach(c => c.dataset.max = v);
+    }));
+  </script>
+</body>
+</html>

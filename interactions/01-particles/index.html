@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Particle Network</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{width:100%;height:100%;overflow:hidden;background:#0a0a14;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display',system-ui,sans-serif;color:#fff}
+    canvas{position:fixed;inset:0;display:block;cursor:crosshair}
+    .hud{position:fixed;top:24px;left:24px;z-index:10;pointer-events:none}
+    .hud h1{font-size:1.4rem;font-weight:800;letter-spacing:-0.02em;background:linear-gradient(135deg,#fff,#a29bfe);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .hud p{font-size:0.78rem;color:rgba(255,255,255,0.5);margin-top:4px;max-width:300px;line-height:1.5}
+    .stats{position:fixed;bottom:24px;left:24px;display:flex;gap:12px;z-index:10;pointer-events:none}
+    .pill{padding:6px 12px;background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.1);border-radius:100px;font-size:0.7rem;font-family:'SF Mono',monospace;color:rgba(255,255,255,0.8)}
+    .pill b{color:#a29bfe;font-weight:600}
+    .controls{position:fixed;top:24px;right:24px;z-index:10;display:flex;gap:8px}
+    .btn{padding:8px 14px;background:rgba(255,255,255,0.08);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:rgba(255,255,255,0.7);font-size:0.78rem;cursor:pointer;font-family:inherit;transition:all 0.15s}
+    .btn:hover{background:rgba(255,255,255,0.15);color:white}
+    .btn.is-active{background:rgba(108,92,231,0.4);color:white;border-color:#6c5ce7}
+    .back{position:fixed;bottom:24px;right:24px;z-index:10;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:rgba(255,255,255,0.08);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,0.15);border-radius:8px;color:rgba(255,255,255,0.7);font-size:0.78rem;text-decoration:none;transition:all 0.15s}
+    .back:hover{background:rgba(255,255,255,0.15);color:white}
+    .back svg{width:12px;height:12px}
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+  <div class="hud">
+    <h1>Particle Network</h1>
+    <p>Двигай мышью, чтобы притянуть частицы. Клик — создать вспышку энергии.</p>
+  </div>
+  <div class="stats">
+    <div class="pill">PARTICLES <b id="pcount">0</b></div>
+    <div class="pill">LINKS <b id="lcount">0</b></div>
+    <div class="pill">FPS <b id="fps">--</b></div>
+  </div>
+  <div class="controls">
+    <button class="btn is-active" data-density="medium">Medium</button>
+    <button class="btn" data-density="low">Low</button>
+    <button class="btn" data-density="high">High</button>
+  </div>
+  <a class="back" href="../../">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Каталог
+  </a>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    let W, H, dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    const DENSITY = { low: 60, medium: 130, high: 240 };
+    let particles = [];
+    const mouse = { x: -9999, y: -9999, radius: 140, down: false };
+    const flash = { active: false, x: 0, y: 0, r: 0, max: 0 };
+
+    function resize() {
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+      ctx.setTransform(1, 0, 0, 1, 0, 0);
+      ctx.scale(dpr, dpr);
+    }
+
+    function makeParticles(n) {
+      particles = [];
+      for (let i = 0; i < n; i++) {
+        particles.push({
+          x: Math.random() * W,
+          y: Math.random() * H,
+          vx: (Math.random() - 0.5) * 0.4,
+          vy: (Math.random() - 0.5) * 0.4,
+          r: Math.random() * 1.5 + 0.5,
+          hue: 240 + Math.random() * 60,
+        });
+      }
+    }
+
+    function step() {
+      ctx.fillStyle = 'rgba(10,10,20,0.2)';
+      ctx.fillRect(0, 0, W, H);
+
+      // Mouse attraction
+      particles.forEach(p => {
+        const dx = mouse.x - p.x, dy = mouse.y - p.y;
+        const d = Math.hypot(dx, dy);
+        if (d < mouse.radius) {
+          const f = (1 - d / mouse.radius) * 0.05;
+          p.vx += dx * f / Math.max(d, 1);
+          p.vy += dy * f / Math.max(d, 1);
+        }
+        if (flash.active) {
+          const dx = flash.x - p.x, dy = flash.y - p.y;
+          const d = Math.hypot(dx, dy);
+          if (d < flash.r) {
+            const f = (1 - d / flash.r) * 2;
+            p.vx += dx * f / Math.max(d, 1);
+            p.vy += dy * f / Math.max(d, 1);
+          }
+        }
+        p.x += p.vx;
+        p.y += p.vy;
+        p.vx *= 0.98;
+        p.vy *= 0.98;
+        if (p.x < 0 || p.x > W) p.vx *= -1, p.x = Math.max(0, Math.min(W, p.x));
+        if (p.y < 0 || p.y > H) p.vy *= -1, p.y = Math.max(0, Math.min(H, p.y));
+      });
+
+      // Draw lines
+      let links = 0;
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const a = particles[i], b = particles[j];
+          const dx = a.x - b.x, dy = a.y - b.y;
+          const d2 = dx*dx + dy*dy;
+          if (d2 < 14400) {
+            const d = Math.sqrt(d2);
+            const alpha = (1 - d / 120) * 0.4;
+            ctx.strokeStyle = `hsla(${(a.hue + b.hue) / 2}, 70%, 70%, ${alpha})`;
+            ctx.lineWidth = 0.6;
+            ctx.beginPath();
+            ctx.moveTo(a.x, a.y);
+            ctx.lineTo(b.x, b.y);
+            ctx.stroke();
+            links++;
+          }
+        }
+      }
+
+      // Draw particles
+      particles.forEach(p => {
+        ctx.fillStyle = `hsla(${p.hue}, 80%, 70%, 0.9)`;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = `hsla(${p.hue}, 80%, 70%, 0.5)`;
+      });
+      ctx.shadowBlur = 0;
+
+      if (flash.active) {
+        flash.r += 8;
+        if (flash.r > flash.max) { flash.active = false; }
+        else {
+          ctx.strokeStyle = `rgba(162,155,254,${1 - flash.r / flash.max})`;
+          ctx.lineWidth = 2;
+          ctx.beginPath();
+          ctx.arc(flash.x, flash.y, flash.r, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+      }
+
+      document.getElementById('lcount').textContent = links;
+      requestAnimationFrame(step);
+    }
+
+    let lastT = performance.now(), frames = 0;
+    function fpsCounter() {
+      frames++;
+      const now = performance.now();
+      if (now - lastT > 500) {
+        document.getElementById('fps').textContent = Math.round(frames * 1000 / (now - lastT));
+        frames = 0; lastT = now;
+      }
+      requestAnimationFrame(fpsCounter);
+    }
+
+    canvas.addEventListener('mousemove', (e) => {
+      mouse.x = e.clientX; mouse.y = e.clientY;
+    });
+    canvas.addEventListener('mouseleave', () => { mouse.x = -9999; mouse.y = -9999; });
+    canvas.addEventListener('click', (e) => {
+      flash.active = true;
+      flash.x = e.clientX; flash.y = e.clientY;
+      flash.r = 0;
+      flash.max = Math.hypot(W, H) * 0.6;
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === ' ') {
+        flash.active = true;
+        flash.x = W/2; flash.y = H/2;
+        flash.r = 0; flash.max = Math.hypot(W, H) * 0.5;
+      }
+    });
+
+    document.querySelectorAll('[data-density]').forEach(btn => btn.addEventListener('click', () => {
+      document.querySelectorAll('[data-density]').forEach(b => b.classList.remove('is-active'));
+      btn.classList.add('is-active');
+      makeParticles(DENSITY[btn.dataset.density]);
+      document.getElementById('pcount').textContent = particles.length;
+    }));
+
+    window.addEventListener('resize', resize);
+    resize();
+    makeParticles(DENSITY.medium);
+    document.getElementById('pcount').textContent = particles.length;
+    requestAnimationFrame(step);
+    requestAnimationFrame(fpsCounter);
+  </script>
+</body>
+</html>

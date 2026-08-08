@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control Dashboard — Industrial HMI</title>
+  <style>
+    :root{--bg:#0a0e14;--surface:#131820;--surface-2:#1a2030;--border:#2a3140;--text:#e8eaed;--text-2:#9ba3b4;--text-3:#5a6373;--accent:#4a9eff;--success:#22c55e;--success-soft:rgba(34,197,94,.15);--warning:#eab308;--warning-soft:rgba(234,179,8,.15);--danger:#ef4444;--danger-soft:rgba(239,68,68,.15);--info:#06b6d4;--radius:8px;--radius-md:12px;--font-mono:'SF Mono','Fira Code',monospace;--font-sans:-apple-system,BlinkMacFont,'SF Pro Display',system-ui,sans-serif}
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);min-height:100vh;padding:24px;-webkit-font-smoothing:antialiased;line-height:1.5}
+    .container{max-width:1400px;margin:0 auto}
+    .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+    h1{font-size:1.3rem;font-weight:700;display:flex;align-items:center;gap:10px}
+    h1::before{content:'';width:8px;height:8px;border-radius:50%;background:var(--success);box-shadow:0 0 8px var(--success);animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+    .meta{font-family:var(--font-mono);font-size:0.78rem;color:var(--text-2);display:flex;align-items:center;gap:8px}
+    .meta .live{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--success);animation:pulse 1.5s infinite}
+    .back{position:fixed;top:14px;right:20px;z-index:10;display:inline-flex;align-items:center;gap:6px;padding:7px 12px;background:var(--surface);backdrop-filter:blur(10px);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.78rem;text-decoration:none}
+    .back:hover{border-color:var(--accent);color:var(--accent)}
+    .back svg{width:12px;height:12px}
+
+    .grid-top{display:grid;grid-template-columns:2fr 1fr 1fr;gap:16px;margin-bottom:16px}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:18px}
+    .card-title{font-size:0.8rem;color:var(--text-2);font-weight:500;margin-bottom:12px;text-transform:uppercase;letter-spacing:0.5px}
+    .kpi{font-size:2.2rem;font-weight:800;font-family:var(--font-mono);line-height:1}
+    .kpi-sub{font-size:0.72rem;color:var(--text-3);font-family:var(--font-mono);margin-top:4px}
+    .spark{height:50px;margin-top:8px}
+    .spark path{fill:none;stroke-width:1.5}
+
+    .alerts-list{display:flex;flex-direction:column;gap:8px}
+    .alert-row{display:flex;align-items:center;gap:10px;padding:10px;background:var(--surface-2);border-radius:8px;font-size:0.78rem;border-left:3px solid var(--text-3)}
+    .alert-row.crit{border-left-color:var(--danger);background:var(--danger-soft)}
+    .alert-row.warn{border-left-color:var(--warning);background:var(--warning-soft)}
+    .alert-row.info{border-left-color:var(--info);background:rgba(6,182,212,.1)}
+    .alert-time{font-family:var(--font-mono);color:var(--text-3);font-size:0.7rem;margin-left:auto;flex-shrink:0}
+
+    .grid-mid{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;margin-bottom:16px}
+    .chart{height:180px;position:relative}
+    .chart svg{width:100%;height:100%}
+    .chart-area{fill:url(#areaGrad);opacity:0.6}
+    .chart-line{fill:none;stroke:var(--accent);stroke-width:2}
+
+    .controls-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px}
+    .ctrl-btn{padding:14px 8px;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;color:var(--text);font-size:0.78rem;font-weight:600;cursor:pointer;font-family:inherit;display:flex;flex-direction:column;align-items:center;gap:6px;transition:all 0.15s}
+    .ctrl-btn:hover{border-color:var(--accent);background:rgba(74,158,255,0.1)}
+    .ctrl-btn.is-on{background:rgba(34,197,94,0.15);border-color:var(--success);color:var(--success)}
+    .ctrl-btn.is-warn{background:rgba(234,179,8,0.15);border-color:var(--warning);color:var(--warning)}
+    .ctrl-btn svg{width:18px;height:18px}
+
+    .data-stream{font-family:var(--font-mono);font-size:0.7rem;color:var(--text-2);height:120px;overflow:hidden;position:relative;background:var(--bg);border-radius:6px;padding:8px}
+    .data-stream-line{padding:2px 0;border-bottom:1px solid var(--surface-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .data-stream .ts{color:var(--text-3);margin-right:8px}
+    .data-stream .lvl{color:var(--accent);margin-left:8px}
+  </style>
+</head>
+<body>
+  <a class="back" href="../../">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Каталог
+  </a>
+  <div class="container">
+    <header class="topbar">
+      <h1>Plant Control Dashboard · Sector 7</h1>
+      <div class="meta"><span class="live"></span>STREAMING · 24h · 1.2 GB / hr</div>
+    </header>
+
+    <div class="grid-top">
+      <div class="card">
+        <div class="card-title">Эффективность · 24ч</div>
+        <div style="display:flex;align-items:flex-end;gap:24px">
+          <div><div class="kpi" style="color:var(--success)">94.7%</div><div class="kpi-sub">↑ 2.3% vs yesterday</div></div>
+          <svg class="spark" viewBox="0 0 200 50" preserveAspectRatio="none" style="flex:1;height:60px">
+            <path class="spark" stroke="var(--success)" stroke-width="1.5" fill="none" d="M0,30 L20,28 L40,32 L60,22 L80,25 L100,18 L120,20 L140,12 L160,15 L180,8 L200,5" />
+          </svg>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Произведено</div>
+        <div class="kpi">12,847</div>
+        <div class="kpi-sub">units · ↑ 8.2%</div>
+      </div>
+      <div class="card">
+        <div class="card-title">Энергия</div>
+        <div class="kpi" style="color:var(--warning)">2.4</div>
+        <div class="kpi-sub">MWh · peak 14:00</div>
+      </div>
+    </div>
+
+    <div class="grid-mid">
+      <div class="card">
+        <div class="card-title">Температура процесса · Live</div>
+        <div class="chart">
+          <svg viewBox="0 0 600 180" preserveAspectRatio="none">
+            <defs><linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#4a9eff" stop-opacity="0.4"/><stop offset="100%" stop-color="#4a9eff" stop-opacity="0"/></linearGradient></defs>
+            <path class="chart-area" d="M0,100 L50,90 L100,95 L150,75 L200,80 L250,65 L300,70 L350,55 L400,60 L450,45 L500,50 L550,40 L600,35 L600,180 L0,180 Z"/>
+            <path class="chart-line" d="M0,100 L50,90 L100,95 L150,75 L200,80 L250,65 L300,70 L350,55 L400,60 L450,45 L500,50 L550,40 L600,35"/>
+          </svg>
+        </div>
+        <div style="display:flex;justify-content:space-between;font-family:var(--font-mono);font-size:0.7rem;color:var(--text-3);margin-top:8px">
+          <span>00:00</span><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">Активные алерты</div>
+        <div class="alerts-list">
+          <div class="alert-row crit">
+            <strong>CRIT</strong>
+            <span>Датчик давления #3 не отвечает</span>
+            <span class="alert-time">14:23</span>
+          </div>
+          <div class="alert-row warn">
+            <strong>WARN</strong>
+            <span>Температура секции B > 80°C</span>
+            <span class="alert-time">14:18</span>
+          </div>
+          <div class="alert-row info">
+            <strong>INFO</strong>
+            <span>Запланировано ТО · 18:00</span>
+            <span class="alert-time">14:00</span>
+          </div>
+          <div class="alert-row">
+            <strong>OK</strong>
+            <span>Система в норме</span>
+            <span class="alert-time">13:45</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Управление оборудованием</div>
+      <div class="controls-grid">
+        <button class="ctrl-btn is-on" data-cmd="pump1">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          Насос 1
+        </button>
+        <button class="ctrl-btn is-on" data-cmd="pump2">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+          Насос 2
+        </button>
+        <button class="ctrl-btn" data-cmd="valve-a">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h7l3 6h8"/><path d="M3 15h7l3-6h8"/></svg>
+          Клапан A
+        </button>
+        <button class="ctrl-btn is-warn" data-cmd="valve-b">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9h7l3 6h8"/><path d="M3 15h7l3-6h8"/></svg>
+          Клапан B
+        </button>
+        <button class="ctrl-btn is-on" data-cmd="heater">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v8M8 6l4-4 4 4M5 12h14M5 16h14M5 20h14"/></svg>
+          Нагрев
+        </button>
+        <button class="ctrl-btn is-on" data-cmd="cooling">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M2 12h20M5 5l14 14M19 5L5 19"/></svg>
+          Охлаждение
+        </button>
+        <button class="ctrl-btn" data-cmd="mixer">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+          Мешалка
+        </button>
+        <button class="ctrl-btn" data-cmd="emergency" style="background:rgba(239,68,68,0.1);border-color:rgba(239,68,68,0.4);color:var(--danger)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="7 13 12 18 17 13"/><line x1="12" y1="2" x2="12" y2="14"/><circle cx="12" cy="20" r="1.5"/></svg>
+          СТОП
+        </button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <div class="card-title">Лог событий · Live stream</div>
+      <div class="data-stream" id="stream"></div>
+    </div>
+  </div>
+
+  <script>
+    const stream = document.getElementById('stream');
+    const messages = [
+      ['TEMP_OK', 'Section A temperature 72.4°C · nominal', 'info'],
+      ['PRESS_WARN', 'Section B pressure approaching threshold', 'warn'],
+      ['PUMP_ON', 'Pump 2 started · 2.4 l/min', 'info'],
+      ['VALVE_A', 'Valve A position: 45%', 'info'],
+      ['SENSOR_3', 'No response from pressure sensor #3', 'crit'],
+      ['COOLING', 'Cooling system engaged · 12.4 kW', 'info'],
+      ['HEATER', 'Heater output adjusted to 78%', 'info'],
+      ['PROD', 'Unit batch-0847 complete · 847 units', 'info'],
+      ['CHILLER', 'Chiller B temperature 18.2°C', 'info'],
+      ['MAINT', 'Scheduled maintenance in 3h 37m', 'info'],
+    ];
+    function addLog() {
+      const m = messages[Math.floor(Math.random() * messages.length)];
+      const time = new Date().toLocaleTimeString('en-GB', { hour12: false });
+      const el = document.createElement('div');
+      el.className = 'data-stream-line';
+      el.innerHTML = `<span class="ts">${time}</span> [${m[0]}] ${m[1]}<span class="lvl" style="color:${m[2]==='crit'?'var(--danger)':m[2]==='warn'?'var(--warning)':'var(--accent)'}">[${m[2].toUpperCase()}]</span>`;
+      stream.insertBefore(el, stream.firstChild);
+      while (stream.children.length > 12) stream.removeChild(stream.lastChild);
+    }
+    for (let i = 0; i < 8; i++) addLog();
+    setInterval(addLog, 1200);
+
+    // Control toggles
+    document.querySelectorAll('.ctrl-btn').forEach(btn => btn.addEventListener('click', () => {
+      btn.classList.toggle('is-on');
+      btn.classList.remove('is-warn');
+    }));
+  </script>
+</body>
+</html>
