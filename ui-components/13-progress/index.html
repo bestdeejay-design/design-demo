@@ -239,8 +239,8 @@
         </div>
       </div>
       <div style="display:flex;gap:8px;justify-content:center;margin-top:20px">
-        <button class="btn btn-secondary" id="stepPrev" style="padding:8px 16px;font-size:.82rem;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;cursor:pointer;color:var(--text)">← Назад</button>
-        <button class="btn btn-primary" id="stepNext" style="padding:8px 16px;font-size:.82rem;background:var(--accent);color:white;border:none;border-radius:8px;cursor:pointer">Далее →</button>
+        <button class="btn btn-secondary" id="stepPrev" style="padding:8px 16px;font-size:.82rem;background:var(--surface-2);border:1px solid var(--border);border-radius:8px;cursor:pointer;color:var(--text)"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="0.85em" height="0.85em" style="display:inline-block;vertical-align:-0.15em" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Назад</button>
+        <button class="btn btn-primary" id="stepNext" style="padding:8px 16px;font-size:.82rem;background:var(--accent);color:white;border:none;border-radius:8px;cursor:pointer">Далее <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="0.85em" height="0.85em" style="display:inline-block;vertical-align:-0.15em" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg></button>
       </div>
     </section>
 
@@ -337,7 +337,7 @@
     v.addEventListener('click', () => {
       const isOpen = cp.classList.toggle('open');
       if (isOpen && !cc.textContent) { fetch('index.html').then(r => r.text()).then(html => { cc.textContent = html.replace(/<script[\s\S]*?<\/script>/g, '<!-- script -->'); }); }
-      v.textContent = isOpen ? '✕  Close' : '⌨  View Code';
+      v.textContent = isOpen ? 'Close' : '⌨  View Code';
     });
     cb.addEventListener('click', () => { navigator.clipboard.writeText(cc.textContent).then(() => { cb.textContent = 'Copied!'; setTimeout(() => cb.textContent = 'Copy', 1500); }); });
   </script>

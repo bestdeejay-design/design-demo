@@ -222,7 +222,7 @@
       background:
         radial-gradient(ellipse 8px 4px at 35% 30%, rgba(255, 255, 255, 0.5), transparent 70%),
         radial-gradient(ellipse 6px 3px at 65% 60%, rgba(255, 255, 255, 0.4), transparent 70%);
-      pointer-events: none; /* ← вот ключ: не перехватывает клики */
+      pointer-events: none; /* вот ключ: не перехватывает клики */
     }
     .planet-mars {
       width: 16px; height: 16px;
@@ -703,7 +703,7 @@
       <svg class="tour-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>
       Start Tour
     </button>
-    <button class="ctrl-btn" id="resetBtn" hidden>↺ Return</button>
+    <button class="ctrl-btn" id="resetBtn" hidden><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="0.85em" height="0.85em" style="display:inline-block;vertical-align:-0.15em" aria-hidden="true"><polyline points="1 4 1 10 7 10"></polyline><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"></path></svg> Return</button>
   </div>
 
   <a class="back-btn" href="../../">
@@ -808,10 +808,10 @@
       // Юпитер/Сатурн уже большие — им не нужно расширение.
       function setupHitAreas() {
         const hitSizes = {
-          mercury: 70,  // 10px планета → 70px зона клика
-          venus: 50,    // 18px → 50px
-          earth: 45,    // 20px → 45px
-          mars: 50,     // 16px → 50px
+          mercury: 70,  // 10px планета -> 70px зона клика
+          venus: 50,    // 18px -> 50px
+          earth: 45,    // 20px -> 45px
+          mars: 50,     // 16px -> 50px
           jupiter: 0,   // 38px уже достаточно
           saturn: 0,    // 30px уже достаточно (есть кольца)
         };
@@ -1292,7 +1292,7 @@
             codeContent.textContent = 'Could not load source.';
           });
         }
-        viewCodeBtn.textContent = isOpen ? '✕  Close' : '⌨  View Code';
+        viewCodeBtn.textContent = isOpen ? 'Close' : '⌨  View Code';
       });
 
       copyCodeBtn.addEventListener('click', () => {

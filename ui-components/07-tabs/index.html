@@ -489,7 +489,7 @@
       <p style="color:var(--text-2);font-size:.88rem;margin-bottom:12px">Превью на десктопе — sticky внизу контейнера. На мобиле работает как стандартный bottom bar.</p>
       <div style="border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden">
         <div style="padding:24px;background:var(--bg-elevated,var(--surface));min-height:120px;display:flex;align-items:center;justify-content:center;color:var(--text-2);font-style:italic">
-          ← Здесь был бы контент приложения →
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="0.85em" height="0.85em" style="display:inline-block;vertical-align:-0.15em" aria-hidden="true"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg> Здесь был бы контент приложения <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="0.85em" height="0.85em" style="display:inline-block;vertical-align:-0.15em" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
         </div>
         <div class="mobile-tabbar" data-tabs="m1">
           <button class="mobile-tab is-active" data-tab="home">
@@ -597,7 +597,7 @@
             codeContent.textContent = html.replace(/<script[\s\S]*?<\/script>/g, '<!-- script -->');
           });
         }
-        viewCodeBtn.textContent = isOpen ? '✕  Close' : '⌨  View Code';
+        viewCodeBtn.textContent = isOpen ? 'Close' : '⌨  View Code';
       });
       copyCodeBtn.addEventListener('click', () => {
         navigator.clipboard.writeText(codeContent.textContent).then(() => {

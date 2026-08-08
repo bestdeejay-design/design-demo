@@ -122,7 +122,7 @@ const SECTIONS = [
     title: 'UX Patterns',
     desc: 'Готовые флоу для типичных сценариев — онбординг, поиск, пустые состояния, ошибки',
     examples: [
-      { name: 'Auth Flow',         desc: 'Sign up → Email verify → Welcome, с прогрессом и состояниями',   url: 'patterns/01-auth-flow/',         tags: ['auth', 'onboarding', 'flow'],     badge: 'new' },
+      { name: 'Auth Flow',         desc: 'Sign up, email verify, welcome — с прогрессом и состояниями',        url: 'patterns/01-auth-flow/',         tags: ['auth', 'onboarding', 'flow'],     badge: 'new' },
       { name: 'Onboarding',        desc: '3-шаговый онбординг с прогрессом, skip, иллюстрациями',           url: 'patterns/02-onboarding/',        tags: ['onboarding', 'steps'],             badge: 'new' },
       { name: 'Search & Filter',   desc: 'Поиск с фасетами, активные фильтры, сортировка, результаты',     url: 'patterns/03-search-filter/',     tags: ['search', 'filter', 'results'],    badge: 'new' },
       { name: 'Empty States',      desc: 'Набор красивых пустых состояний для разных контекстов',          url: 'patterns/04-empty-states/',      tags: ['empty', 'state', 'illustration'], badge: 'new' },

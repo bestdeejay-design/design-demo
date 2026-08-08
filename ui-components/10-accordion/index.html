@@ -269,7 +269,7 @@
           cc.textContent = html.replace(/<script[\s\S]*?<\/script>/g, '<!-- script -->');
         });
       }
-      v.textContent = isOpen ? '✕  Close' : '⌨  View Code';
+      v.textContent = isOpen ? 'Close' : '⌨  View Code';
     });
     cb.addEventListener('click', () => {
       navigator.clipboard.writeText(cc.textContent).then(() => {
