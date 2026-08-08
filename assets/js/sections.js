@@ -73,7 +73,7 @@ const SECTIONS = [
     title: 'Design Systems',
     desc: 'Гайдлайны, токены, типографика, иконки, сетка — фундамент дизайн-системы',
     examples: [
-      { name: 'Design Tokens',     desc: 'Все токены в одном месте: цвета, шрифты, отступы, тени, движение',  url: 'design-systems/index.html',     tags: ['tokens', 'foundations', 'spec'], badge: 'new' },
+      { name: 'Design Tokens',     desc: 'Все токены в одном месте: цвета, шрифты, отступы, тени, движение',  url: 'design-systems/index.html', preview: 'design-systems/preview.png', tags: ['tokens', 'foundations', 'spec'], badge: 'new' },
       { name: 'Iconography',       desc: 'Иконки feather/lucide, размеры, использование, примеры',              url: 'design-systems/icons.html',     tags: ['icons', 'system'],                badge: 'soon' },
       { name: 'Typography',        desc: 'Шкала шрифтов, начертания, line-height, заголовки, body',           url: 'design-systems/typography.html', tags: ['typography', 'scale'],            badge: 'soon' },
     ]
@@ -136,12 +136,18 @@ function renderCatalog() {
       ${section.examples.length > 0
         ? `<div class="examples-grid">${section.examples.map(ex => {
             const fallback = (ex.name || '?').charAt(0);
+            // preview path: explicit field, or url + 'preview.png' for dir-style links
+            const previewSrc = ex.preview
+              || (ex.url.endsWith('/') ? ex.url + 'preview.png' : '');
+            const thumb = previewSrc
+              ? `<img src="${previewSrc}" alt="${ex.name}" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span>${fallback}</span>'">`
+              : `<span>${fallback}</span>`;
             return `
             <a href="${ex.url}" class="example-card">
               ${ex.badge === 'new' ? '<div class="badge-new">new</div>' : ''}
               ${ex.badge === 'soon' ? '<div class="badge-new" style="background:var(--text-2)">soon</div>' : ''}
               <div class="thumb">
-                <img src="${ex.url}preview.png" alt="${ex.name}" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span>${fallback}</span>'">
+                ${thumb}
               </div>
               <div class="name">${ex.name}</div>
               <div class="desc">${ex.desc}</div>
