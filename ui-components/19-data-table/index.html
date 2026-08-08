@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Data Table — UI Component</title>
+  <style>
+    :root {
+      --bg: #f5f5f7; --surface: #ffffff; --surface-2: #f0f0f5; --surface-3: #e8e8ed;
+      --text: #1c1c1e; --text-2: #636366; --text-3: #8e8e93; --text-inverse: #fff;
+      --border: #e5e5ea; --border-strong: #d0d0d6;
+      --accent: #6c5ce7; --accent-hover: #5a4bd1; --accent-soft: rgba(108,92,231,.08);
+      --radius-sm: 6px; --radius: 10px; --radius-md: 12px; --radius-lg: 16px;
+      --shadow-sm: 0 2px 6px rgba(0,0,0,.06); --shadow: 0 4px 16px rgba(0,0,0,.07);
+      --shadow-md: 0 8px 30px rgba(0,0,0,.12);
+      --success: #27ae60; --danger: #e74c3c; --warning: #f39c12;
+      --ease: cubic-bezier(0.4,0,0.2,1); --ease-spring: cubic-bezier(0.34,1.56,0.64,1);
+      --dur-fast: 180ms; --dur: 260ms;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+    }
+    [data-theme="dark"] {
+      --bg: #0c0c0e; --surface: #1a1a20; --surface-2: #23232a; --surface-3: #2a2a32;
+      --text: #ececf0; --text-2: #a0a0a8; --text-3: #6e6e76;
+      --border: #2a2a32; --border-strong: #3a3a44;
+      --accent-soft: rgba(108,92,231,.15);
+      --shadow-md: 0 8px 30px rgba(0,0,0,.5);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);padding:40px 20px 100px;-webkit-font-smoothing:antialiased;line-height:1.6}
+    .container{max-width:920px;margin:0 auto}
+    ::selection{background:var(--accent);color:var(--text-inverse)}
+    .page-head{text-align:center;margin-bottom:40px}
+    .page-head h1{font-size:2.2rem;font-weight:800;letter-spacing:-0.02em;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+    .page-head p{color:var(--text-2);font-size:1rem;max-width:540px;margin:0 auto}
+
+    .theme-toggle{position:fixed;top:16px;right:16px;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:100;transition:all var(--dur-fast) var(--ease)}
+    .theme-toggle:hover{transform:scale(1.05);border-color:var(--accent);color:var(--accent)}
+    .theme-toggle svg{width:16px;height:16px}
+
+    .section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;margin-bottom:20px}
+    .section-head{display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+    .section-num{width:32px;height:32px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;font-family:'SF Mono',monospace}
+    .section-title{font-size:1.2rem;font-weight:700}
+    .section-sub{color:var(--text-2);font-size:.85rem;margin-top:2px}
+
+    /* ─── Toolbar ─── */
+    .table-toolbar{display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:16px}
+    .search-box{position:relative;flex:1;min-width:220px;max-width:380px}
+    .search-box svg{position:absolute;left:12px;top:50%;transform:translateY(-50%);width:15px;height:15px;color:var(--text-3);pointer-events:none}
+    .search-box input{width:100%;padding:9px 12px 9px 36px;border:1px solid var(--border);border-radius:var(--radius);background:var(--surface-2);color:var(--text);font-family:inherit;font-size:.88rem;outline:none;transition:border-color var(--dur-fast) var(--ease),box-shadow var(--dur-fast) var(--ease),background var(--dur-fast) var(--ease)}
+    .search-box input::placeholder{color:var(--text-3)}
+    .search-box input:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft);background:var(--surface)}
+    .table-meta{display:flex;align-items:center;gap:14px;font-size:.8rem;color:var(--text-2);white-space:nowrap}
+    .table-meta .sel-count{color:var(--accent);font-weight:600}
+
+    /* ─── Table ─── */
+    .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:var(--radius-md);background:var(--surface)}
+    .data-table{width:100%;border-collapse:collapse;font-size:.88rem;min-width:640px}
+    .data-table thead th{position:sticky;top:0;z-index:2;background:var(--surface-2);color:var(--text-2);font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;text-align:left;padding:12px 14px;border-bottom:1px solid var(--border);white-space:nowrap}
+    .data-table th.sortable{cursor:pointer;user-select:none;transition:color var(--dur-fast) var(--ease)}
+    .data-table th.sortable:hover{color:var(--accent)}
+    .data-table th .sort-arrow{display:inline-flex;vertical-align:middle;margin-left:5px;opacity:.35;transition:transform var(--dur-fast) var(--ease),opacity var(--dur-fast) var(--ease)}
+    .data-table th.sortable.is-sorted{color:var(--accent)}
+    .data-table th.sortable.is-sorted .sort-arrow{opacity:1}
+    .data-table th.sortable.is-sorted.asc .sort-arrow{transform:rotate(180deg)}
+    .data-table th .sort-arrow svg{width:12px;height:12px}
+    .data-table tbody td{padding:11px 14px;border-bottom:1px solid var(--border);vertical-align:middle}
+    .data-table tbody tr:last-child td{border-bottom:none}
+    .data-table tbody tr{transition:background var(--dur-fast) var(--ease)}
+    .data-table tbody tr:hover{background:var(--surface-2)}
+    .data-table tbody tr.is-selected{background:var(--accent-soft)}
+    .data-table .col-check{width:40px;text-align:center}
+    .data-table .col-price{white-space:nowrap;font-variant-numeric:tabular-nums}
+    .data-table .col-stock{white-space:nowrap;font-variant-numeric:tabular-nums}
+    input[type="checkbox"]{width:15px;height:15px;accent-color:var(--accent);cursor:pointer}
+
+    /* ─── Badges ─── */
+    .badge{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:9999px;font-size:.72rem;font-weight:600;white-space:nowrap}
+    .badge::before{content:'';width:6px;height:6px;border-radius:50%;background:currentColor}
+    .badge-ok{background:rgba(39,174,96,.12);color:#1e8e4e}
+    .badge-warn{background:rgba(243,156,18,.14);color:#b97a0a}
+    .badge-danger{background:rgba(231,76,60,.12);color:#c0392b}
+    .badge-info{background:rgba(52,152,219,.14);color:#2471a3}
+    [data-theme="dark"] .badge-ok{color:#4cd787}
+    [data-theme="dark"] .badge-warn{color:#f5b041}
+    [data-theme="dark"] .badge-danger{color:#f1948a}
+    [data-theme="dark"] .badge-info{color:#7fb3d8}
+
+    /* ─── Empty state ─── */
+    .empty-state{display:flex;flex-direction:column;align-items:center;gap:8px;padding:48px 20px;text-align:center;color:var(--text-2)}
+    .empty-state svg{width:36px;height:36px;color:var(--text-3);margin-bottom:4px}
+    .empty-state p{font-size:.95rem;font-weight:600;color:var(--text)}
+    .empty-state .empty-sub{font-size:.8rem;color:var(--text-3);font-weight:400}
+    .empty-state button{margin-top:8px;padding:8px 18px;border:none;border-radius:var(--radius);background:var(--accent);color:var(--text-inverse);font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit;transition:background var(--dur-fast) var(--ease)}
+    .empty-state button:hover{background:var(--accent-hover)}
+
+    /* ─── Pagination ─── */
+    .pagination{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:16px;flex-wrap:wrap}
+    .page-btn{min-width:34px;height:34px;padding:0 10px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--surface);color:var(--text-2);font-size:.82rem;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;justify-content:center;gap:4px;transition:all var(--dur-fast) var(--ease)}
+    .page-btn:hover:not(:disabled){border-color:var(--accent);color:var(--accent)}
+    .page-btn.is-active{background:var(--accent);border-color:var(--accent);color:var(--text-inverse)}
+    .page-btn:disabled{opacity:.4;cursor:not-allowed}
+    .page-btn svg{width:14px;height:14px}
+
+    /* ─── Legend ─── */
+    .legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px}
+    .legend-item{display:flex;flex-direction:column;gap:6px;padding:14px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius)}
+    .legend-desc{font-size:.78rem;color:var(--text-3)}
+
+    /* ─── Back & view-code ─── */
+    .back-btn{position:fixed;bottom:20px;left:20px;display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:100px;color:var(--text);font-size:.85rem;font-weight:500;text-decoration:none;box-shadow:var(--shadow-sm);z-index:100;transition:all var(--dur-fast) var(--ease)}
+    .back-btn:hover{transform:translateY(-2px);border-color:var(--accent);color:var(--accent)}
+    .back-btn svg{width:14px;height:14px}
+    .view-code-btn{position:fixed;bottom:20px;right:20px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);color:var(--text-2);padding:8px 16px;border-radius:100px;font-size:.78rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;z-index:100;transition:all var(--dur-fast) var(--ease)}
+    .view-code-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .code-panel{position:fixed;bottom:64px;right:20px;width:min(640px,calc(100vw - 40px));max-height:0;overflow:hidden;transition:max-height .45s var(--ease),opacity .3s;opacity:0;background:var(--surface);backdrop-filter:blur(20px);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-md);z-index:99}
+    .code-panel.open{max-height:70vh;opacity:1}
+    .code-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;font-size:.72rem;color:var(--text-2);font-weight:500;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+    .code-panel pre{padding:18px;font-size:.7rem;line-height:1.6;color:var(--text-2);overflow:auto;max-height:60vh;white-space:pre;tab-size:2;font-family:'SF Mono','Fira Code',monospace}
+    .copy-btn{background:var(--surface-2);border:none;color:var(--text-2);padding:4px 12px;border-radius:6px;font-size:.72rem;cursor:pointer;font-family:inherit;transition:all var(--dur-fast) var(--ease)}
+    .copy-btn:hover{background:var(--accent-soft);color:var(--accent)}
+
+    @media (max-width: 720px) {
+      body { padding: 24px 14px 100px; }
+      .page-head h1 { font-size: 1.7rem; }
+      .section { padding: 20px; }
+      .back-btn, .view-code-btn { bottom: 12px; padding: 7px 12px; font-size: 0.75rem; }
+      .back-btn { left: 12px; }
+      .view-code-btn { right: 12px; }
+      .table-toolbar { flex-direction: column; align-items: stretch; }
+      .search-box { max-width: none; }
+      .table-meta { justify-content: space-between; }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="sunIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="moonIcon" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+
+  <div class="container">
+    <header class="page-head">
+      <h1>Data Table</h1>
+      <p>Сортировка по колонкам, живой фильтр, выбор строк, пагинация и статусные бейджи.</p>
+    </header>
+
+    <!-- 1. TABLE -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">1</div>
+        <div>
+          <div class="section-title">Таблица товаров</div>
+          <div class="section-sub">Клик по заголовку сортирует, поиск фильтрует в реальном времени</div>
+        </div>
+      </div>
+
+      <div class="table-toolbar">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input type="text" id="searchInput" placeholder="Поиск по названию или категории...">
+        </div>
+        <div class="table-meta">
+          <span class="sel-count" id="selCount">Выбрано: 0</span>
+          <span id="shownCount">Показано 1–8 из 24</span>
+        </div>
+      </div>
+
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th class="col-check"><input type="checkbox" id="checkAll" aria-label="Выбрать все на странице"></th>
+              <th class="sortable is-sorted asc" data-sort="name">Название <span class="sort-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></th>
+              <th class="sortable" data-sort="category">Категория <span class="sort-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></th>
+              <th class="sortable" data-sort="price">Цена <span class="sort-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></th>
+              <th class="sortable" data-sort="stock">Остаток <span class="sort-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></th>
+              <th class="sortable" data-sort="status">Статус <span class="sort-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span></th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+        <div class="empty-state" id="emptyState" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/></svg>
+          <p>Ничего не найдено</p>
+          <p class="empty-sub">Попробуйте изменить запрос или сбросить фильтр</p>
+          <button type="button" id="resetBtn">Сбросить фильтр</button>
+        </div>
+      </div>
+
+      <div class="pagination" id="pagination"></div>
+    </section>
+
+    <!-- 2. STATUS LEGEND -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">2</div>
+        <div>
+          <div class="section-title">Статусы</div>
+          <div class="section-sub">Цветовые обозначения наличия товара</div>
+        </div>
+      </div>
+      <div class="legend">
+        <div class="legend-item"><span class="badge badge-ok">В наличии</span><span class="legend-desc">Товар доступен для заказа</span></div>
+        <div class="legend-item"><span class="badge badge-warn">Заканчивается</span><span class="legend-desc">Осталось меньше 5 единиц</span></div>
+        <div class="legend-item"><span class="badge badge-danger">Нет в наличии</span><span class="legend-desc">Товар недоступен</span></div>
+        <div class="legend-item"><span class="badge badge-info">В пути</span><span class="legend-desc">Поставка ожидается</span></div>
+      </div>
+    </section>
+  </div>
+
+  <a class="back-btn" href="../../">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Назад к каталогу
+  </a>
+  <button class="view-code-btn" id="viewCodeBtn">View Code</button>
+  <div class="code-panel" id="codePanel">
+    <div class="code-header">
+      <span>index.html</span>
+      <button class="copy-btn" id="copyCodeBtn">Copy</button>
+    </div>
+    <pre id="codeContent"></pre>
+  </div>
+
+  <script>
+    (function() {
+      'use strict';
+      // Theme
+      const toggle = document.getElementById('themeToggle');
+      const sun = document.getElementById('sunIcon');
+      const moon = document.getElementById('moonIcon');
+      const stored = localStorage.getItem('design-demo-theme');
+      const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      let theme = stored || (sysDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+      if (theme === 'dark') { sun.style.display = 'none'; moon.style.display = ''; }
+      else { sun.style.display = ''; moon.style.display = 'none'; }
+      toggle.addEventListener('click', () => {
+        const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('design-demo-theme', next);
+        if (next === 'dark') { sun.style.display = 'none'; moon.style.display = ''; }
+        else { sun.style.display = ''; moon.style.display = 'none'; }
+      });
+
+      // Data
+      const PRODUCTS = [
+        {id:1,  name:'Ноутбук Lenovo IdeaPad 5 15ALC05', category:'Ноутбуки', price:54990, stock:12, status:'В наличии'},
+        {id:2,  name:'Смартфон Xiaomi Redmi Note 13 Pro', category:'Смартфоны', price:24990, stock:34, status:'В наличии'},
+        {id:3,  name:'Наушники Sony WH-1000XM5', category:'Аудио', price:32990, stock:5, status:'Заканчивается'},
+        {id:4,  name:'Монитор LG 27UP850 27"', category:'Мониторы', price:27990, stock:0, status:'Нет в наличии'},
+        {id:5,  name:'Клавиатура Logitech MX Keys', category:'Периферия', price:11990, stock:21, status:'В пути'},
+        {id:6,  name:'Мышь Logitech MX Master 3S', category:'Периферия', price:9990, stock:3, status:'Заканчивается'},
+        {id:7,  name:'SSD Samsung 990 Pro 1 ТБ', category:'Накопители', price:14990, stock:45, status:'В наличии'},
+        {id:8,  name:'Видеокарта NVIDIA RTX 4070', category:'Комплектующие', price:62990, stock:0, status:'Нет в наличии'},
+        {id:9,  name:'Планшет Apple iPad Air 11', category:'Планшеты', price:58990, stock:18, status:'В наличии'},
+        {id:10, name:'Принтер HP LaserJet M111a', category:'Печать', price:8990, stock:7, status:'В пути'},
+        {id:11, name:'Веб-камера Logitech C920 HD', category:'Периферия', price:6490, stock:26, status:'В наличии'},
+        {id:12, name:'Колонка Яндекс Станция Мини', category:'Аудио', price:7990, stock:2, status:'Заканчивается'},
+        {id:13, name:'Роутер TP-Link Archer AX55', category:'Сетевое', price:7990, stock:14, status:'В наличии'},
+        {id:14, name:'Смарт-часы Huawei Watch GT 4', category:'Гаджеты', price:12990, stock:9, status:'В наличии'},
+        {id:15, name:'Проектор Epson EB-E01', category:'Презентации', price:34990, stock:1, status:'Заканчивается'},
+        {id:16, name:'Внешний диск WD Elements 4 ТБ', category:'Накопители', price:11990, stock:0, status:'Нет в наличии'},
+        {id:17, name:'МФУ Canon PIXMA G5050', category:'Печать', price:18990, stock:6, status:'В пути'},
+        {id:18, name:'Микрофон Blue Yeti USB', category:'Аудио', price:13990, stock:11, status:'В наличии'},
+        {id:19, name:'Геймпад Xbox Wireless', category:'Гаджеты', price:5490, stock:32, status:'В наличии'},
+        {id:20, name:'Док-станция Ugreen 8-в-1', category:'Периферия', price:4490, stock:4, status:'Заканчивается'},
+        {id:21, name:'Монитор Dell S2721QS 27"', category:'Мониторы', price:42990, stock:0, status:'Нет в наличии'},
+        {id:22, name:'Ноутбук ASUS VivoBook 15', category:'Ноутбуки', price:45990, stock:15, status:'В пути'},
+        {id:23, name:'Смартфон Samsung Galaxy A55', category:'Смартфоны', price:32990, stock:22, status:'В наличии'},
+        {id:24, name:'Планшет Samsung Galaxy Tab S9 FE', category:'Планшеты', price:27990, stock:8, status:'В наличии'}
+      ];
+      const PER_PAGE = 8;
+      const STATUS_ORDER = {'В наличии':0, 'Заканчивается':1, 'В пути':2, 'Нет в наличии':3};
+      const STATUS_CLASS = {'В наличии':'ok', 'Заканчивается':'warn', 'В пути':'info', 'Нет в наличии':'danger'};
+
+      let sortKey = 'name';
+      let sortDir = 'asc';
+      let query = '';
+      let page = 1;
+      const selected = new Set();
+
+      const tbody = document.getElementById('tableBody');
+      const searchInput = document.getElementById('searchInput');
+      const checkAll = document.getElementById('checkAll');
+      const emptyState = document.getElementById('emptyState');
+      const resetBtn = document.getElementById('resetBtn');
+      const pagination = document.getElementById('pagination');
+      const shownCount = document.getElementById('shownCount');
+      const selCount = document.getElementById('selCount');
+
+      const fmtPrice = n => new Intl.NumberFormat('ru-RU').format(n) + ' ₽';
+
+      function getFiltered() {
+        let rows = PRODUCTS;
+        if (query) {
+          const q = query.toLowerCase();
+          rows = rows.filter(r => r.name.toLowerCase().includes(q) || r.category.toLowerCase().includes(q));
+        }
+        if (sortKey) {
+          rows = rows.slice().sort((a, b) => {
+            let va = a[sortKey], vb = b[sortKey];
+            if (sortKey === 'price' || sortKey === 'stock') { va = +va; vb = +vb; }
+            else if (sortKey === 'status') { va = STATUS_ORDER[va]; vb = STATUS_ORDER[vb]; }
+            else { va = va.toLowerCase(); vb = vb.toLowerCase(); }
+            if (va < vb) return sortDir === 'asc' ? -1 : 1;
+            if (va > vb) return sortDir === 'asc' ? 1 : -1;
+            return 0;
+          });
+        }
+        return rows;
+      }
+
+      function render() {
+        const rows = getFiltered();
+        const total = rows.length;
+        const pages = Math.max(1, Math.ceil(total / PER_PAGE));
+        if (page > pages) page = pages;
+        const start = (page - 1) * PER_PAGE;
+        const pageRows = rows.slice(start, start + PER_PAGE);
+
+        tbody.innerHTML = '';
+        pageRows.forEach(r => {
+          const tr = document.createElement('tr');
+          if (selected.has(r.id)) tr.classList.add('is-selected');
+          tr.innerHTML =
+            '<td class="col-check"><input type="checkbox" data-id="' + r.id + '"' + (selected.has(r.id) ? ' checked' : '') + '></td>' +
+            '<td class="col-name">' + r.name + '</td>' +
+            '<td>' + r.category + '</td>' +
+            '<td class="col-price">' + fmtPrice(r.price) + '</td>' +
+            '<td class="col-stock">' + r.stock + '</td>' +
+            '<td><span class="badge badge-' + STATUS_CLASS[r.status] + '">' + r.status + '</span></td>';
+          tbody.appendChild(tr);
+        });
+
+        emptyState.hidden = total !== 0;
+        shownCount.textContent = total === 0 ? 'Показано 0 из 0' : 'Показано ' + (start + 1) + '–' + Math.min(start + PER_PAGE, total) + ' из ' + total;
+        renderPagination(pages);
+        syncCheckAll();
+      }
+
+      function renderPagination(pages) {
+        pagination.innerHTML = '';
+        const prev = document.createElement('button');
+        prev.type = 'button';
+        prev.className = 'page-btn';
+        prev.disabled = page === 1;
+        prev.setAttribute('aria-label', 'Предыдущая страница');
+        prev.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>';
+        prev.addEventListener('click', () => { if (page > 1) { page--; render(); } });
+        pagination.appendChild(prev);
+        for (let i = 1; i <= pages; i++) {
+          const b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'page-btn' + (i === page ? ' is-active' : '');
+          b.textContent = i;
+          b.addEventListener('click', () => { page = i; render(); });
+          pagination.appendChild(b);
+        }
+        const next = document.createElement('button');
+        next.type = 'button';
+        next.className = 'page-btn';
+        next.disabled = page === pages;
+        next.setAttribute('aria-label', 'Следующая страница');
+        next.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+        next.addEventListener('click', () => { if (page < pages) { page++; render(); } });
+        pagination.appendChild(next);
+      }
+
+      function syncCheckAll() {
+        const rows = tbody.querySelectorAll('tr');
+        const ids = [...rows].map(r => +r.querySelector('input').dataset.id);
+        const sel = ids.filter(id => selected.has(id)).length;
+        checkAll.checked = rows.length > 0 && sel === rows.length;
+        checkAll.indeterminate = sel > 0 && sel < rows.length;
+      }
+
+      // Sorting
+      document.querySelectorAll('th.sortable').forEach(th => {
+        th.addEventListener('click', () => {
+          const key = th.dataset.sort;
+          if (sortKey === key) sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+          else { sortKey = key; sortDir = 'asc'; }
+          document.querySelectorAll('th.sortable').forEach(t => {
+            t.classList.toggle('is-sorted', t === th);
+            t.classList.toggle('asc', t === th && sortDir === 'asc');
+            if (t === th) t.setAttribute('aria-sort', sortDir === 'asc' ? 'ascending' : 'descending');
+            else t.removeAttribute('aria-sort');
+          });
+          render();
+        });
+      });
+
+      // Filter
+      searchInput.addEventListener('input', () => { query = searchInput.value.trim(); page = 1; render(); });
+      resetBtn.addEventListener('click', () => { query = ''; searchInput.value = ''; page = 1; render(); });
+
+      // Row selection
+      tbody.addEventListener('click', e => {
+        const cb = e.target.closest('input[type="checkbox"]');
+        if (cb) {
+          const id = +cb.dataset.id;
+          if (cb.checked) selected.add(id); else selected.delete(id);
+          cb.closest('tr').classList.toggle('is-selected', cb.checked);
+          selCount.textContent = 'Выбрано: ' + selected.size;
+          syncCheckAll();
+          return;
+        }
+        const tr = e.target.closest('tr');
+        if (tr) {
+          const cb2 = tr.querySelector('input[type="checkbox"]');
+          cb2.checked = !cb2.checked;
+          const id = +cb2.dataset.id;
+          if (cb2.checked) selected.add(id); else selected.delete(id);
+          tr.classList.toggle('is-selected', cb2.checked);
+          selCount.textContent = 'Выбрано: ' + selected.size;
+          syncCheckAll();
+        }
+      });
+
+      checkAll.addEventListener('change', () => {
+        tbody.querySelectorAll('input[type="checkbox"]').forEach(cb => {
+          cb.checked = checkAll.checked;
+          const id = +cb.dataset.id;
+          if (checkAll.checked) selected.add(id); else selected.delete(id);
+          cb.closest('tr').classList.toggle('is-selected', checkAll.checked);
+        });
+        selCount.textContent = 'Выбрано: ' + selected.size;
+      });
+
+      render();
+
+      // View code
+      const viewCodeBtn = document.getElementById('viewCodeBtn');
+      const codePanel = document.getElementById('codePanel');
+      const codeContent = document.getElementById('codeContent');
+      const copyCodeBtn = document.getElementById('copyCodeBtn');
+      viewCodeBtn.addEventListener('click', () => {
+        const isOpen = codePanel.classList.toggle('open');
+        if (isOpen && !codeContent.textContent) {
+          fetch('index.html').then(r => r.text()).then(html => {
+            codeContent.textContent = html.replace(/<script[\s\S]*?<\/script>/g, '<!-- script -->');
+          });
+        }
+        viewCodeBtn.textContent = isOpen ? 'Close' : 'View Code';
+      });
+      copyCodeBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(codeContent.textContent).then(() => {
+          copyCodeBtn.textContent = 'Copied!';
+          setTimeout(() => copyCodeBtn.textContent = 'Copy', 1500);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

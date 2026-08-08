@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>List Group — UI Component</title>
+  <style>
+    :root {
+      --bg: #f5f5f7; --surface: #ffffff; --surface-2: #f0f0f5; --surface-3: #e8e8ed;
+      --text: #1c1c1e; --text-2: #636366; --text-3: #8e8e93; --text-inverse: #fff;
+      --border: #e5e5ea; --border-strong: #d0d0d6;
+      --accent: #6c5ce7; --accent-hover: #5a4bd1; --accent-soft: rgba(108,92,231,.08);
+      --success: #22c55e; --danger: #ef4444; --warning: #f59e0b;
+      --radius-sm: 6px; --radius: 10px; --radius-md: 12px; --radius-lg: 16px;
+      --shadow-sm: 0 2px 6px rgba(0,0,0,.06); --shadow: 0 4px 16px rgba(0,0,0,.07);
+      --shadow-md: 0 8px 32px rgba(0,0,0,.12);
+      --ease: cubic-bezier(0.4,0,0.2,1); --ease-spring: cubic-bezier(0.34,1.56,0.64,1);
+      --dur-fast: 180ms; --dur: 260ms;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+    }
+    [data-theme="dark"] {
+      --bg: #0c0c0e; --surface: #1a1a20; --surface-2: #23232a; --surface-3: #2a2a32;
+      --text: #ececf0; --text-2: #a0a0a8; --text-3: #6e6e76;
+      --border: #2a2a32; --border-strong: #3a3a44;
+      --accent-soft: rgba(108,92,231,.15);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);padding:40px 20px 100px;-webkit-font-smoothing:antialiased;line-height:1.6}
+    .container{max-width:920px;margin:0 auto}
+    ::selection{background:var(--accent);color:var(--text-inverse)}
+    .page-head{text-align:center;margin-bottom:40px}
+    .page-head h1{font-size:2.2rem;font-weight:800;letter-spacing:-0.02em;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+    .page-head p{color:var(--text-2);font-size:1rem;max-width:540px;margin:0 auto}
+
+    .theme-toggle{position:fixed;top:16px;right:16px;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:100;transition:all var(--dur-fast) var(--ease)}
+    .theme-toggle:hover{transform:scale(1.05);border-color:var(--accent);color:var(--accent)}
+    .theme-toggle svg{width:16px;height:16px}
+
+    .section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;margin-bottom:20px}
+    .section-head{display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+    .section-num{width:32px;height:32px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;font-family:'SF Mono',monospace}
+    .section-title{font-size:1.2rem;font-weight:700}
+    .section-sub{color:var(--text-2);font-size:.85rem;margin-top:2px}
+
+    /* ─── List group base ─── */
+    .list { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: var(--radius-md); overflow: hidden; background: var(--surface); }
+    .list-item {
+      display: flex; align-items: center; gap: 14px; width: 100%;
+      padding: 13px 16px; background: var(--surface);
+      border: none; border-bottom: 1px solid var(--border);
+      font-family: inherit; text-align: left; cursor: pointer;
+      transition: background var(--dur-fast) var(--ease);
+    }
+    .list-item:last-child { border-bottom: none; }
+    .list-item:hover { background: var(--surface-2); }
+    .list-item:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; z-index: 1; position: relative; }
+    .list-item.is-active { background: var(--accent-soft); }
+    .list-item.is-active .li-title { color: var(--accent); font-weight: 600; }
+    .li-main { flex: 1; min-width: 0; }
+    .li-title { font-size: .92rem; font-weight: 500; color: var(--text); transition: color var(--dur-fast) var(--ease); }
+    .li-sub { font-size: .8rem; color: var(--text-3); margin-top: 2px; }
+    .li-meta { color: var(--text-3); font-size: .78rem; white-space: nowrap; font-variant-numeric: tabular-nums; }
+    .li-trailing { color: var(--text-3); display: inline-flex; flex-shrink: 0; transition: all var(--dur-fast) var(--ease); }
+    .li-trailing svg { width: 16px; height: 16px; }
+    .list-item:hover .li-trailing { color: var(--accent); transform: translateX(2px); }
+    .li-icon {
+      width: 36px; height: 36px; border-radius: var(--radius-sm); flex-shrink: 0;
+      background: var(--surface-2); color: var(--text-2);
+      display: flex; align-items: center; justify-content: center;
+      transition: all var(--dur-fast) var(--ease);
+    }
+    .li-icon svg { width: 17px; height: 17px; }
+    .list-item:hover .li-icon { background: var(--accent-soft); color: var(--accent); }
+    .list-item.is-active .li-icon { background: var(--accent); color: var(--text-inverse); }
+    .li-badge {
+      padding: 2px 8px; border-radius: 9999px; font-size: .7rem; font-weight: 700;
+      background: var(--surface-2); color: var(--text-2); white-space: nowrap;
+    }
+    .list-item.is-active .li-badge { background: var(--accent); color: var(--text-inverse); }
+
+    .status-line {
+      margin-top: 14px; padding: 10px 14px; border-radius: var(--radius-sm);
+      background: var(--surface-2); border: 1px solid var(--border);
+      color: var(--text-2); font-size: .85rem;
+    }
+    .status-line b { color: var(--text); font-weight: 600; }
+
+    /* ─── Avatar list ─── */
+    .li-avatar {
+      width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      color: #fff; font-weight: 700; font-size: .82rem; letter-spacing: .02em;
+    }
+    .li-status { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; background: var(--border-strong); }
+    .li-status.on { background: var(--success); box-shadow: 0 0 0 3px rgba(34,197,94,.15); }
+    .li-status.busy { background: var(--warning); box-shadow: 0 0 0 3px rgba(245,158,11,.15); }
+    .follow-btn {
+      flex-shrink: 0; height: 30px; padding: 0 14px; border-radius: 9999px;
+      border: 1px solid var(--border-strong); background: var(--surface);
+      color: var(--text); font-family: inherit; font-size: .78rem; font-weight: 600;
+      cursor: pointer; transition: all var(--dur-fast) var(--ease);
+    }
+    .follow-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .follow-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .follow-btn.is-following { background: var(--accent-soft); border-color: transparent; color: var(--accent); }
+
+    /* ─── Media list ─── */
+    .li-thumb {
+      width: 48px; height: 48px; border-radius: var(--radius-sm); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; color: rgba(255,255,255,.92);
+    }
+    .li-thumb svg { width: 20px; height: 20px; }
+    .li-unread { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); flex-shrink: 0; }
+
+    /* ─── Checkbox list ─── */
+    .cbx { position: relative; width: 20px; height: 20px; flex-shrink: 0; }
+    .cbx input { position: absolute; inset: 0; opacity: 0; cursor: pointer; margin: 0; }
+    .cbx-box {
+      position: absolute; inset: 0; border: 2px solid var(--border-strong); border-radius: 6px;
+      background: var(--surface); pointer-events: none;
+      display: flex; align-items: center; justify-content: center; color: #fff;
+      transition: all var(--dur-fast) var(--ease);
+    }
+    .cbx-box svg { width: 12px; height: 12px; opacity: 0; transform: scale(.5); transition: all var(--dur-fast) var(--ease); }
+    .cbx input:checked + .cbx-box { background: var(--accent); border-color: var(--accent); }
+    .cbx input:checked + .cbx-box svg { opacity: 1; transform: scale(1); }
+    .cbx input:indeterminate + .cbx-box { background: var(--accent); border-color: var(--accent); }
+    .cbx input:indeterminate + .cbx-box svg { opacity: 1; transform: scale(1); }
+    .cbx input:focus-visible + .cbx-box { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .list-item.is-checked { background: var(--surface-2); }
+    .list-item.is-done .li-title { text-decoration: line-through; color: var(--text-3); }
+    .list-item.is-done .li-sub, .list-item.is-done .li-meta { opacity: .55; }
+    .list-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      height: 36px; padding: 0 16px; border-radius: var(--radius);
+      font-family: inherit; font-size: .85rem; font-weight: 600;
+      border: 1px solid transparent; cursor: pointer; user-select: none;
+      transition: all var(--dur-fast) var(--ease);
+    }
+    .btn svg { width: 15px; height: 15px; }
+    .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .btn:active { transform: scale(.97); }
+    .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+    .btn-primary { background: var(--accent); color: var(--text-inverse); }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-secondary { background: var(--surface-2); color: var(--text); border-color: var(--border); }
+    .btn-secondary:hover { background: var(--surface-3); }
+
+    /* ─── Draggable list ─── */
+    .list-item[draggable="true"] { cursor: grab; }
+    .list-item.is-dragging { opacity: .45; background: var(--accent-soft); cursor: grabbing; }
+    .list-item.is-over { box-shadow: inset 0 2px 0 0 var(--accent); }
+    .grip { width: 20px; height: 20px; flex-shrink: 0; color: var(--text-3); display: flex; align-items: center; justify-content: center; }
+    .grip svg { width: 16px; height: 16px; }
+    .list-item:hover .grip { color: var(--text-2); }
+    .prio-badge {
+      width: 30px; height: 30px; border-radius: var(--radius-sm); flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--accent-soft); color: var(--accent);
+      font-weight: 700; font-size: .8rem; font-family: 'SF Mono', monospace;
+      transition: all var(--dur-fast) var(--ease);
+    }
+    .list-item:hover .prio-badge { background: var(--accent); color: var(--text-inverse); }
+
+    /* ─── Back & view-code ─── */
+    .back-btn{position:fixed;bottom:20px;left:20px;display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:100px;color:var(--text);font-size:.85rem;font-weight:500;text-decoration:none;box-shadow:var(--shadow-sm);z-index:100;transition:all var(--dur-fast) var(--ease)}
+    .back-btn:hover{transform:translateY(-2px);border-color:var(--accent);color:var(--accent)}
+    .back-btn svg{width:14px;height:14px}
+    .view-code-btn{position:fixed;bottom:20px;right:20px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);color:var(--text-2);padding:8px 16px;border-radius:100px;font-size:.78rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;z-index:100;transition:all var(--dur-fast) var(--ease)}
+    .view-code-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .code-panel{position:fixed;bottom:64px;right:20px;width:min(640px,calc(100vw - 40px));max-height:0;overflow:hidden;transition:max-height .45s var(--ease),opacity .3s;opacity:0;background:var(--surface);backdrop-filter:blur(20px);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-md);z-index:99}
+    .code-panel.open{max-height:70vh;opacity:1}
+    .code-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;font-size:.72rem;color:var(--text-2);font-weight:500;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+    .code-panel pre{padding:18px;font-size:.7rem;line-height:1.6;color:var(--text-2);overflow:auto;max-height:60vh;white-space:pre;tab-size:2;font-family:'SF Mono','Fira Code',monospace}
+    .copy-btn{background:var(--surface-2);border:none;color:var(--text-2);padding:4px 12px;border-radius:6px;font-size:.72rem;cursor:pointer;font-family:inherit;transition:all var(--dur-fast) var(--ease)}
+    .copy-btn:hover{background:var(--accent-soft);color:var(--accent)}
+
+    @media (max-width: 720px) {
+      body { padding: 24px 14px 100px; }
+      .page-head h1 { font-size: 1.7rem; }
+      .section { padding: 20px; }
+      .list-item { padding: 12px 12px; gap: 12px; }
+      .li-thumb { width: 42px; height: 42px; }
+      .back-btn, .view-code-btn { bottom: 12px; padding: 7px 12px; font-size: 0.75rem; }
+      .back-btn { left: 12px; }
+      .view-code-btn { right: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="sunIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="moonIcon" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+
+  <div class="container">
+    <header class="page-head">
+      <h1>List Group</h1>
+      <p>Шесть типов списков: простые, с иконками, аватарами, медиа, чекбоксами и drag-and-drop.</p>
+    </header>
+
+    <!-- 1. SIMPLE -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">1</div>
+        <div>
+          <div class="section-title">Simple List</div>
+          <div class="section-sub">Настройки профиля — клик выделяет пункт</div>
+        </div>
+      </div>
+      <div class="list" id="simpleList">
+        <button class="list-item" data-name="Общие">
+          <span class="li-main"><span class="li-title">Общие</span></span>
+          <span class="li-meta">Профиль, имя, язык</span>
+          <span class="li-trailing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </button>
+        <button class="list-item" data-name="Уведомления">
+          <span class="li-main"><span class="li-title">Уведомления</span></span>
+          <span class="li-badge">3 новых</span>
+          <span class="li-trailing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </button>
+        <button class="list-item" data-name="Приватность">
+          <span class="li-main"><span class="li-title">Приватность</span></span>
+          <span class="li-meta">Кто видит профиль</span>
+          <span class="li-trailing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </button>
+        <button class="list-item" data-name="Язык и регион">
+          <span class="li-main"><span class="li-title">Язык и регион</span></span>
+          <span class="li-meta">Русский · Россия</span>
+          <span class="li-trailing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </button>
+        <button class="list-item" data-name="Хранилище">
+          <span class="li-main"><span class="li-title">Хранилище</span></span>
+          <span class="li-meta">6,2 ГБ из 10 ГБ</span>
+          <span class="li-trailing"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        </button>
+      </div>
+      <div class="status-line" id="simpleStatus">Выберите пункт — <b>Общие</b> открыт</div>
+    </section>
+
+    <!-- 2. ICON LIST -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">2</div>
+        <div>
+          <div class="section-title">Icon List</div>
+          <div class="section-sub">Навигация приложения с бейджами и активным пунктом</div>
+        </div>
+      </div>
+      <div class="list" id="iconList">
+        <button class="list-item is-active" data-name="Дашборд">
+          <span class="li-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg></span>
+          <span class="li-main"><span class="li-title">Дашборд</span></span>
+          <span class="li-badge">12</span>
+        </button>
+        <button class="list-item" data-name="Проекты">
+          <span class="li-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+          <span class="li-main"><span class="li-title">Проекты</span></span>
+          <span class="li-badge">8</span>
+        </button>
+        <button class="list-item" data-name="Аналитика">
+          <span class="li-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></span>
+          <span class="li-main"><span class="li-title">Аналитика</span></span>
+          <span class="li-badge">3</span>
+        </button>
+        <button class="list-item" data-name="Отчёты">
+          <span class="li-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+          <span class="li-main"><span class="li-title">Отчёты</span></span>
+        </button>
+        <button class="list-item" data-name="Настройки">
+          <span class="li-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></span>
+          <span class="li-main"><span class="li-title">Настройки</span></span>
+        </button>
+      </div>
+      <div class="status-line" id="iconStatus">Активный раздел: <b>Дашборд</b></div>
+    </section>
+
+    <!-- 3. AVATAR LIST -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">3</div>
+        <div>
+          <div class="section-title">Avatar List</div>
+          <div class="section-sub">Команда проекта — статус онлайн и подписки</div>
+        </div>
+      </div>
+      <div class="list" id="avatarList">
+        <div class="list-item" style="cursor:default">
+          <span class="li-avatar" style="background:linear-gradient(135deg,#6c5ce7,#a29bfe)">АС</span>
+          <span class="li-main"><span class="li-title">Анна Соколова</span><div class="li-sub">Продуктовый дизайнер</div></span>
+          <span class="li-status on" title="В сети"></span>
+          <button class="follow-btn" data-follow="Анна Соколова">Подписаться</button>
+        </div>
+        <div class="list-item" style="cursor:default">
+          <span class="li-avatar" style="background:linear-gradient(135deg,#0984e3,#74b9ff)">ДП</span>
+          <span class="li-main"><span class="li-title">Дмитрий Петров</span><div class="li-sub">Frontend-разработчик</div></span>
+          <span class="li-status on" title="В сети"></span>
+          <button class="follow-btn" data-follow="Дмитрий Петров">Подписаться</button>
+        </div>
+        <div class="list-item" style="cursor:default">
+          <span class="li-avatar" style="background:linear-gradient(135deg,#00b894,#55efc4)">МК</span>
+          <span class="li-main"><span class="li-title">Мария Кузнецова</span><div class="li-sub">Бэкенд-разработчик</div></span>
+          <span class="li-status busy" title="В созвоне"></span>
+          <button class="follow-btn" data-follow="Мария Кузнецова">Подписаться</button>
+        </div>
+        <div class="list-item" style="cursor:default">
+          <span class="li-avatar" style="background:linear-gradient(135deg,#e17055,#fab1a0)">АВ</span>
+          <span class="li-main"><span class="li-title">Артём Волков</span><div class="li-sub">QA-инженер</div></span>
+          <span class="li-status" title="Не в сети"></span>
+          <button class="follow-btn" data-follow="Артём Волков">Подписаться</button>
+        </div>
+        <div class="list-item" style="cursor:default">
+          <span class="li-avatar" style="background:linear-gradient(135deg,#6d28d9,#c4b5fd)">ЕМ</span>
+          <span class="li-main"><span class="li-title">Елена Морозова</span><div class="li-sub">Продакт-менеджер</div></span>
+          <span class="li-status on" title="В сети"></span>
+          <button class="follow-btn" data-follow="Елена Морозова">Подписаться</button>
+        </div>
+      </div>
+      <div class="status-line" id="avatarStatus">Подписки: <b>0</b> · статусы: зелёный — онлайн, жёлтый — занят</div>
+    </section>
+
+    <!-- 4. MEDIA & TWO-LINE -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">4</div>
+        <div>
+          <div class="section-title">Media &amp; Two-line</div>
+          <div class="section-sub">Лента уведомлений: превью, заголовок, подпись и время</div>
+        </div>
+      </div>
+      <div class="list" id="mediaList">
+        <button class="list-item" data-name="Анна Соколова ответила в задаче «Вёрстка главной»">
+          <span class="li-thumb" style="background:linear-gradient(135deg,#6c5ce7,#a29bfe)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg></span>
+          <span class="li-main"><span class="li-title">Анна Соколова ответила в задаче «Вёрстка главной»</span><div class="li-sub">«Секция hero готова, проверьте отступы»</div></span>
+          <span class="li-meta">12 мин</span>
+          <span class="li-unread"></span>
+        </button>
+        <button class="list-item" data-name="Дмитрий Петров загрузил макеты">
+          <span class="li-thumb" style="background:linear-gradient(135deg,#0984e3,#74b9ff)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></span>
+          <span class="li-main"><span class="li-title">Дмитрий Петров загрузил макеты</span><div class="li-sub">14 файлов · 38 МБ · Figma</div></span>
+          <span class="li-meta">1 ч</span>
+          <span class="li-unread"></span>
+        </button>
+        <button class="list-item" data-name="Отчёт за июль готов">
+          <span class="li-thumb" style="background:linear-gradient(135deg,#00b894,#55efc4)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></span>
+          <span class="li-main"><span class="li-title">Отчёт за июль готов</span><div class="li-sub">2,4 МБ · PDF · 47 страниц</div></span>
+          <span class="li-meta">3 ч</span>
+        </button>
+        <button class="list-item" data-name="Новая заявка на доступ">
+          <span class="li-thumb" style="background:linear-gradient(135deg,#e17055,#fab1a0)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg></span>
+          <span class="li-main"><span class="li-title">Новая заявка на доступ</span><div class="li-sub">Игорь Смирнов · проект «Атлас»</div></span>
+          <span class="li-meta">вчера</span>
+        </button>
+        <button class="list-item" data-name="Запись демо релиза 2.4">
+          <span class="li-thumb" style="background:linear-gradient(135deg,#6d28d9,#c4b5fd)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg></span>
+          <span class="li-main"><span class="li-title">Запись демо релиза 2.4</span><div class="li-sub">18 мин · 720p · доступ по ссылке</div></span>
+          <span class="li-meta">вчера</span>
+        </button>
+      </div>
+      <div class="status-line" id="mediaStatus">Клик по уведомлению отмечает его прочитанным</div>
+    </section>
+
+    <!-- 5. CHECKBOX LIST -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">5</div>
+        <div>
+          <div class="section-title">Checkbox List</div>
+          <div class="section-sub">Задачи с выбором, select-all и завершением</div>
+        </div>
+      </div>
+      <div class="list-toolbar">
+        <label class="cbx" style="display:inline-flex;align-items:center;gap:8px;width:auto;height:auto">
+          <span style="position:relative;width:20px;height:20px;display:block">
+            <input type="checkbox" id="selectAll">
+            <span class="cbx-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </span>
+          <span style="font-size:.85rem;font-weight:600;color:var(--text-2)">Выбрать все</span>
+        </label>
+        <button class="btn btn-primary" id="completeBtn" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Завершить выбранные
+        </button>
+      </div>
+      <div class="list" id="taskList">
+        <label class="list-item" style="cursor:pointer">
+          <span class="cbx"><input type="checkbox" class="task-check" data-id="Вёрстка главной страницы"><span class="cbx-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></span>
+          <span class="li-main"><span class="li-title">Вёрстка главной страницы</span><div class="li-sub">Дедлайн 12 авг · Анна Соколова</div></span>
+          <span class="li-meta">40 000 ₽</span>
+        </label>
+        <label class="list-item" style="cursor:pointer">
+          <span class="cbx"><input type="checkbox" class="task-check" data-id="Копирайт для лендинга"><span class="cbx-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></span>
+          <span class="li-main"><span class="li-title">Копирайт для лендинга</span><div class="li-sub">Дедлайн 14 авг · Елена Морозова</div></span>
+          <span class="li-meta">12 000 ₽</span>
+        </label>
+        <label class="list-item" style="cursor:pointer">
+          <span class="cbx"><input type="checkbox" class="task-check" data-id="Ревью макетов мобильного приложения"><span class="cbx-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></span>
+          <span class="li-main"><span class="li-title">Ревью макетов мобильного приложения</span><div class="li-sub">Дедлайн 16 авг · Артём Волков</div></span>
+          <span class="li-meta">8 500 ₽</span>
+        </label>
+        <label class="list-item" style="cursor:pointer">
+          <span class="cbx"><input type="checkbox" class="task-check" data-id="Настройка аналитики"><span class="cbx-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></span>
+          <span class="li-main"><span class="li-title">Настройка аналитики</span><div class="li-sub">Дедлайн 18 авг · Дмитрий Петров</div></span>
+          <span class="li-meta">15 000 ₽</span>
+        </label>
+        <label class="list-item" style="cursor:pointer">
+          <span class="cbx"><input type="checkbox" class="task-check" data-id="Подготовка релиза 2.4"><span class="cbx-box"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span></span>
+          <span class="li-main"><span class="li-title">Подготовка релиза 2.4</span><div class="li-sub">Дедлайн 21 авг · Мария Кузнецова</div></span>
+          <span class="li-meta">24 000 ₽</span>
+        </label>
+      </div>
+      <div class="status-line" id="taskStatus">Выбрано: <b>0</b> из 5 · бюджет всех задач 99 500 ₽</div>
+    </section>
+
+    <!-- 6. DRAGGABLE -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">6</div>
+        <div>
+          <div class="section-title">Draggable List</div>
+          <div class="section-sub">Приоритеты спринта — перетащите строку за ручку (HTML5 drag)</div>
+        </div>
+      </div>
+      <div class="list" id="dragList">
+        <div class="list-item" draggable="true" data-name="Разобрать инцидент с оплатой">
+          <span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="5" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="19" r="1"/></svg></span>
+          <span class="prio-badge">1</span>
+          <span class="li-main"><span class="li-title">Разобрать инцидент с оплатой</span><div class="li-sub">2 ч · Сергей</div></span>
+          <span class="li-meta">P0</span>
+        </div>
+        <div class="list-item" draggable="true" data-name="Вёрстка корзины">
+          <span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="5" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="19" r="1"/></svg></span>
+          <span class="prio-badge">2</span>
+          <span class="li-main"><span class="li-title">Вёрстка корзины</span><div class="li-sub">8 ч · Анна</div></span>
+          <span class="li-meta">P1</span>
+        </div>
+        <div class="list-item" draggable="true" data-name="Рефакторинг API-клиента">
+          <span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="5" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="19" r="1"/></svg></span>
+          <span class="prio-badge">3</span>
+          <span class="li-main"><span class="li-title">Рефакторинг API-клиента</span><div class="li-sub">16 ч · Дмитрий</div></span>
+          <span class="li-meta">P2</span>
+        </div>
+        <div class="list-item" draggable="true" data-name="Дизайн-ревью онбординга">
+          <span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="5" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="19" r="1"/></svg></span>
+          <span class="prio-badge">4</span>
+          <span class="li-main"><span class="li-title">Дизайн-ревью онбординга</span><div class="li-sub">4 ч · Мария</div></span>
+          <span class="li-meta">P3</span>
+        </div>
+        <div class="list-item" draggable="true" data-name="Подготовка релиза 2.4">
+          <span class="grip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="9" cy="5" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="19" r="1"/></svg></span>
+          <span class="prio-badge">5</span>
+          <span class="li-main"><span class="li-title">Подготовка релиза 2.4</span><div class="li-sub">12 ч · Артём</div></span>
+          <span class="li-meta">P4</span>
+        </div>
+      </div>
+      <div class="status-line" id="dragStatus">Порядок: <b>1.</b> Инцидент с оплатой · <b>2.</b> Вёрстка корзины · <b>3.</b> Рефакторинг API · <b>4.</b> Ревью онбординга · <b>5.</b> Релиз 2.4</div>
+    </section>
+  </div>
+
+  <a class="back-btn" href="../../">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Back to catalog
+  </a>
+  <button class="view-code-btn" id="viewCodeBtn">⌨ View Code</button>
+  <div class="code-panel" id="codePanel">
+    <div class="code-header">
+      <span>index.html</span>
+      <button class="copy-btn" id="copyCodeBtn">Copy</button>
+    </div>
+    <pre id="codeContent"></pre>
+  </div>
+
+  <script>
+    (function() {
+      'use strict';
+      // Theme
+      const toggle = document.getElementById('themeToggle');
+      const sun = document.getElementById('sunIcon');
+      const moon = document.getElementById('moonIcon');
+      const stored = localStorage.getItem('design-demo-theme');
+      const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      let theme = stored || (sysDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+      if (theme === 'dark') { sun.style.display = 'none'; moon.style.display = ''; }
+      else { sun.style.display = ''; moon.style.display = 'none'; }
+      toggle.addEventListener('click', () => {
+        const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('design-demo-theme', next);
+        if (next === 'dark') { sun.style.display = 'none'; moon.style.display = ''; }
+        else { sun.style.display = ''; moon.style.display = 'none'; }
+      });
+
+      // 1. Simple list — single active
+      const simpleList = document.getElementById('simpleList');
+      const simpleStatus = document.getElementById('simpleStatus');
+      simpleList.querySelectorAll('.list-item').forEach(item => {
+        item.addEventListener('click', () => {
+          simpleList.querySelectorAll('.list-item').forEach(i => i.classList.remove('is-active'));
+          item.classList.add('is-active');
+          simpleStatus.innerHTML = 'Выберите пункт: <b>' + item.dataset.name + '</b>';
+        });
+      });
+
+      // 2. Icon list — single active
+      const iconList = document.getElementById('iconList');
+      const iconStatus = document.getElementById('iconStatus');
+      iconList.querySelectorAll('.list-item').forEach(item => {
+        item.addEventListener('click', () => {
+          iconList.querySelectorAll('.list-item').forEach(i => i.classList.remove('is-active'));
+          item.classList.add('is-active');
+          iconStatus.innerHTML = 'Активный раздел: <b>' + item.dataset.name + '</b>';
+        });
+      });
+
+      // 3. Avatar list — follow toggles
+      const avatarStatus = document.getElementById('avatarStatus');
+      let following = 0;
+      document.querySelectorAll('.follow-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const isFollowing = btn.classList.toggle('is-following');
+          btn.textContent = isFollowing ? 'Вы подписаны' : 'Подписаться';
+          following += isFollowing ? 1 : -1;
+          avatarStatus.innerHTML = 'Подписки: <b>' + following + '</b> · статусы: зелёный — онлайн, жёлтый — занят';
+        });
+      });
+
+      // 4. Media list — click marks read
+      const mediaStatus = document.getElementById('mediaStatus');
+      document.querySelectorAll('#mediaList .list-item').forEach(item => {
+        item.addEventListener('click', () => {
+          const dot = item.querySelector('.li-unread');
+          if (dot) dot.remove();
+          mediaStatus.innerHTML = 'Прочитано: <b>' + item.dataset.name + '</b>';
+        });
+      });
+
+      // 5. Checkbox list
+      const taskList = document.getElementById('taskList');
+      const selectAll = document.getElementById('selectAll');
+      const completeBtn = document.getElementById('completeBtn');
+      const taskStatus = document.getElementById('taskStatus');
+      const checks = [...taskList.querySelectorAll('.task-check')];
+      const renderTasks = () => {
+        const checked = checks.filter(c => c.checked);
+        const done = checks.filter(c => c.closest('.list-item').classList.contains('is-done'));
+        selectAll.checked = checked.length === checks.length && checks.length > 0;
+        selectAll.indeterminate = checked.length > 0 && checked.length < checks.length;
+        completeBtn.disabled = checked.length === 0;
+        completeBtn.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>Завершить выбранные (' + checked.length + ')';
+        taskStatus.innerHTML = 'Выбрано: <b>' + checked.length + '</b> из ' + checks.length + ' · завершено ' + done.length + ' · бюджет всех задач 99 500 ₽';
+      };
+      checks.forEach(c => c.addEventListener('change', renderTasks));
+      selectAll.addEventListener('change', () => {
+        checks.forEach(c => { c.checked = selectAll.checked; });
+        renderTasks();
+      });
+      completeBtn.addEventListener('click', () => {
+        checks.forEach(c => {
+          if (c.checked) {
+            c.checked = false;
+            c.closest('.list-item').classList.add('is-done');
+          }
+        });
+        renderTasks();
+      });
+      renderTasks();
+
+      // 6. Draggable list — native HTML5 drag & drop
+      const dragList = document.getElementById('dragList');
+      const dragStatus = document.getElementById('dragStatus');
+      let dragEl = null;
+      const renderOrder = () => {
+        const items = [...dragList.querySelectorAll('.list-item')];
+        items.forEach((item, i) => {
+          item.querySelector('.prio-badge').textContent = i + 1;
+        });
+        const names = items.map((item, i) => '<b>' + (i + 1) + '.</b> ' + item.dataset.name.replace('Разобрать инцидент с оплатой', 'Инцидент с оплатой').replace('Рефакторинг API-клиента', 'Рефакторинг API').replace('Дизайн-ревью онбординга', 'Ревью онбординга').replace('Подготовка релиза 2.4', 'Релиз 2.4')).join(' · ');
+        dragStatus.innerHTML = 'Порядок: ' + names;
+      };
+      dragList.querySelectorAll('.list-item').forEach(item => {
+        item.addEventListener('dragstart', e => {
+          dragEl = item;
+          item.classList.add('is-dragging');
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', item.dataset.name);
+        });
+        item.addEventListener('dragend', () => {
+          item.classList.remove('is-dragging');
+          dragList.querySelectorAll('.is-over').forEach(x => x.classList.remove('is-over'));
+          dragEl = null;
+          renderOrder();
+        });
+        item.addEventListener('dragover', e => {
+          e.preventDefault();
+          e.dataTransfer.dropEffect = 'move';
+          const rect = item.getBoundingClientRect();
+          item.classList.toggle('is-over', e.clientY < rect.top + rect.height / 2);
+        });
+        item.addEventListener('dragleave', () => item.classList.remove('is-over'));
+        item.addEventListener('drop', e => {
+          e.preventDefault();
+          item.classList.remove('is-over');
+          if (!dragEl || dragEl === item) return;
+          const rect = item.getBoundingClientRect();
+          const after = e.clientY > rect.top + rect.height / 2;
+          dragList.insertBefore(dragEl, after ? item.nextSibling : item);
+        });
+      });
+      renderOrder();
+
+      // View code
+      const viewCodeBtn = document.getElementById('viewCodeBtn');
+      const codePanel = document.getElementById('codePanel');
+      const codeContent = document.getElementById('codeContent');
+      const copyCodeBtn = document.getElementById('copyCodeBtn');
+      viewCodeBtn.addEventListener('click', () => {
+        const isOpen = codePanel.classList.toggle('open');
+        if (isOpen && !codeContent.textContent && location.protocol !== 'file:') {
+          fetch('index.html').then(r => r.text()).then(html => {
+            codeContent.textContent = html.replace(/<script[\s\S]*?<\/script>/g, '<!-- script -->');
+          });
+        }
+        viewCodeBtn.textContent = isOpen ? 'Close' : '⌨  View Code';
+      });
+      copyCodeBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(codeContent.textContent).then(() => {
+          copyCodeBtn.textContent = 'Copied!';
+          setTimeout(() => copyCodeBtn.textContent = 'Copy', 1500);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

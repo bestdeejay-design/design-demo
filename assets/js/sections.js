@@ -53,6 +53,12 @@ const SECTIONS = [
       { name: 'Progress',         desc: 'Линейный, круговой, степпер, индикатор загрузки с анимацией',               url: 'ui-components/13-progress/',      tags: ['progress', 'loader', 'steps'],     badge: 'new' },
       { name: 'Avatar',           desc: 'Одиночный, группа, размеры, статус (online/offline/busy)',                  url: 'ui-components/14-avatar/',        tags: ['avatar', 'user', 'group'],         badge: 'new' },
       { name: 'Search Bar',       desc: 'С автокомплитом, recent, suggestions, debounce',                             url: 'ui-components/15-search/',        tags: ['search', 'autocomplete'],          badge: 'new' },
+      { name: 'Button Kit',       desc: 'Все варианты кнопок: primary, outline, ghost, danger, sizes, loading, like', url: 'ui-components/16-buttons/',      tags: ['button', 'actions', 'states'],    badge: 'new' },
+      { name: 'Breadcrumbs & Stepper', desc: 'Хлебные крошки (chevron/slash/dot), коллапс длинных путей, степперы', url: 'ui-components/17-breadcrumbs/', tags: ['breadcrumbs', 'stepper', 'steps'], badge: 'new' },
+      { name: 'Lists',            desc: 'Списки: простые, с иконками, аватарами, чекбоксами, drag-and-drop',       url: 'ui-components/18-lists/',         tags: ['list', 'group', 'reorder'],        badge: 'new' },
+      { name: 'Data Table',       desc: 'Сортируемая таблица, фильтр, выбор строк, статусы, пагинация',             url: 'ui-components/19-data-table/',    tags: ['table', 'data', 'sortable'],       badge: 'new' },
+      { name: 'Context Menu',     desc: 'Кастомное контекстное меню: правый клик, клавиатура, позиции',             url: 'ui-components/20-context-menu/',  tags: ['menu', 'context', 'keyboard'],     badge: 'new' },
+      { name: 'Select & Dropdown',desc: 'Кастомные селекты: одиночный с поиском, мульти-селект с чипсами',         url: 'ui-components/21-selects/',       tags: ['select', 'dropdown', 'multiselect'], badge: 'new' },
     ]
   },
   {
@@ -65,6 +71,26 @@ const SECTIONS = [
       { name: 'Mobile App Shell',     desc: 'Мобильное приложение с bottom-nav, табами, страницами Home/Profile', url: 'pages/02-mobile-app/',          tags: ['mobile', 'app', 'bottom-nav'], badge: 'new' },
       { name: 'Dashboard',            desc: 'Десктопный дашборд с сайдбаром, статистикой, таблицей, графиками',  url: 'pages/03-dashboard/',           tags: ['dashboard', 'admin', 'desktop'], badge: 'new' },
       { name: 'Settings',             desc: 'Страница настроек с боковой навигацией, переключателями, формами',  url: 'pages/04-settings/',            tags: ['settings', 'profile', 'form'],  badge: 'new' },
+      { name: 'Pricing',              desc: 'Тарифы с переключателем месяц/год, FAQ, отзывы, гарантия',            url: 'pages/05-pricing/',             tags: ['pricing', 'billing', 'saas'],   badge: 'new' },
+      { name: 'Landing Page',         desc: 'Лендинг SaaS: hero, фичи, шаги, счётчики, отзывы, CTA',               url: 'pages/06-landing/',             tags: ['landing', 'marketing', 'hero'], badge: 'new' },
+    ]
+  },
+  {
+    id: 'charts',
+    icon: 'bar',
+    title: 'Charts / Data Viz',
+    desc: 'Графики, дашборды аналитики, визуализация данных — на чистом SVG',
+    examples: [
+      { name: 'Analytics Charts',  desc: 'Line/area, bar, donut — периоды 7/30/90 дней, KPI, тултипы',      url: 'charts/01-analytics/',          tags: ['charts', 'analytics', 'svg'], badge: 'new' },
+    ]
+  },
+  {
+    id: 'dashboard',
+    icon: 'gauge',
+    title: 'Dashboard Templates',
+    desc: 'Премиальные шаблоны панелей управления: сайдбар, виджеты, уведомления',
+    examples: [
+      { name: 'Premium Dashboard', desc: 'Сайдбар с коллапсом, поиск, уведомления, спарклайны, задачи',     url: 'dashboard/01-premium/',         tags: ['dashboard', 'premium', 'admin'], badge: 'new' },
     ]
   },
   {

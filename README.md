@@ -8,8 +8,10 @@
 
 ## Разделы
 
-- [UI Components](/ui-components/) — карточки, формы, навигация, профили
-- [Pages](/pages/) — цельные страницы и экраны
+- [UI Components](/ui-components/) — карточки, формы, навигация, кнопки, таблицы, селекты
+- [Pages](/pages/) — цельные страницы и экраны (auth, дашборд, pricing, landing)
+- [Charts](/charts/) — графики и визуализация данных на чистом SVG
+- [Dashboards](/dashboard/) — шаблоны панелей управления
 - [Industrial](/industrial/) — промышленный дизайн, HMI
 - [Interactions](/interactions/) — анимации, микровзаимодействия
 - [Design Systems](/design-systems/) — гайдлайны, цвета, типографика

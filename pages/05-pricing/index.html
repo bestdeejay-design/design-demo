@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orbita — Тарифы</title>
+  <style>
+    :root{--bg:#f5f5f7;--surface:#fff;--surface-2:#f0f0f5;--surface-3:#e8e8ed;--text:#1c1c1e;--text-2:#636366;--text-3:#8e8e93;--text-inverse:#fff;--border:#e5e5ea;--border-strong:#d0d0d6;--accent:#6c5ce7;--accent-hover:#5a4bd1;--accent-light:#a29bfe;--accent-soft:rgba(108,92,231,.08);--success:#00b894;--success-soft:rgba(0,184,148,.1);--warning:#fdcb6e;--radius-sm:6px;--radius:10px;--radius-md:12px;--radius-lg:16px;--radius-xl:20px;--shadow-sm:0 2px 6px rgba(0,0,0,.05);--shadow:0 4px 16px rgba(0,0,0,.07);--shadow-md:0 8px 28px rgba(0,0,0,.09);--shadow-lg:0 16px 48px rgba(0,0,0,.12);--ease:cubic-bezier(.4,0,.2,1);--dur-fast:180ms;--dur:260ms;--dur-slow:420ms;--font-sans:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif}
+    [data-theme="dark"]{--bg:#0c0c0e;--surface:#1a1a20;--surface-2:#23232a;--surface-3:#2a2a32;--text:#ececf0;--text-2:#a0a0a8;--text-3:#6e6e76;--border:#2a2a32;--border-strong:#3a3a44;--accent-soft:rgba(108,92,231,.15);--shadow-sm:0 2px 6px rgba(0,0,0,.35);--shadow:0 4px 16px rgba(0,0,0,.4);--shadow-md:0 8px 28px rgba(0,0,0,.45);--shadow-lg:0 16px 48px rgba(0,0,0,.55)}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;line-height:1.5}
+
+    /* Fixed controls */
+    .theme-toggle{position:fixed;top:20px;right:20px;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:60;transition:all var(--dur-fast) var(--ease);box-shadow:var(--shadow-sm)}
+    .theme-toggle:hover{transform:scale(1.06);border-color:var(--accent);color:var(--accent)}
+    .theme-toggle svg{width:16px;height:16px}
+    .back-btn{position:fixed;bottom:20px;left:20px;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:100px;color:var(--text);font-size:.8rem;font-weight:500;text-decoration:none;z-index:60;transition:all var(--dur-fast) var(--ease);box-shadow:var(--shadow-sm)}
+    .back-btn:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+    .back-btn svg{width:12px;height:12px}
+
+    /* Header */
+    .header{text-align:center;padding:96px 24px 8px;max-width:760px;margin:0 auto}
+    .badge{display:inline-flex;align-items:center;gap:6px;padding:5px 14px;background:var(--accent-soft);color:var(--accent);border:1px solid rgba(108,92,231,.25);border-radius:100px;font-size:.78rem;font-weight:600;letter-spacing:.3px}
+    .badge svg{width:12px;height:12px}
+    .header h1{font-size:clamp(2rem,4.5vw,2.9rem);font-weight:800;letter-spacing:-.03em;line-height:1.12;margin:18px 0 14px}
+    .header p{color:var(--text-2);font-size:clamp(.95rem,1.6vw,1.08rem);max-width:600px;margin:0 auto;line-height:1.65}
+
+    /* Billing toggle */
+    .billing{display:flex;align-items:center;justify-content:center;gap:14px;margin:36px 0 8px}
+    .billing-label{font-size:.9rem;font-weight:600;color:var(--text-2);cursor:pointer;user-select:none;transition:color var(--dur-fast)}
+    .billing-label.is-active{color:var(--text)}
+    .switch{position:relative;width:56px;height:30px;border-radius:100px;background:var(--surface-3);border:1px solid var(--border-strong);cursor:pointer;transition:background var(--dur) var(--ease);flex-shrink:0}
+    .switch::after{content:'';position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:var(--surface);box-shadow:var(--shadow);transition:transform var(--dur) var(--ease)}
+    .switch[aria-checked="true"]{background:var(--accent);border-color:var(--accent)}
+    .switch[aria-checked="true"]::after{transform:translateX(26px)}
+    .save-pill{padding:3px 10px;background:var(--success-soft);color:var(--success);border-radius:100px;font-size:.72rem;font-weight:700}
+
+    /* Cards */
+    .plans{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;max-width:1080px;margin:36px auto 0;padding:0 24px;align-items:stretch}
+    .plan{position:relative;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);padding:34px 30px;display:flex;flex-direction:column;transition:transform var(--dur) var(--ease),box-shadow var(--dur) var(--ease),border-color var(--dur)}
+    .plan:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);border-color:var(--border-strong)}
+    .plan.is-featured{background:linear-gradient(180deg,var(--accent-soft),transparent 34%),var(--surface);border:1.5px solid var(--accent);box-shadow:var(--shadow-lg);transform:scale(1.03)}
+    .plan.is-featured:hover{transform:scale(1.03) translateY(-4px);box-shadow:var(--shadow-lg)}
+    .featured-tag{position:absolute;top:-13px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--accent),var(--accent-hover));color:#fff;font-size:.72rem;font-weight:700;padding:5px 14px;border-radius:100px;white-space:nowrap;box-shadow:0 4px 12px rgba(108,92,231,.35);display:flex;align-items:center;gap:5px}
+    .featured-tag svg{width:11px;height:11px}
+    .plan-name{font-size:1.05rem;font-weight:700}
+    .plan-desc{font-size:.84rem;color:var(--text-2);margin-top:4px;min-height:40px}
+    .price-block{display:flex;align-items:baseline;gap:6px;margin:22px 0 4px;overflow:hidden}
+    .price{font-size:2.7rem;font-weight:800;letter-spacing:-.03em;line-height:1;display:inline-block;animation:none}
+    .price.anim{animation:pricePop .38s var(--ease)}
+    @keyframes pricePop{0%{opacity:0;transform:translateY(14px) scale(.96)}100%{opacity:1;transform:translateY(0) scale(1)}}
+    .price-cur{font-size:1.3rem;font-weight:700;color:var(--text-2)}
+    .price-period{font-size:.82rem;color:var(--text-3);margin-top:2px}
+    .plan-save{font-size:.74rem;color:var(--success);font-weight:600;margin-top:2px;min-height:18px}
+    .plan-old{font-size:.78rem;color:var(--text-3);text-decoration:line-through;margin-left:8px}
+    .plan-features{list-style:none;margin:24px 0 28px;display:flex;flex-direction:column;gap:11px;flex:1}
+    .plan-features li{display:flex;align-items:flex-start;gap:10px;font-size:.88rem;color:var(--text-2)}
+    .plan-features li strong{color:var(--text);font-weight:600}
+    .feature-check{width:20px;height:20px;border-radius:6px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+    .feature-check svg{width:11px;height:11px}
+    .plan-features li.is-off{color:var(--text-3);text-decoration:none}
+    .plan-features li.is-off .feature-check{background:var(--surface-3);color:var(--text-3)}
+    .plan-cta{width:100%;padding:13px;border-radius:var(--radius);font-size:.94rem;font-weight:600;font-family:inherit;cursor:pointer;transition:all var(--dur-fast) var(--ease);display:flex;align-items:center;justify-content:center;gap:8px;text-decoration:none;border:none}
+    .plan-cta svg{width:15px;height:15px;transition:transform var(--dur-fast) var(--ease)}
+    .plan-cta:hover svg{transform:translateX(3px)}
+    .plan-cta-primary{background:var(--accent);color:var(--text-inverse);box-shadow:0 4px 14px rgba(108,92,231,.3)}
+    .plan-cta-primary:hover{background:var(--accent-hover);transform:translateY(-1px);box-shadow:0 6px 20px rgba(108,92,231,.4)}
+    .plan-cta-primary:active{transform:translateY(0) scale(.99)}
+    .plan-cta-ghost{background:var(--surface);color:var(--text);border:1.5px solid var(--border-strong)}
+    .plan-cta-ghost:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+    .plan-cta-ghost:active{transform:translateY(0) scale(.99)}
+    .plan-note{text-align:center;font-size:.72rem;color:var(--text-3);margin-top:12px}
+
+    /* Guarantee strip */
+    .guarantee{display:flex;align-items:center;justify-content:center;gap:14px;max-width:760px;margin:64px auto 0;padding:22px 28px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm)}
+    .guarantee-icon{width:46px;height:46px;border-radius:12px;background:var(--success-soft);color:var(--success);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .guarantee-icon svg{width:22px;height:22px}
+    .guarantee h3{font-size:.98rem;font-weight:700;margin-bottom:2px}
+    .guarantee p{font-size:.84rem;color:var(--text-2)}
+
+    /* Testimonials */
+    .testi-section{padding:72px 24px 0}
+    .section-title{text-align:center;font-size:1.7rem;font-weight:800;letter-spacing:-.02em;margin-bottom:6px}
+    .section-sub{text-align:center;color:var(--text-2);font-size:.95rem;margin-bottom:36px}
+    .testimonials{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;max-width:1080px;margin:0 auto}
+    .testi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:26px;transition:all var(--dur) var(--ease)}
+    .testi:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
+    .testi-stars{display:flex;gap:2px;color:#fdcb6e;margin-bottom:12px}
+    .testi-stars svg{width:14px;height:14px}
+    .testi-quote{font-size:.9rem;color:var(--text-2);line-height:1.6;margin-bottom:18px}
+    .testi-user{display:flex;align-items:center;gap:12px}
+    .testi-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.85rem;flex-shrink:0}
+    .testi-name{font-size:.88rem;font-weight:600;line-height:1.2}
+    .testi-role{font-size:.76rem;color:var(--text-3)}
+
+    /* FAQ */
+    .faq-section{padding:80px 24px 40px;max-width:760px;margin:0 auto}
+    .faq{display:flex;flex-direction:column;gap:12px}
+    .faq-item{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;transition:border-color var(--dur),box-shadow var(--dur)}
+    .faq-item:hover{border-color:var(--border-strong)}
+    .faq-item.is-open{border-color:var(--accent);box-shadow:var(--shadow)}
+    .faq-btn{width:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 20px;background:none;border:none;cursor:pointer;font-family:inherit;font-size:.95rem;font-weight:600;color:var(--text);text-align:left}
+    .faq-chevron{width:28px;height:28px;border-radius:8px;background:var(--surface-2);color:var(--text-2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform var(--dur) var(--ease),background var(--dur),color var(--dur)}
+    .faq-chevron svg{width:13px;height:13px}
+    .faq-item.is-open .faq-chevron{transform:rotate(180deg);background:var(--accent-soft);color:var(--accent)}
+    .faq-panel{max-height:0;overflow:hidden;transition:max-height var(--dur-slow) var(--ease)}
+    .faq-answer{padding:0 20px 18px;font-size:.88rem;color:var(--text-2);line-height:1.65}
+
+    /* Footer */
+    .footer{text-align:center;padding:48px 24px 90px;color:var(--text-3);font-size:.82rem}
+    .footer a{color:var(--text-2);text-decoration:none;margin:0 10px;transition:color var(--dur-fast)}
+    .footer a:hover{color:var(--accent)}
+    .footer p{margin-top:10px}
+
+    @media (max-width: 940px){
+      .plans{grid-template-columns:1fr;max-width:520px}
+      .plan.is-featured{transform:none;order:-1}
+      .plan.is-featured:hover{transform:translateY(-4px)}
+      .testimonials{grid-template-columns:1fr;max-width:520px}
+    }
+    @media (max-width: 480px){
+      .header{padding-top:80px}
+      .theme-toggle{top:12px;right:12px;width:34px;height:34px}
+      .billing{gap:10px}
+      .save-pill{display:none}
+      .price{font-size:2.2rem}
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="sunIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="moonIcon" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+
+  <a class="back-btn" href="../../">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Каталог
+  </a>
+
+  <header class="header">
+    <span class="badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Тарифы Orbita
+    </span>
+    <h1>Простые и честные цены для команд любого размера</h1>
+    <p>Начните бесплатно, платите только когда Orbita принесёт реальную пользу. Без скрытых комиссий, без привязки к карте на старте, отмена в один клик.</p>
+  </header>
+
+  <div class="billing">
+    <span class="billing-label" id="labelMonthly">Ежемесячно</span>
+    <button class="switch" id="billingSwitch" role="switch" aria-checked="false" aria-label="Переключить на годовую оплату"></button>
+    <span class="billing-label" id="labelAnnual">Ежегодно</span>
+    <span class="save-pill">−20%</span>
+  </div>
+
+  <section class="plans" id="plans">
+    <!-- Старт -->
+    <div class="plan" data-plan data-monthly="490" data-annual="390">
+      <div class="plan-name">Старт</div>
+      <div class="plan-desc">Для фрилансеров и небольших проектов, которые только выходят на рынок</div>
+      <div class="price-block">
+        <span class="price" data-price>490</span><span class="price-cur">₽</span>
+        <span class="plan-old" data-old></span>
+      </div>
+      <div class="price-period">в месяц при оплате за год · 490 ₽ помесячно</div>
+      <div class="plan-save" data-save></div>
+      <ul class="plan-features">
+        <li><span class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>До 3 проектов и 5 участников</li>
+        <li><span class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>10 ГБ хранилища документов</li>
+        <li><span class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Базовая аналитика за 30 дней</li>
+        <li><span class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Поддержка по email, ответ до 24 часов</li>
+        <li class="is-off"><span class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>Расширенные интеграции</li>
+        <li class="is-off"><span class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></span>Приоритетная поддержка 24/7</li>
+      </ul>
+      <button class="plan-cta plan-cta-ghost">Начать бесплатно
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+      <div class="plan-note">14 дней бесплатного доступа, карта не нужна</div>
+    </div>
+
+    <!-- Бизнес -->
+    <div class="plan is-featured" data-plan data-monthly="1290" data-annual="990">
+      <div class="featured-tag">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        Самый популярный
+      </div>
+      <div class="plan-name">Бизнес</div>
+      <div class="plan-desc">Для растущих компаний, которым нужны инструменты для масштабирования</div>
+      <div class="price-block">
+        <span class="price" data-price>1290</span><span class="price-cur">₽</span>
+        <span class="plan-old" data-old></span>
+      </div>
+      <div class="price-period">в месяц при оплате за год · 1 290 ₽ помесячно</div>
+      <div class="plan-save" data-save></div>
+      <ul class="plan-features">
+        <li><span class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Безлимит проектов, до 50 участников</li>
+        <li><span class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>100 ГБ хранилища + версионирование</li>
+        <li><span class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Полная аналитика с отчётами на email</li>
+        <li><span class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Интеграции: 1С, amoCRM, Telegram, Slack</li>
+        <li><span class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Роли и права доступа для команды</li>
+        <li><span class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Приоритетная поддержка, ответ до 4 часов</li>
+      </ul>
+      <button class="plan-cta plan-cta-primary">Выбрать Бизнес
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+      <div class="plan-note">30 дней бесплатного доступа, отмена в любой момент</div>
+    </div>
+
+    <!-- Корпорация -->
+    <div class="plan" data-plan data-monthly="3490" data-annual="2790">
+      <div class="plan-name">Корпорация</div>
+      <div class="plan-desc">Для крупных организаций с высокими требованиями к безопасности и SLA</div>
+      <div class="price-block">
+        <span class="price" data-price>3490</span><span class="price-cur">₽</span>
+        <span class="plan-old" data-old></span>
+      </div>
+      <div class="price-period">в месяц при оплате за год · 3 490 ₽ помесячно</div>
+      <div class="plan-save" data-save></div>
+      <ul class="plan-features">
+        <li><span class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Неограниченные проекты и участники</li>
+        <li><span class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>1 ТБ хранилища + резервные копии</li>
+        <li><span class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>SSO, аудит действий, сертификация 152-ФЗ</li>
+        <li><span class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Выделенный менеджер и персональный онбординг</li>
+        <li><span class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>SLA 99,9% и ответ службы за 30 минут</li>
+        <li><span class="feature-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>Кастомные интеграции под вашу ИТ-инфраструктуру</li>
+      </ul>
+      <button class="plan-cta plan-cta-ghost">Связаться с отделом продаж
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+      </button>
+      <div class="plan-note">Индивидуальные условия и персональная настройка</div>
+    </div>
+  </section>
+
+  <div class="guarantee">
+    <div class="guarantee-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><polyline points="9 12 11 14 15 10"/></svg>
+    </div>
+    <div>
+      <h3>Гарантия возврата 14 дней</h3>
+      <p>Если Orbita не подойдёт — вернём деньги полностью, без вопросов и бумажной волокиты. Риск на нашей стороне.</p>
+    </div>
+  </div>
+
+  <section class="testi-section">
+    <h2 class="section-title">Что говорят клиенты</h2>
+    <p class="section-sub">Более 12 000 команд уже автоматизировали рутину с Orbita</p>
+    <div class="testimonials">
+      <div class="testi">
+        <div class="testi-stars">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="testi-quote">Перевели команду из пяти человек на тариф Бизнес. Отчёты, которые раньше собирались два дня, теперь готовятся за час. Окупилось в первую же неделю.</p>
+        <div class="testi-user">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#6c5ce7,#a29bfe)">М</div>
+          <div><div class="testi-name">Марина Волкова</div><div class="testi-role">Руководитель отдела маркетинга, «Сфера Медиа»</div></div>
+        </div>
+      </div>
+      <div class="testi">
+        <div class="testi-stars">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="testi-quote">Интеграция с 1С заняла один вечер вместо недели. Отдельное спасибо поддержке: отвечают быстро и по делу, даже на тарифе Старт.</p>
+        <div class="testi-user">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#00b894,#55efc4)">А</div>
+          <div><div class="testi-name">Андрей Соколов</div><div class="testi-role">Главный бухгалтер, ООО «Вектор-Трейд»</div></div>
+        </div>
+      </div>
+      <div class="testi">
+        <div class="testi-stars">
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+        </div>
+        <p class="testi-quote">Для нас ключевым был вопрос безопасности и 152-ФЗ. У Orbita это закрыто на уровне корпоративных стандартов, при этом интерфейс простой для всех сотрудников.</p>
+        <div class="testi-user">
+          <div class="testi-avatar" style="background:linear-gradient(135deg,#74b9ff,#0984e3)">И</div>
+          <div><div class="testi-name">Игорь Мельников</div><div class="testi-role">Директор по ИТ, «ПромБанк»</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="faq-section">
+    <h2 class="section-title">Частые вопросы</h2>
+    <p class="section-sub">Не нашли ответ? Напишите нам — отвечаем в течение дня</p>
+    <div class="faq">
+      <div class="faq-item">
+        <button class="faq-btn" aria-expanded="false">
+          Можно ли начать бесплатно и без карты?
+          <span class="faq-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-panel"><div class="faq-answer">Да. На тарифе Старт даём 14 дней бесплатного доступа без привязки банковской карты. Вы оцените продукт на реальных данных, а платить начнёте только после пробного периода — по собственному решению.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-btn" aria-expanded="false">
+          Как работает годовая оплата и скидка?
+          <span class="faq-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-panel"><div class="faq-answer">При оплате на год вперёд цена снижается на 20%. Например, тариф Бизнес стоит 990 ₽/мес вместо 1 290 ₽. Счёт выставляется раз в год; при необходимости вы можете перейти на помесячную оплату в любой момент — пересчёт сделаем автоматически.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-btn" aria-expanded="false">
+          Можно ли перейти на другой тариф позже?
+          <span class="faq-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-panel"><div class="faq-answer">Конечно. Повышение тарифа применяется мгновенно — вы доплачиваете только разницу за оставшиеся дни. Понижение действует со следующего расчётного периода. Все данные, проекты и настройки сохраняются в любом случае.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-btn" aria-expanded="false">
+          Что происходит с данными при отмене подписки?
+          <span class="faq-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-panel"><div class="faq-answer">После отмены у вас остаётся доступ до конца оплаченного периода, а затем ещё 30 дней в режиме «только чтение», чтобы выгрузить всё необходимое. Экспорт данных доступен в один клик в форматах CSV и XLSX.</div></div>
+      </div>
+      <div class="faq-item">
+        <button class="faq-btn" aria-expanded="false">
+          Есть ли скидки для образовательных и некоммерческих организаций?
+          <span class="faq-chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></span>
+        </button>
+        <div class="faq-panel"><div class="faq-answer">Да. Университетам, школам и НКО предоставляем скидку до 50% на любой тариф. Напишите с корпоративного адреса, приложите подтверждающий документ — и мы оформим специальные условия в течение двух рабочих дней.</div></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="footer">
+    <div>
+      <a href="#">Политика конфиденциальности</a>
+      <a href="#">Публичная оферта</a>
+      <a href="#">Поддержка</a>
+    </div>
+    <p>© 2026 Orbita · Демо-страница каталога Design Demo · Цены указаны в рублях, включая НДС</p>
+  </footer>
+
+  <script>
+    // Theme
+    const tgl = document.getElementById('themeToggle');
+    const s = document.getElementById('sunIcon');
+    const m = document.getElementById('moonIcon');
+    const stored = localStorage.getItem('design-demo-theme');
+    const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let theme = stored || (sysDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    tgl.addEventListener('click', () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('design-demo-theme', next);
+      if (next === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    });
+
+    // Billing toggle: switch prices with animation
+    const switchBtn = document.getElementById('billingSwitch');
+    const labelMonthly = document.getElementById('labelMonthly');
+    const labelAnnual = document.getElementById('labelAnnual');
+    const plans = document.querySelectorAll('[data-plan]');
+    let isAnnual = false;
+
+    function fmt(n) { return Number(n).toLocaleString('ru-RU'); }
+
+    function render() {
+      plans.forEach(plan => {
+        const priceEl = plan.querySelector('[data-price]');
+        const oldEl = plan.querySelector('[data-old]');
+        const saveEl = plan.querySelector('[data-save]');
+        const current = isAnnual ? plan.dataset.annual : plan.dataset.monthly;
+        const other = isAnnual ? plan.dataset.monthly : plan.dataset.annual;
+
+        // restart pop animation
+        priceEl.classList.remove('anim');
+        void priceEl.offsetWidth;
+        priceEl.classList.add('anim');
+        priceEl.textContent = fmt(current);
+
+        oldEl.textContent = '';
+        saveEl.textContent = '';
+        if (isAnnual) {
+          oldEl.textContent = fmt(other) + ' ₽';
+          saveEl.textContent = 'Экономия ' + fmt(Math.round((other - current) * 12)) + ' ₽ в год';
+        } else {
+          saveEl.textContent = 'Со скидкой 20% при годовой оплате';
+        }
+      });
+    }
+
+    switchBtn.addEventListener('click', () => {
+      isAnnual = !isAnnual;
+      switchBtn.setAttribute('aria-checked', String(isAnnual));
+      labelMonthly.classList.toggle('is-active', !isAnnual);
+      labelAnnual.classList.toggle('is-active', isAnnual);
+      render();
+    });
+
+    // FAQ accordion
+    document.querySelectorAll('.faq-item').forEach(item => {
+      const btn = item.querySelector('.faq-btn');
+      const panel = item.querySelector('.faq-panel');
+      btn.addEventListener('click', () => {
+        const isOpen = item.classList.contains('is-open');
+        // close all
+        document.querySelectorAll('.faq-item').forEach(other => {
+          other.classList.remove('is-open');
+          other.querySelector('.faq-btn').setAttribute('aria-expanded', 'false');
+          other.querySelector('.faq-panel').style.maxHeight = '0px';
+        });
+        if (!isOpen) {
+          item.classList.add('is-open');
+          btn.setAttribute('aria-expanded', 'true');
+          panel.style.maxHeight = panel.scrollHeight + 'px';
+        }
+      });
+    });
+
+    // Demo CTA feedback
+    document.querySelectorAll('.plan-cta').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const orig = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = 'Готово, проверьте почту';
+        setTimeout(() => {
+          btn.disabled = false;
+          btn.textContent = orig;
+        }, 1800);
+      });
+    });
+  </script>
+</body>
+</html>

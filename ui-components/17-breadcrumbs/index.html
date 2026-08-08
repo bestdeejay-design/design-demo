@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Breadcrumbs &amp; Stepper — UI Component</title>
+  <style>
+    :root {
+      --bg: #f5f5f7; --surface: #ffffff; --surface-2: #f0f0f5; --surface-3: #e8e8ed;
+      --text: #1c1c1e; --text-2: #636366; --text-3: #8e8e93; --text-inverse: #fff;
+      --border: #e5e5ea; --border-strong: #d0d0d6;
+      --accent: #6c5ce7; --accent-hover: #5a4bd1; --accent-soft: rgba(108,92,231,.08);
+      --success: #22c55e; --danger: #ef4444; --warning: #f59e0b;
+      --radius-sm: 6px; --radius: 10px; --radius-md: 12px; --radius-lg: 16px;
+      --shadow-sm: 0 2px 6px rgba(0,0,0,.06); --shadow: 0 4px 16px rgba(0,0,0,.07);
+      --shadow-md: 0 8px 32px rgba(0,0,0,.12);
+      --ease: cubic-bezier(0.4,0,0.2,1); --ease-spring: cubic-bezier(0.34,1.56,0.64,1);
+      --dur-fast: 180ms; --dur: 260ms;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+    }
+    [data-theme="dark"] {
+      --bg: #0c0c0e; --surface: #1a1a20; --surface-2: #23232a; --surface-3: #2a2a32;
+      --text: #ececf0; --text-2: #a0a0a8; --text-3: #6e6e76;
+      --border: #2a2a32; --border-strong: #3a3a44;
+      --accent-soft: rgba(108,92,231,.15);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);padding:40px 20px 100px;-webkit-font-smoothing:antialiased;line-height:1.6}
+    .container{max-width:920px;margin:0 auto}
+    ::selection{background:var(--accent);color:var(--text-inverse)}
+    .page-head{text-align:center;margin-bottom:40px}
+    .page-head h1{font-size:2.2rem;font-weight:800;letter-spacing:-0.02em;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin-bottom:8px}
+    .page-head p{color:var(--text-2);font-size:1rem;max-width:540px;margin:0 auto}
+
+    .theme-toggle{position:fixed;top:16px;right:16px;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:100;transition:all var(--dur-fast) var(--ease)}
+    .theme-toggle:hover{transform:scale(1.05);border-color:var(--accent);color:var(--accent)}
+    .theme-toggle svg{width:16px;height:16px}
+
+    .section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:32px;margin-bottom:20px}
+    .section-head{display:flex;align-items:center;gap:12px;margin-bottom:24px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+    .section-num{width:32px;height:32px;border-radius:8px;background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:14px;display:flex;align-items:center;justify-content:center;font-family:'SF Mono',monospace}
+    .section-title{font-size:1.2rem;font-weight:700}
+    .section-sub{color:var(--text-2);font-size:.85rem;margin-top:2px}
+
+    /* ─── Breadcrumbs ─── */
+    .crumbs { display: flex; align-items: center; flex-wrap: wrap; gap: 2px; font-size: .9rem; }
+    .crumb {
+      display: inline-flex; align-items: center; gap: 4px;
+      padding: 6px 8px; border-radius: var(--radius-sm);
+      color: var(--text-2); background: none; border: none;
+      font-family: inherit; font-size: inherit; cursor: pointer;
+      transition: all var(--dur-fast) var(--ease);
+    }
+    .crumb:hover { color: var(--accent); background: var(--accent-soft); }
+    .crumb:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .crumb.is-current { color: var(--text); font-weight: 600; cursor: default; pointer-events: none; }
+    .crumb-sep { color: var(--text-3); display: inline-flex; align-items: center; margin: 0 2px; }
+    .crumb-sep svg { width: 13px; height: 13px; }
+    .crumb-sep .dot-sep { width: 4px; height: 4px; border-radius: 50%; background: var(--border-strong); display: block; }
+    .crumb-more {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 30px; height: 30px; padding: 0 8px; margin: 0 2px;
+      border-radius: 9999px; border: 1px dashed var(--border-strong);
+      background: var(--surface-2); color: var(--text-2);
+      font-family: inherit; font-size: .85rem; font-weight: 700; cursor: pointer;
+      transition: all var(--dur-fast) var(--ease);
+    }
+    .crumb-more:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+    .crumb-more:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+    .crumb-hidden { display: none; }
+    .crumbs.is-expanded .crumb-hidden { display: inline-flex; }
+    .crumbs.is-expanded .crumb-more { display: none; }
+
+    .status-line {
+      margin-top: 14px; padding: 10px 14px; border-radius: var(--radius-sm);
+      background: var(--surface-2); border: 1px solid var(--border);
+      color: var(--text-2); font-size: .85rem;
+    }
+    .status-line b { color: var(--text); font-weight: 600; }
+
+    .sep-variants { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
+    .sep-card {
+      border: 1px solid var(--border); border-radius: var(--radius-md);
+      padding: 18px 16px; background: var(--surface-2);
+    }
+    .sep-card .sep-name { font-size: .72rem; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: var(--text-3); margin-bottom: 12px; }
+
+    /* ─── Horizontal stepper ─── */
+    .stepper { display: flex; margin: 8px 0 24px; }
+    .step { flex: 1; display: flex; flex-direction: column; align-items: center; position: relative; }
+    .step::before {
+      content: ''; position: absolute; top: 18px; left: calc(-50% + 18px);
+      width: calc(100% - 36px); height: 2px; background: var(--border);
+      transition: background var(--dur) var(--ease);
+    }
+    .step:first-child::before { display: none; }
+    .step.is-done::before, .step.is-active::before { background: var(--accent); }
+    .step-dot {
+      width: 36px; height: 36px; border-radius: 50%; z-index: 1;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--surface); border: 2px solid var(--border);
+      color: var(--text-3); font-weight: 700; font-size: .85rem;
+      transition: all var(--dur) var(--ease);
+    }
+    .step-dot svg { width: 16px; height: 16px; }
+    .step.is-done .step-dot { background: var(--accent); border-color: var(--accent); color: var(--text-inverse); }
+    .step.is-active .step-dot {
+      border-color: var(--accent); color: var(--accent);
+      background: var(--accent-soft); box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+    .step-label { margin-top: 8px; font-size: .78rem; font-weight: 600; color: var(--text-3); text-align: center; transition: color var(--dur-fast) var(--ease); }
+    .step.is-done .step-label, .step.is-active .step-label { color: var(--text); }
+
+    .step-panel { display: none; animation: fadeIn var(--dur) var(--ease); }
+    .step-panel.is-visible { display: block; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    .order-card { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 20px; background: var(--surface-2); }
+    .order-row { display: flex; justify-content: space-between; gap: 12px; padding: 8px 0; font-size: .9rem; }
+    .order-row + .order-row { border-top: 1px solid var(--border); }
+    .order-row .o-name { color: var(--text); }
+    .order-row .o-price { color: var(--text-2); font-variant-numeric: tabular-nums; }
+    .order-row.is-total { font-weight: 700; }
+    .order-row.is-total .o-price { color: var(--accent); font-size: 1.05rem; }
+    .order-row .o-free { color: var(--success); font-weight: 600; }
+    .order-addr { font-size: .88rem; color: var(--text-2); line-height: 1.7; }
+    .order-addr b { color: var(--text); }
+    .order-pay { display: flex; align-items: center; gap: 10px; font-size: .9rem; color: var(--text-2); }
+    .order-pay svg { width: 22px; height: 22px; color: var(--accent); }
+    .order-done { text-align: center; padding: 10px 0 4px; }
+    .order-done .done-icon {
+      width: 52px; height: 52px; margin: 0 auto 12px; border-radius: 50%;
+      background: var(--accent-soft); color: var(--accent);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .order-done .done-icon svg { width: 26px; height: 26px; }
+    .order-done h3 { font-size: 1.05rem; font-weight: 700; margin-bottom: 4px; }
+    .order-done p { color: var(--text-2); font-size: .88rem; }
+
+    .step-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 18px; gap: 12px; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+      height: 40px; padding: 0 18px; border-radius: var(--radius);
+      font-family: inherit; font-size: .9rem; font-weight: 600;
+      border: 1px solid transparent; cursor: pointer; user-select: none;
+      transition: all var(--dur-fast) var(--ease);
+    }
+    .btn svg { width: 16px; height: 16px; }
+    .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .btn:active { transform: scale(.97); }
+    .btn:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+    .btn-primary { background: var(--accent); color: var(--text-inverse); }
+    .btn-primary:hover { background: var(--accent-hover); }
+    .btn-secondary { background: var(--surface-2); color: var(--text); border-color: var(--border); }
+    .btn-secondary:hover { background: var(--surface-3); }
+    .btn-sm { height: 32px; padding: 0 14px; font-size: .82rem; border-radius: var(--radius-sm); }
+
+    /* ─── Vertical stepper ─── */
+    .vstepper { display: flex; flex-direction: column; }
+    .vstep { display: flex; gap: 16px; position: relative; padding-bottom: 28px; }
+    .vstep:last-child { padding-bottom: 0; }
+    .vstep::before {
+      content: ''; position: absolute; left: 17px; top: 40px; bottom: 4px;
+      width: 2px; background: var(--border); transition: background var(--dur) var(--ease);
+    }
+    .vstep:last-child::before { display: none; }
+    .vstep.is-done::before { background: var(--accent); }
+    .vstep-dot {
+      width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0; z-index: 1;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--surface); border: 2px solid var(--border);
+      color: var(--text-3); font-weight: 700; font-size: .85rem;
+      transition: all var(--dur) var(--ease);
+    }
+    .vstep-dot svg { width: 16px; height: 16px; }
+    .vstep.is-done .vstep-dot { background: var(--accent); border-color: var(--accent); color: var(--text-inverse); }
+    .vstep.is-active .vstep-dot {
+      border-color: var(--accent); color: var(--accent);
+      background: var(--accent-soft); box-shadow: 0 0 0 4px var(--accent-soft);
+    }
+    .vstep-body { flex: 1; padding-top: 2px; min-width: 0; }
+    .vstep-title { font-weight: 600; font-size: .95rem; transition: color var(--dur-fast) var(--ease); }
+    .vstep.is-active .vstep-title { color: var(--accent); }
+    .vstep-meta { color: var(--text-3); font-size: .78rem; margin-top: 2px; font-variant-numeric: tabular-nums; }
+    .vstep-desc { color: var(--text-2); font-size: .85rem; margin-top: 4px; }
+
+    /* ─── Back & view-code ─── */
+    .back-btn{position:fixed;bottom:20px;left:20px;display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:100px;color:var(--text);font-size:.85rem;font-weight:500;text-decoration:none;box-shadow:var(--shadow-sm);z-index:100;transition:all var(--dur-fast) var(--ease)}
+    .back-btn:hover{transform:translateY(-2px);border-color:var(--accent);color:var(--accent)}
+    .back-btn svg{width:14px;height:14px}
+    .view-code-btn{position:fixed;bottom:20px;right:20px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);color:var(--text-2);padding:8px 16px;border-radius:100px;font-size:.78rem;font-weight:600;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;z-index:100;transition:all var(--dur-fast) var(--ease)}
+    .view-code-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .code-panel{position:fixed;bottom:64px;right:20px;width:min(640px,calc(100vw - 40px));max-height:0;overflow:hidden;transition:max-height .45s var(--ease),opacity .3s;opacity:0;background:var(--surface);backdrop-filter:blur(20px);border-radius:var(--radius);border:1px solid var(--border);box-shadow:var(--shadow-md);z-index:99}
+    .code-panel.open{max-height:70vh;opacity:1}
+    .code-header{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;font-size:.72rem;color:var(--text-2);font-weight:500;letter-spacing:.5px;text-transform:uppercase;border-bottom:1px solid var(--border)}
+    .code-panel pre{padding:18px;font-size:.7rem;line-height:1.6;color:var(--text-2);overflow:auto;max-height:60vh;white-space:pre;tab-size:2;font-family:'SF Mono','Fira Code',monospace}
+    .copy-btn{background:var(--surface-2);border:none;color:var(--text-2);padding:4px 12px;border-radius:6px;font-size:.72rem;cursor:pointer;font-family:inherit;transition:all var(--dur-fast) var(--ease)}
+    .copy-btn:hover{background:var(--accent-soft);color:var(--accent)}
+
+    @media (max-width: 720px) {
+      body { padding: 24px 14px 100px; }
+      .page-head h1 { font-size: 1.7rem; }
+      .section { padding: 20px; }
+      .sep-variants { grid-template-columns: 1fr; }
+      .step-label { font-size: .68rem; }
+      .step-dot { width: 32px; height: 32px; }
+      .step::before { top: 16px; left: calc(-50% + 16px); width: calc(100% - 32px); }
+      .back-btn, .view-code-btn { bottom: 12px; padding: 7px 12px; font-size: 0.75rem; }
+      .back-btn { left: 12px; }
+      .view-code-btn { right: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="sunIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="moonIcon" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+
+  <div class="container">
+    <header class="page-head">
+      <h1>Breadcrumbs &amp; Progress</h1>
+      <p>Хлебные крошки в четырёх стилях, сворачиваемый путь и степперы оформления заказа и доставки.</p>
+    </header>
+
+    <!-- 1. CHEVRON BREADCRUMBS -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">1</div>
+        <div>
+          <div class="section-title">Chevron Breadcrumbs</div>
+          <div class="section-sub">Классика — клик по крошке «возвращает» на уровень</div>
+        </div>
+      </div>
+      <nav class="crumbs" data-crumbs="main" aria-label="Хлебные крошки">
+        <button class="crumb" data-crumb="0">Главная</button>
+        <span class="crumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        <button class="crumb" data-crumb="1">Каталог</button>
+        <span class="crumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        <button class="crumb" data-crumb="2">Электроника</button>
+        <span class="crumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        <button class="crumb" data-crumb="3">Аудио</button>
+        <span class="crumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        <button class="crumb is-current" data-crumb="4" aria-current="page">Sony WH-1000XM5</button>
+      </nav>
+      <div class="status-line" id="crumbStatus">Текущий раздел: <b>Sony WH-1000XM5</b> · 24 990 ₽</div>
+    </section>
+
+    <!-- 2. SEPARATOR VARIANTS -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">2</div>
+        <div>
+          <div class="section-title">Separator Variants</div>
+          <div class="section-sub">Chevron, slash, dot и arrow — выбирайте под стиль продукта</div>
+        </div>
+      </div>
+      <div class="sep-variants">
+        <div class="sep-card">
+          <div class="sep-name">Chevron</div>
+          <nav class="crumbs" data-crumbs="s1" aria-label="Крошки chevron">
+            <button class="crumb" data-crumb="0">Главная</button>
+            <span class="crumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            <button class="crumb" data-crumb="1">Документы</button>
+            <span class="crumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+            <button class="crumb is-current" data-crumb="2" aria-current="page">NDA-2026.pdf</button>
+          </nav>
+          <div class="status-line" id="crumbStatusS1">Текущий раздел: <b>NDA-2026.pdf</b></div>
+        </div>
+        <div class="sep-card">
+          <div class="sep-name">Slash</div>
+          <nav class="crumbs" data-crumbs="s2" aria-label="Крошки slash">
+            <button class="crumb" data-crumb="0">Главная</button>
+            <span class="crumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="20" y1="4" x2="4" y2="20"/></svg></span>
+            <button class="crumb" data-crumb="1">Блог</button>
+            <span class="crumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="20" y1="4" x2="4" y2="20"/></svg></span>
+            <button class="crumb is-current" data-crumb="2" aria-current="page">Дизайн-системы 2026</button>
+          </nav>
+          <div class="status-line" id="crumbStatusS2">Текущий раздел: <b>Дизайн-системы 2026</b></div>
+        </div>
+        <div class="sep-card">
+          <div class="sep-name">Dot</div>
+          <nav class="crumbs" data-crumbs="s3" aria-label="Крошки dot">
+            <button class="crumb" data-crumb="0">Главная</button>
+            <span class="crumb-sep"><span class="dot-sep"></span></span>
+            <button class="crumb" data-crumb="1">Профиль</button>
+            <span class="crumb-sep"><span class="dot-sep"></span></span>
+            <button class="crumb is-current" data-crumb="2" aria-current="page">Настройки</button>
+          </nav>
+          <div class="status-line" id="crumbStatusS3">Текущий раздел: <b>Настройки</b></div>
+        </div>
+        <div class="sep-card">
+          <div class="sep-name">Arrow</div>
+          <nav class="crumbs" data-crumbs="s4" aria-label="Крошки arrow">
+            <button class="crumb" data-crumb="0">Главная</button>
+            <span class="crumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+            <button class="crumb" data-crumb="1">Поддержка</button>
+            <span class="crumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg></span>
+            <button class="crumb is-current" data-crumb="2" aria-current="page">Возврат товара</button>
+          </nav>
+          <div class="status-line" id="crumbStatusS4">Текущий раздел: <b>Возврат товара</b></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. COLLAPSIBLE -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">3</div>
+        <div>
+          <div class="section-title">Collapsible</div>
+          <div class="section-sub">Длинный путь сворачивается в «…» — кликните, чтобы развернуть</div>
+        </div>
+      </div>
+      <nav class="crumbs" id="crumbsCollapse" aria-label="Сворачиваемые крошки">
+        <button class="crumb" data-crumb="0">Главная</button>
+        <span class="crumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        <button class="crumb-more" id="moreBtn" aria-expanded="false" aria-label="Показать промежуточные разделы">…</button>
+        <span class="crumb-sep crumb-hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        <button class="crumb crumb-hidden" data-crumb="1">Каталог</button>
+        <span class="crumb-sep crumb-hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        <button class="crumb crumb-hidden" data-crumb="2">Одежда</button>
+        <span class="crumb-sep crumb-hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        <button class="crumb crumb-hidden" data-crumb="3">Мужское</button>
+        <span class="crumb-sep crumb-hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        <button class="crumb crumb-hidden" data-crumb="4">Обувь</button>
+        <span class="crumb-sep crumb-hidden"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        <button class="crumb crumb-hidden" data-crumb="5">Кроссовки</button>
+        <span class="crumb-sep"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></span>
+        <button class="crumb is-current" data-crumb="6" aria-current="page">Nike Air Max 270</button>
+      </nav>
+      <div class="status-line" id="collapseStatus">Скрыто <b>4 промежуточных уровня</b> · нажмите «…», чтобы развернуть</div>
+    </section>
+
+    <!-- 4. HORIZONTAL STEPPER -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">4</div>
+        <div>
+          <div class="section-title">Checkout Stepper</div>
+          <div class="section-sub">Горизонтальный степпер оформления заказа — проведите весь путь</div>
+        </div>
+      </div>
+      <div class="stepper" id="checkoutStepper">
+        <div class="step is-active" data-step="0">
+          <div class="step-dot">1</div>
+          <div class="step-label">Корзина</div>
+        </div>
+        <div class="step" data-step="1">
+          <div class="step-dot">2</div>
+          <div class="step-label">Доставка</div>
+        </div>
+        <div class="step" data-step="2">
+          <div class="step-dot">3</div>
+          <div class="step-label">Оплата</div>
+        </div>
+        <div class="step" data-step="3">
+          <div class="step-dot">4</div>
+          <div class="step-label">Готово</div>
+        </div>
+      </div>
+
+      <div class="step-panel is-visible" data-step-panel="0">
+        <div class="order-card">
+          <div class="order-row"><span class="o-name">Sony WH-1000XM5 · чёрный</span><span class="o-price">24 990 ₽</span></div>
+          <div class="order-row"><span class="o-name">Чехол для наушников</span><span class="o-price">1 290 ₽</span></div>
+          <div class="order-row"><span class="o-name">Доставка</span><span class="o-free">Бесплатно</span></div>
+          <div class="order-row total"><span class="o-name">Итого</span><span class="o-price">26 280 ₽</span></div>
+        </div>
+      </div>
+      <div class="step-panel" data-step-panel="1">
+        <div class="order-card">
+          <p class="order-addr"><b>Адрес доставки:</b> Москва, ул. Тверская, 12, кв. 34<br>
+          <b>Получатель:</b> Анна Соколова · +7 912 345-67-89<br>
+          <b>Способ:</b> Курьером, завтра 10:00–14:00</p>
+        </div>
+      </div>
+      <div class="step-panel" data-step-panel="2">
+        <div class="order-card">
+          <p class="order-pay">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+            Карта ···· 4242 · Спишется 26 280 ₽
+          </p>
+        </div>
+      </div>
+      <div class="step-panel" data-step-panel="3">
+        <div class="order-card">
+          <div class="order-done">
+            <div class="done-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <h3>Заказ № 48213 оформлен</h3>
+            <p>Подтверждение отправлено на sokolova@mail.ru · 26 280 ₽</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="step-nav">
+        <button class="btn btn-secondary" id="stepBack" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+          Назад
+        </button>
+        <div class="status-line" id="stepStatus" style="margin-top:0;flex:1">Шаг <b>1</b> из 4 — Корзина</div>
+        <button class="btn btn-primary" id="stepNext">
+          Далее
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+    </section>
+
+    <!-- 5. VERTICAL STEPPER -->
+    <section class="section">
+      <div class="section-head">
+        <div class="section-num">5</div>
+        <div>
+          <div class="section-title">Delivery Timeline</div>
+          <div class="section-sub">Вертикальный трекинг доставки — нажмите «Следующий этап»</div>
+        </div>
+      </div>
+      <div class="vstepper" id="deliveryStepper">
+        <div class="vstep is-done">
+          <div class="vstep-dot">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="vstep-body">
+            <div class="vstep-title">Заказ оформлен</div>
+            <div class="vstep-meta">09:12 · № 48213</div>
+            <div class="vstep-desc">Оплата получена, заказ передан в обработку.</div>
+          </div>
+        </div>
+        <div class="vstep is-done">
+          <div class="vstep-dot">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          </div>
+          <div class="vstep-body">
+            <div class="vstep-title">Передан в доставку</div>
+            <div class="vstep-meta">10:40 · Склад «Северный»</div>
+            <div class="vstep-desc">Московская область, пос. Северный, ул. Логистическая, 7.</div>
+          </div>
+        </div>
+        <div class="vstep is-active">
+          <div class="vstep-dot">3</div>
+          <div class="vstep-body">
+            <div class="vstep-title">В пути</div>
+            <div class="vstep-meta">14:05 · Курьер: Мария К.</div>
+            <div class="vstep-desc">Ожидаемое время доставки — сегодня, 16:30–18:00.</div>
+          </div>
+        </div>
+        <div class="vstep">
+          <div class="vstep-dot">4</div>
+          <div class="vstep-body">
+            <div class="vstep-title">Доставлен в пункт выдачи</div>
+            <div class="vstep-meta">ул. Тверская, 12</div>
+            <div class="vstep-desc">Заберите посылку в течение 7 дней, код — 4821.</div>
+          </div>
+        </div>
+      </div>
+      <div class="step-nav">
+        <button class="btn btn-primary btn-sm" id="deliveryNext">
+          Следующий этап
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+        <div class="status-line" id="deliveryStatus" style="margin-top:0;flex:1">Посылка <b>в пути</b> · этап 3 из 4</div>
+      </div>
+    </section>
+  </div>
+
+  <a class="back-btn" href="../../">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Back to catalog
+  </a>
+  <button class="view-code-btn" id="viewCodeBtn">⌨ View Code</button>
+  <div class="code-panel" id="codePanel">
+    <div class="code-header">
+      <span>index.html</span>
+      <button class="copy-btn" id="copyCodeBtn">Copy</button>
+    </div>
+    <pre id="codeContent"></pre>
+  </div>
+
+  <script>
+    (function() {
+      'use strict';
+      // Theme
+      const toggle = document.getElementById('themeToggle');
+      const sun = document.getElementById('sunIcon');
+      const moon = document.getElementById('moonIcon');
+      const stored = localStorage.getItem('design-demo-theme');
+      const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      let theme = stored || (sysDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+      if (theme === 'dark') { sun.style.display = 'none'; moon.style.display = ''; }
+      else { sun.style.display = ''; moon.style.display = 'none'; }
+      toggle.addEventListener('click', () => {
+        const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('design-demo-theme', next);
+        if (next === 'dark') { sun.style.display = 'none'; moon.style.display = ''; }
+        else { sun.style.display = ''; moon.style.display = 'none'; }
+      });
+
+      // Breadcrumb navigation — click a crumb to "navigate back"
+      const crumbGroups = document.querySelectorAll('[data-crumbs]');
+      crumbGroups.forEach(group => {
+        const crumbs = [...group.querySelectorAll('.crumb')];
+        const statusId = group.dataset.crumbs === 'main' ? 'crumbStatus' : 'crumbStatus' + group.dataset.crumbs.toUpperCase();
+        const status = document.getElementById(statusId);
+        crumbs.forEach(crumb => {
+          crumb.addEventListener('click', () => {
+            const idx = crumbs.indexOf(crumb);
+            crumbs.forEach((c, i) => {
+              c.classList.toggle('is-current', i === idx);
+              c.setAttribute('aria-current', i === idx ? 'page' : 'false');
+            });
+            if (status) status.innerHTML = 'Текущий раздел: <b>' + crumb.textContent.trim() + '</b>';
+          });
+        });
+      });
+
+      // Collapsible breadcrumbs
+      const crumbsCollapse = document.getElementById('crumbsCollapse');
+      const moreBtn = document.getElementById('moreBtn');
+      const collapseStatus = document.getElementById('collapseStatus');
+      let expanded = false;
+      moreBtn.addEventListener('click', () => {
+        expanded = !expanded;
+        crumbsCollapse.classList.toggle('is-expanded', expanded);
+        moreBtn.setAttribute('aria-expanded', expanded);
+        collapseStatus.innerHTML = expanded
+          ? 'Путь развёрнут — все <b>6 уровней</b> видны'
+          : 'Скрыто <b>4 промежуточных уровня</b> · нажмите «…», чтобы развернуть';
+      });
+
+      // Horizontal checkout stepper
+      const steps = [...document.querySelectorAll('#checkoutStepper .step')];
+      const panels = [...document.querySelectorAll('[data-step-panel]')];
+      const stepBack = document.getElementById('stepBack');
+      const stepNext = document.getElementById('stepNext');
+      const stepStatus = document.getElementById('stepStatus');
+      const stepNames = ['Корзина', 'Доставка', 'Оплата', 'Готово'];
+      let current = 0;
+      const renderSteps = () => {
+        steps.forEach((s, i) => {
+          s.classList.toggle('is-done', i < current);
+          s.classList.toggle('is-active', i === current);
+          s.querySelector('.step-dot').innerHTML = i < current
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+            : (i + 1);
+        });
+        panels.forEach((p, i) => p.classList.toggle('is-visible', i === current));
+        stepBack.disabled = current === 0;
+        stepNext.disabled = current === steps.length - 1;
+        stepNext.innerHTML = current === steps.length - 2
+          ? 'Оформить заказ'
+          : 'Далее<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+        stepStatus.innerHTML = current === steps.length - 1
+          ? 'Заказ <b>№ 48213</b> оформлен'
+          : 'Шаг <b>' + (current + 1) + '</b> из ' + steps.length + ' — ' + stepNames[current];
+      };
+      stepNext.addEventListener('click', () => { if (current < steps.length - 1) { current++; renderSteps(); } });
+      stepBack.addEventListener('click', () => { if (current > 0) { current--; renderSteps(); } });
+      renderSteps();
+
+      // Vertical delivery stepper
+      const vsteps = [...document.querySelectorAll('#deliveryStepper .vstep')];
+      const deliveryBtn = document.getElementById('deliveryNext');
+      const deliveryStatus = document.getElementById('deliveryStatus');
+      let vCurrent = 2;
+      const renderVSteps = () => {
+        const done = vCurrent >= vsteps.length - 1;
+        vsteps.forEach((s, i) => {
+          s.classList.toggle('is-done', i < vCurrent || done);
+          s.classList.toggle('is-active', i === vCurrent && !done);
+          s.querySelector('.vstep-dot').innerHTML = (i < vCurrent || done)
+            ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+            : (i + 1);
+        });
+        deliveryBtn.disabled = done;
+        deliveryBtn.innerHTML = done
+          ? 'Посылка доставлена'
+          : 'Следующий этап<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+        deliveryStatus.innerHTML = done
+          ? 'Посылка <b>доставлена</b> в пункт выдачи · код 4821'
+          : 'Посылка <b>в пути</b> · этап ' + (vCurrent + 1) + ' из ' + vsteps.length;
+      };
+      deliveryBtn.addEventListener('click', () => {
+        if (vCurrent < vsteps.length - 1) { vCurrent++; renderVSteps(); }
+      });
+      renderVSteps();
+
+      // View code
+      const viewCodeBtn = document.getElementById('viewCodeBtn');
+      const codePanel = document.getElementById('codePanel');
+      const codeContent = document.getElementById('codeContent');
+      const copyCodeBtn = document.getElementById('copyCodeBtn');
+      viewCodeBtn.addEventListener('click', () => {
+        const isOpen = codePanel.classList.toggle('open');
+        if (isOpen && !codeContent.textContent && location.protocol !== 'file:') {
+          fetch('index.html').then(r => r.text()).then(html => {
+            codeContent.textContent = html.replace(/<script[\s\S]*?<\/script>/g, '<!-- script -->');
+          });
+        }
+        viewCodeBtn.textContent = isOpen ? 'Close' : '⌨  View Code';
+      });
+      copyCodeBtn.addEventListener('click', () => {
+        navigator.clipboard.writeText(codeContent.textContent).then(() => {
+          copyCodeBtn.textContent = 'Copied!';
+          setTimeout(() => copyCodeBtn.textContent = 'Copy', 1500);
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,890 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Nova CRM — Премиум дашборд</title>
+  <style>
+    :root {
+      --bg: #f5f5f7; --bg-elevated: #fff; --surface: #fff; --surface-2: #f0f0f5; --surface-3: #e8e8ed;
+      --text: #1c1c1e; --text-2: #636366; --text-3: #8e8e93; --text-inverse: #fff;
+      --border: #e5e5ea; --border-strong: #d0d0d6;
+      --accent: #6c5ce7; --accent-hover: #5a4bd1; --accent-soft: rgba(108,92,231,.08);
+      --success: #00b894; --success-soft: rgba(0,184,148,.1);
+      --warning: #fdcb6e; --warning-soft: rgba(253,203,110,.16);
+      --danger: #ff4757; --danger-soft: rgba(255,71,87,.1);
+      --info: #74b9ff; --info-soft: rgba(116,185,255,.1);
+      --c2: #74b9ff; --c3: #00b894; --c4: #fdcb6e; --c5: #ff7675;
+      --sb-w: 248px;
+      --radius-sm: 6px; --radius: 10px; --radius-md: 12px; --radius-lg: 16px;
+      --shadow-sm: 0 2px 6px rgba(0,0,0,.06); --shadow: 0 4px 16px rgba(0,0,0,.07); --shadow-md: 0 10px 34px rgba(0,0,0,.12);
+      --ease: cubic-bezier(.4,0,.2,1); --dur-fast: 180ms; --dur: 260ms;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+    }
+    [data-theme="dark"] {
+      --bg: #0c0c0e; --bg-elevated: #14141a; --surface: #1a1a20; --surface-2: #23232a; --surface-3: #2a2a32;
+      --text: #ececf0; --text-2: #a0a0a8; --text-3: #6e6e76;
+      --border: #2a2a32; --border-strong: #3a3a44;
+      --accent-soft: rgba(108,92,231,.15); --success-soft: rgba(0,184,148,.12); --danger-soft: rgba(255,71,87,.12); --info-soft: rgba(116,185,255,.12);
+    }
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);min-height:100vh;display:flex;-webkit-font-smoothing:antialiased;line-height:1.5;overflow-x:hidden}
+    ::selection{background:var(--accent);color:var(--text-inverse)}
+    button{font-family:inherit}
+
+    /* ─── Fixed toggles ─── */
+    .theme-toggle{position:fixed;top:14px;right:14px;width:36px;height:36px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:200;transition:all var(--dur-fast) var(--ease);box-shadow:var(--shadow-sm)}
+    .theme-toggle:hover{transform:scale(1.06);border-color:var(--accent);color:var(--accent)}
+    .theme-toggle svg{width:16px;height:16px}
+    .back-btn{position:fixed;bottom:20px;left:20px;display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:100px;color:var(--text);font-size:.85rem;font-weight:500;text-decoration:none;box-shadow:var(--shadow-sm);z-index:200;transition:all var(--dur-fast) var(--ease)}
+    .back-btn:hover{transform:translateY(-2px);border-color:var(--accent);color:var(--accent)}
+    .back-btn svg{width:14px;height:14px}
+
+    /* ─── Sidebar ─── */
+    .sidebar{width:var(--sb-w);background:var(--bg-elevated);border-right:1px solid var(--border);padding:18px 12px 14px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;flex-shrink:0;transition:width var(--dur) var(--ease);z-index:90}
+    .sb-brand{display:flex;align-items:center;gap:10px;padding:2px 10px 22px;position:relative}
+    .sb-logo{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#6c5ce7,#a29bfe);display:flex;align-items:center;justify-content:center;color:#fff;flex-shrink:0;box-shadow:0 4px 14px rgba(108,92,231,.4)}
+    .sb-logo svg{width:18px;height:18px}
+    .sb-name{font-weight:800;font-size:1.02rem;letter-spacing:-0.01em;white-space:nowrap;overflow:hidden;transition:opacity var(--dur-fast) var(--ease)}
+    .sb-name small{display:block;font-size:.62rem;font-weight:600;color:var(--text-3);letter-spacing:1.2px;text-transform:uppercase}
+    .sb-collapse{position:absolute;right:-14px;top:8px;width:28px;height:28px;border-radius:50%;border:1px solid var(--border);background:var(--surface);color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:var(--shadow-sm);transition:all var(--dur-fast) var(--ease);z-index:5}
+    .sb-collapse:hover{color:var(--accent);border-color:var(--accent);transform:rotate(180deg)}
+    .sb-collapse svg{width:13px;height:13px}
+    .sb-nav{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:2px;scrollbar-width:thin}
+    .sb-section{font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text-3);padding:16px 12px 6px;white-space:nowrap;overflow:hidden;transition:opacity var(--dur-fast) var(--ease)}
+    .sb-link{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:9px;color:var(--text-2);text-decoration:none;font-size:.88rem;font-weight:500;transition:all var(--dur-fast) var(--ease);white-space:nowrap;position:relative}
+    .sb-link:hover{background:var(--surface-2);color:var(--text)}
+    .sb-link.is-active{background:linear-gradient(90deg,var(--accent-soft),transparent);color:var(--accent);font-weight:600}
+    .sb-link.is-active::before{content:'';position:absolute;left:-12px;top:20%;bottom:20%;width:3px;border-radius:3px;background:var(--accent)}
+    .sb-link svg{width:18px;height:18px;flex-shrink:0}
+    .sb-lbl{transition:opacity var(--dur-fast) var(--ease)}
+    .sb-pill{margin-left:auto;padding:1px 7px;background:var(--accent);color:#fff;font-size:.64rem;border-radius:999px;font-weight:700;transition:opacity var(--dur-fast) var(--ease)}
+    .sb-pill.gray{background:var(--surface-3);color:var(--text-2)}
+    .sb-pill.red{background:var(--danger);color:#fff}
+    .sb-user{margin-top:12px;border-top:1px solid var(--border);padding-top:12px;display:flex;align-items:center;gap:10px;position:relative}
+    .sb-avatar{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,#ff4757,#fdcb6e);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.82rem;flex-shrink:0}
+    .sb-uinfo{min-width:0;flex:1;transition:opacity var(--dur-fast) var(--ease)}
+    .sb-uname{font-size:.84rem;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .sb-uemail{font-size:.68rem;color:var(--text-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .sb-logout{width:30px;height:30px;border-radius:8px;border:none;background:transparent;color:var(--text-3);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all var(--dur-fast) var(--ease)}
+    .sb-logout:hover{background:var(--danger-soft);color:var(--danger)}
+    .sb-logout svg{width:15px;height:15px}
+
+    /* collapsed */
+    body.sb-collapsed .sidebar{width:70px}
+    body.sb-collapsed .sb-name,body.sb-collapsed .sb-lbl,body.sb-collapsed .sb-pill,body.sb-collapsed .sb-section,body.sb-collapsed .sb-uinfo{opacity:0;pointer-events:none}
+    body.sb-collapsed .sb-brand{padding-bottom:22px}
+    body.sb-collapsed .sb-link{justify-content:center;padding:9px 0}
+    body.sb-collapsed .sb-link.is-active::before{left:-12px}
+    body.sb-collapsed .sb-user{justify-content:center}
+    body.sb-collapsed .sb-section{padding:14px 0 4px}
+    body.sb-collapsed .sb-section:empty::after{content:'';display:block;width:26px;height:1px;background:var(--border);margin:0 auto}
+    body.sb-collapsed .sb-collapse{transform:rotate(180deg)}
+
+    /* ─── Main ─── */
+    .main{flex:1;min-width:0;display:flex;flex-direction:column}
+    .topbar{height:62px;background:var(--bg-elevated);border-bottom:1px solid var(--border);padding:0 22px;display:flex;align-items:center;gap:16px;position:sticky;top:0;z-index:80}
+    .burger{width:36px;height:36px;border-radius:8px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);display:none;align-items:center;justify-content:center;cursor:pointer;transition:all var(--dur-fast) var(--ease);flex-shrink:0}
+    .burger:hover{color:var(--accent);border-color:var(--accent)}
+    .burger svg{width:17px;height:17px}
+    .tb-title{font-weight:700;font-size:1.02rem;white-space:nowrap}
+    .tb-title small{display:block;font-size:.64rem;color:var(--text-3);font-weight:500}
+    .search{flex:1;max-width:420px;display:flex;align-items:center;gap:8px;background:var(--surface-2);border:1px solid transparent;border-radius:10px;padding:8px 12px;transition:all var(--dur-fast) var(--ease);margin-left:auto}
+    .search:focus-within{background:var(--surface);border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+    .search svg{width:15px;height:15px;color:var(--text-3);flex-shrink:0}
+    .search input{border:none;background:none;outline:none;color:var(--text);font-size:.85rem;width:100%;font-family:inherit}
+    .search input::placeholder{color:var(--text-3)}
+    .tb-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+
+    /* dropdowns */
+    .dd{position:relative}
+    .dd-btn{width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all var(--dur-fast) var(--ease);position:relative}
+    .dd-btn:hover{border-color:var(--accent);color:var(--accent)}
+    .dd-btn svg{width:17px;height:17px}
+    .dd-dot{position:absolute;top:7px;right:8px;width:8px;height:8px;border-radius:50%;background:var(--danger);border:2px solid var(--surface)}
+    .dd-menu{position:absolute;right:0;top:calc(100% + 8px);min-width:290px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);box-shadow:var(--shadow-md);padding:8px;opacity:0;transform:translateY(-6px) scale(.98);pointer-events:none;transition:opacity var(--dur-fast) var(--ease),transform var(--dur-fast) var(--ease);z-index:120;transform-origin:top right}
+    .dd-menu.open{opacity:1;transform:none;pointer-events:auto}
+    .dd-menu.user-menu{min-width:210px}
+    .dd-head{padding:8px 12px;font-size:.66rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-3);border-bottom:1px solid var(--border);margin-bottom:6px;display:flex;align-items:center;justify-content:space-between;gap:8px}
+    .dd-head button{background:none;border:none;color:var(--accent);font-size:.68rem;font-weight:600;cursor:pointer;font-family:inherit}
+    .dd-head button:hover{text-decoration:underline}
+    .dd-item{display:flex;gap:10px;align-items:flex-start;padding:9px 10px;border-radius:8px;cursor:pointer;transition:background var(--dur-fast) var(--ease)}
+    .dd-item:hover{background:var(--surface-2)}
+    .dd-item.unread{background:var(--accent-soft)}
+    .dd-item.unread:hover{background:var(--accent-soft)}
+    .dd-ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .dd-ic svg{width:14px;height:14px}
+    .dd-ic.purple{background:var(--accent-soft);color:var(--accent)}
+    .dd-ic.green{background:var(--success-soft);color:var(--success)}
+    .dd-ic.orange{background:var(--warning-soft);color:#d4a13d}
+    .dd-ic.blue{background:var(--info-soft);color:var(--info)}
+    .dd-ic.red{background:var(--danger-soft);color:var(--danger)}
+    .dd-txt{flex:1;min-width:0}
+    .dd-txt b{display:block;font-size:.8rem;font-weight:600;line-height:1.3}
+    .dd-txt span{font-size:.72rem;color:var(--text-2);line-height:1.35;display:block}
+    .dd-time{font-size:.66rem;color:var(--text-3);white-space:nowrap;padding-top:2px}
+    .dd-item.menu-item{display:flex;align-items:center;gap:11px;font-size:.85rem;font-weight:500;color:var(--text);padding:10px}
+    .dd-item.menu-item svg{width:16px;height:16px;color:var(--text-2);flex-shrink:0}
+    .dd-item.menu-item:hover svg{color:var(--accent)}
+    .dd-item.menu-item.danger{color:var(--danger)}
+    .dd-item.menu-item.danger svg{color:var(--danger)}
+    .dd-item.menu-item.danger:hover{background:var(--danger-soft)}
+    .dd-sep{height:1px;background:var(--border);margin:6px 8px}
+    .user-chip{display:flex;align-items:center;gap:10px;padding:4px 8px 4px 4px;border:1px solid var(--border);border-radius:999px;background:var(--surface);cursor:pointer;transition:all var(--dur-fast) var(--ease)}
+    .user-chip:hover{border-color:var(--accent);box-shadow:var(--shadow-sm)}
+    .user-chip .u-avatar{width:28px;height:28px;border-radius:50%;background:linear-gradient(135deg,#ff4757,#fdcb6e);color:#fff;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700}
+    .user-chip .u-name{font-size:.8rem;font-weight:600}
+    .user-chip .chev{width:12px;height:12px;color:var(--text-3)}
+
+    /* ─── Content ─── */
+    .content{padding:26px 28px 90px;flex:1}
+    .greeting{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:24px}
+    .greeting h2{font-size:1.55rem;font-weight:800;letter-spacing:-0.02em}
+    .greeting h2 em{font-style:normal;background:linear-gradient(135deg,var(--accent),#a29bfe);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .greeting p{color:var(--text-2);font-size:.86rem;margin-top:3px}
+    .greeting .g-date{font-size:.8rem;color:var(--text-2);background:var(--surface);border:1px solid var(--border);border-radius:100px;padding:7px 14px;box-shadow:var(--shadow-sm);white-space:nowrap}
+
+    .grid{display:grid;gap:16px;margin-bottom:16px}
+    .g4{grid-template-columns:repeat(4,1fr)}
+    .g2{grid-template-columns:1.4fr 1fr}
+    .g2b{grid-template-columns:1fr 1fr}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-md);padding:18px;transition:box-shadow .2s var(--ease),transform .2s var(--ease)}
+    .card:hover{box-shadow:var(--shadow)}
+    .card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+    .card-title{font-weight:700;font-size:.95rem}
+    .card-sub{font-size:.72rem;color:var(--text-3);font-weight:500}
+    .card-link{background:none;border:none;color:var(--accent);font-size:.76rem;font-weight:600;cursor:pointer;font-family:inherit;display:inline-flex;align-items:center;gap:4px;transition:opacity var(--dur-fast)}
+    .card-link:hover{opacity:.75}
+    .card-link svg{width:12px;height:12px}
+
+    /* sparkline cards */
+    .spark-card{padding:16px 18px;position:relative;overflow:hidden}
+    .spark-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px}
+    .spark-label{font-size:.72rem;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px;font-weight:600}
+    .spark-ic{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center}
+    .spark-ic svg{width:13px;height:13px}
+    .spark-ic.purple{background:var(--accent-soft);color:var(--accent)}
+    .spark-ic.green{background:var(--success-soft);color:var(--success)}
+    .spark-ic.orange{background:var(--warning-soft);color:#d4a13d}
+    .spark-ic.blue{background:var(--info-soft);color:var(--info)}
+    .spark-val{font-size:1.45rem;font-weight:800;letter-spacing:-0.02em;font-variant-numeric:tabular-nums;line-height:1.1}
+    .spark-delta{display:inline-flex;align-items:center;gap:4px;font-size:.72rem;font-weight:600;margin:4px 0 8px}
+    .spark-delta.up{color:var(--success)} .spark-delta.down{color:var(--danger)}
+    .spark-delta svg{width:11px;height:11px}
+    .spark-delta .vs{color:var(--text-3);font-weight:500}
+    .spark-svg{display:block;width:100%;height:40px;cursor:pointer}
+    .spark-line{fill:none;stroke:url(#sparkGrad);stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+    .spark-area{fill:url(#sparkArea);opacity:.55}
+
+    /* progress */
+    .proj-row{margin-bottom:14px}
+    .proj-row:last-child{margin-bottom:0}
+    .proj-top{display:flex;align-items:center;justify-content:space-between;font-size:.83rem;margin-bottom:6px}
+    .proj-top b{font-weight:600}
+    .proj-top .pr{font-weight:700;font-size:.78rem;font-variant-numeric:tabular-nums}
+    .proj-bar{height:8px;border-radius:99px;background:var(--surface-2);overflow:hidden}
+    .proj-fill{height:100%;border-radius:99px;width:0;transition:width 1s var(--ease)}
+    .proj-fill.p1{background:linear-gradient(90deg,#6c5ce7,#a29bfe)}
+    .proj-fill.p2{background:linear-gradient(90deg,#0984e3,#74b9ff)}
+    .proj-fill.p3{background:linear-gradient(90deg,#00b894,#55efc4)}
+    .proj-fill.p4{background:linear-gradient(90deg,#e17055,#fdcb6e)}
+
+    /* donut */
+    .mini-donut{display:flex;align-items:center;gap:22px}
+    .md-box{position:relative;width:150px;height:150px;flex-shrink:0;margin:0 auto}
+    .md-box svg{transform:rotate(-90deg)}
+    .md-seg{cursor:pointer;transition:opacity .2s var(--ease),stroke-width .2s var(--ease)}
+    .md-seg:hover{stroke-width:19}
+    .md-seg.muted{opacity:.25}
+    .md-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;pointer-events:none}
+    .md-pct{font-size:1.25rem;font-weight:800;font-variant-numeric:tabular-nums}
+    .md-lbl{font-size:.6rem;color:var(--text-2);text-transform:uppercase;letter-spacing:.5px}
+    .md-legend{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+    .md-item{display:flex;align-items:center;gap:8px;font-size:.78rem;color:var(--text-2);padding:4px 8px;border-radius:6px;cursor:pointer;transition:background var(--dur-fast)}
+    .md-item:hover{background:var(--surface-2)}
+    .md-item.muted{opacity:.4}
+    .md-dot{width:9px;height:9px;border-radius:3px;flex-shrink:0}
+    .md-name{font-weight:500}
+    .md-val{margin-left:auto;font-weight:700;font-variant-numeric:tabular-nums;color:var(--text)}
+
+    /* tasks */
+    .task-progress{height:5px;border-radius:99px;background:var(--surface-2);overflow:hidden;margin-bottom:14px}
+    .task-progress i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,#6c5ce7,#a29bfe);width:0;transition:width .5s var(--ease)}
+    .task{display:flex;align-items:center;gap:11px;padding:10px 8px;border-radius:9px;transition:background var(--dur-fast) var(--ease);cursor:pointer}
+    .task:hover{background:var(--surface-2)}
+    .task + .task{border-top:1px solid var(--border)}
+    .task + .task{border-top:none}
+    .task-check{width:20px;height:20px;border-radius:6px;border:1.5px solid var(--border-strong);background:var(--surface);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all var(--dur-fast) var(--ease)}
+    .task-check svg{width:11px;height:11px;color:#fff;opacity:0;transform:scale(.5);transition:all var(--dur-fast) var(--ease)}
+    .task:hover .task-check{border-color:var(--accent)}
+    .task.done .task-check{background:var(--accent);border-color:var(--accent)}
+    .task.done .task-check svg{opacity:1;transform:none}
+    .task-txt{flex:1;min-width:0;font-size:.84rem;font-weight:500;transition:color var(--dur-fast)}
+    .task.done .task-txt{color:var(--text-3);text-decoration:line-through}
+    .task-tag{font-size:.66rem;font-weight:700;padding:2px 9px;border-radius:99px;flex-shrink:0}
+    .task-tag.t-purple{background:var(--accent-soft);color:var(--accent)}
+    .task-tag.t-green{background:var(--success-soft);color:var(--success)}
+    .task-tag.t-orange{background:var(--warning-soft);color:#d4a13d}
+    .task-tag.t-blue{background:var(--info-soft);color:var(--info)}
+    .task-tag.t-red{background:var(--danger-soft);color:var(--danger)}
+
+    /* activity */
+    .feed-item{display:flex;gap:12px;padding:10px 6px;border-radius:9px;transition:background var(--dur-fast);cursor:pointer}
+    .feed-item:hover{background:var(--surface-2)}
+    .feed-item + .feed-item{border-top:1px solid var(--border)}
+    .feed-ic{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .feed-ic svg{width:15px;height:15px}
+    .feed-ic.purple{background:var(--accent-soft);color:var(--accent)}
+    .feed-ic.green{background:var(--success-soft);color:var(--success)}
+    .feed-ic.orange{background:var(--warning-soft);color:#d4a13d}
+    .feed-ic.blue{background:var(--info-soft);color:var(--info)}
+    .feed-ic.red{background:var(--danger-soft);color:var(--danger)}
+    .feed-txt{flex:1;min-width:0;font-size:.82rem;color:var(--text-2);line-height:1.45}
+    .feed-txt b{color:var(--text);font-weight:600}
+    .feed-time{font-size:.68rem;color:var(--text-3);white-space:nowrap;padding-top:2px}
+
+    /* mobile overlay */
+    .sb-overlay{position:fixed;inset:0;background:rgba(10,10,16,.5);backdrop-filter:blur(2px);opacity:0;pointer-events:none;transition:opacity var(--dur) var(--ease);z-index:85}
+
+    @media (max-width:1180px){.g4{grid-template-columns:repeat(2,1fr)}}
+    @media (max-width:980px){
+      .sidebar{position:fixed;left:0;top:0;bottom:0;height:100vh;transform:translateX(-105%);transition:transform var(--dur) var(--ease),width var(--dur) var(--ease);box-shadow:var(--shadow-md)}
+      .sidebar.mobile-open{transform:translateX(0)}
+      .sb-overlay.show{opacity:1;pointer-events:auto}
+      .burger{display:flex}
+      .g2,.g2b{grid-template-columns:1fr}
+    }
+    @media (max-width:620px){
+      .content{padding:20px 14px 90px}
+      .g4{grid-template-columns:1fr}
+      .topbar{padding:0 14px;gap:10px}
+      .search{max-width:none}
+      .tb-title small{display:none}
+      .user-chip .u-name,.user-chip .chev{display:none}
+      .mini-donut{flex-direction:column}
+      .md-legend{width:100%}
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="sunIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="moonIcon" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sb-brand">
+      <div class="sb-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+      </div>
+      <div class="sb-name">Nova CRM<small>Премиум-пространство</small></div>
+      <button class="sb-collapse" id="sbCollapse" title="Свернуть меню" aria-label="Свернуть меню">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Навигация</div>
+      <a href="#" class="sb-link is-active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <span class="sb-lbl">Главная</span>
+      </a>
+      <a href="#" class="sb-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        <span class="sb-lbl">Аналитика</span>
+        <span class="sb-pill">12</span>
+      </a>
+      <a href="#" class="sb-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <span class="sb-lbl">Проекты</span>
+      </a>
+      <a href="#" class="sb-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        <span class="sb-lbl">Задачи</span>
+        <span class="sb-pill gray">8</span>
+      </a>
+      <a href="#" class="sb-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <span class="sb-lbl">Сообщения</span>
+        <span class="sb-pill red">5</span>
+      </a>
+      <div class="sb-section">Рабочее пространство</div>
+      <a href="#" class="sb-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        <span class="sb-lbl">Команда</span>
+      </a>
+      <a href="#" class="sb-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M3 9h18"/><path d="M9 21V9"/></svg>
+        <span class="sb-lbl">Доска</span>
+      </a>
+      <a href="#" class="sb-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        <span class="sb-lbl">Отчёты</span>
+        <span class="sb-pill gray">2</span>
+      </a>
+      <div class="sb-section">Система</div>
+      <a href="#" class="sb-link">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span class="sb-lbl">Настройки</span>
+      </a>
+    </nav>
+    <div class="sb-user">
+      <div class="sb-avatar">А</div>
+      <div class="sb-uinfo">
+        <div class="sb-uname">Анна Петрова</div>
+        <div class="sb-uemail">anna@nova.crm</div>
+      </div>
+      <button class="sb-logout" title="Выйти" aria-label="Выйти">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </aside>
+  <div class="sb-overlay" id="sbOverlay"></div>
+
+  <!-- Main -->
+  <main class="main">
+    <header class="topbar">
+      <button class="burger" id="burger" title="Меню" aria-label="Открыть меню">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="tb-title">Главная<small>Обзор компании Nova CRM</small></div>
+      <label class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input type="text" placeholder="Поиск: клиенты, проекты, задачи..." id="searchInput">
+      </label>
+      <div class="tb-actions">
+        <div class="dd" id="bellDD">
+          <button class="dd-btn" title="Уведомления" aria-label="Уведомления">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="dd-dot" id="bellDot"></span>
+          </button>
+          <div class="dd-menu" id="bellMenu">
+            <div class="dd-head"><span>Уведомления</span><button id="markRead">Отметить прочитанным</button></div>
+            <div class="dd-item unread" data-unread="1">
+              <div class="dd-ic purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+              <div class="dd-txt"><b>Проект «Атлас» одобрен</b><span>Руководитель принял смету и дизайн-макет</span></div>
+              <span class="dd-time">2 мин</span>
+            </div>
+            <div class="dd-item unread" data-unread="1">
+              <div class="dd-ic blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+              <div class="dd-txt"><b>Новый участник команды</b><span>Максим Орлов присоединился к отделу разработки</span></div>
+              <span class="dd-time">1 ч</span>
+            </div>
+            <div class="dd-item unread" data-unread="1">
+              <div class="dd-ic orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+              <div class="dd-txt"><b>Напоминание о встрече</b><span>Стратегическая сессия начнётся через 30 минут</span></div>
+              <span class="dd-time">2 ч</span>
+            </div>
+            <div class="dd-item" data-unread="0">
+              <div class="dd-ic green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg></div>
+              <div class="dd-txt"><b>Отчёт за неделю готов</b><span>Показатели выросли на 14% по сравнению с прошлой</span></div>
+              <span class="dd-time">Вчера</span>
+            </div>
+          </div>
+        </div>
+        <div class="dd" id="userDD">
+          <button class="user-chip" id="userChip" aria-label="Профиль пользователя">
+            <span class="u-avatar">А</span>
+            <span class="u-name">Анна Петрова</span>
+            <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="dd-menu user-menu" id="userMenu">
+            <div class="dd-item menu-item" data-act="profile">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Мой профиль
+            </div>
+            <div class="dd-item menu-item" data-act="settings">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              Настройки
+            </div>
+            <div class="dd-item menu-item" data-act="help">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+              Справка
+            </div>
+            <div class="dd-sep"></div>
+            <div class="dd-item menu-item danger" data-act="logout">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              Выйти из аккаунта
+            </div>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="content">
+      <div class="greeting">
+        <div>
+          <h2>Добрый день, <em>Анна</em></h2>
+          <p>Вот что происходит в вашем рабочем пространстве сегодня.</p>
+        </div>
+        <span class="g-date" id="gDate"></span>
+      </div>
+
+      <!-- Sparkline cards -->
+      <div class="grid g4" id="sparkGrid">
+        <div class="card spark-card">
+          <div class="spark-top">
+            <span class="spark-label">Выручка</span>
+            <div class="spark-ic purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          </div>
+          <div class="spark-val">—</div>
+          <div class="spark-delta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg><span>—</span><span class="vs">за неделю</span></div>
+          <svg class="spark-svg" viewBox="0 0 160 40" preserveAspectRatio="none">
+            <defs>
+              <linearGradient id="sparkGrad" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#6c5ce7"/><stop offset="100%" stop-color="#a29bfe"/></linearGradient>
+              <linearGradient id="sparkArea" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="rgba(108,92,231,.25)"/><stop offset="100%" stop-color="rgba(108,92,231,0)"/></linearGradient>
+            </defs>
+          </svg>
+        </div>
+        <div class="card spark-card">
+          <div class="spark-top">
+            <span class="spark-label">Пользователи</span>
+            <div class="spark-ic green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+          </div>
+          <div class="spark-val">—</div>
+          <div class="spark-delta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg><span>—</span><span class="vs">за неделю</span></div>
+          <svg class="spark-svg" viewBox="0 0 160 40" preserveAspectRatio="none"></svg>
+        </div>
+        <div class="card spark-card">
+          <div class="spark-top">
+            <span class="spark-label">Заказы</span>
+            <div class="spark-ic orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg></div>
+          </div>
+          <div class="spark-val">—</div>
+          <div class="spark-delta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg><span>—</span><span class="vs">за неделю</span></div>
+          <svg class="spark-svg" viewBox="0 0 160 40" preserveAspectRatio="none"></svg>
+        </div>
+        <div class="card spark-card">
+          <div class="spark-top">
+            <span class="spark-label">Конверсия</span>
+            <div class="spark-ic blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+          </div>
+          <div class="spark-val">—</div>
+          <div class="spark-delta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg><span>—</span><span class="vs">за неделю</span></div>
+          <svg class="spark-svg" viewBox="0 0 160 40" preserveAspectRatio="none"></svg>
+        </div>
+      </div>
+
+      <!-- Progress + donut -->
+      <div class="grid g2">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Прогресс проектов</div>
+              <div class="card-sub">Текущий статус по активным проектам</div>
+            </div>
+            <button class="card-link" id="refreshProj">Обновить<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
+          </div>
+          <div class="proj-row"><div class="proj-top"><b>Сайт компании «Атлас»</b><span class="pr">78%</span></div><div class="proj-bar"><div class="proj-fill p1" data-w="78"></div></div></div>
+          <div class="proj-row"><div class="proj-top"><b>Мобильное приложение</b><span class="pr">54%</span></div><div class="proj-bar"><div class="proj-fill p2" data-w="54"></div></div></div>
+          <div class="proj-row"><div class="proj-top"><b>Обновление CRM</b><span class="pr">92%</span></div><div class="proj-bar"><div class="proj-fill p3" data-w="92"></div></div></div>
+          <div class="proj-row"><div class="proj-top"><b>Дизайн-система UI</b><span class="pr">36%</span></div><div class="proj-bar"><div class="proj-fill p4" data-w="36"></div></div></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Задачи по статусам</div>
+              <div class="card-sub">Распределение задач команды</div>
+            </div>
+          </div>
+          <div class="mini-donut">
+            <div class="md-box" id="mdBox">
+              <svg width="150" height="150" viewBox="0 0 150 150">
+                <circle cx="75" cy="75" r="56" fill="none" stroke="var(--surface-2)" stroke-width="16"/>
+                <g id="mdSegs"></g>
+              </svg>
+              <div class="md-center"><div class="md-pct" id="mdPct">—</div><div class="md-lbl" id="mdLbl">задач</div></div>
+            </div>
+            <div class="md-legend" id="mdLegend"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tasks + activity -->
+      <div class="grid g2b">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Задачи на сегодня</div>
+              <div class="card-sub" id="taskCount">0 из 5 выполнено</div>
+            </div>
+            <button class="card-link" id="addTask">Добавить<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+          </div>
+          <div class="task-progress"><i id="taskBar"></i></div>
+          <div id="taskList">
+            <div class="task" data-done="0">
+              <span class="task-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+              <span class="task-txt">Согласовать макет главной страницы</span>
+              <span class="task-tag t-purple">Дизайн</span>
+            </div>
+            <div class="task" data-done="0">
+              <span class="task-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+              <span class="task-txt">Подготовить смету для проекта «Атлас»</span>
+              <span class="task-tag t-orange">Финансы</span>
+            </div>
+            <div class="task" data-done="1">
+              <span class="task-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+              <span class="task-txt">Обновить статусы в трекере задач</span>
+              <span class="task-tag t-green">Процессы</span>
+            </div>
+            <div class="task" data-done="0">
+              <span class="task-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+              <span class="task-txt">Проверить интеграцию с платёжным шлюзом</span>
+              <span class="task-tag t-red">Разработка</span>
+            </div>
+            <div class="task" data-done="0">
+              <span class="task-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+              <span class="task-txt">Записать видеообзор релиза 2.4</span>
+              <span class="task-tag t-blue">Маркетинг</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <div class="card-title">Активность команды</div>
+              <div class="card-sub">Последние события в рабочем пространстве</div>
+            </div>
+            <button class="card-link" id="refreshFeed">Обновить<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg></button>
+          </div>
+          <div id="feedList">
+            <div class="feed-item">
+              <div class="feed-ic purple"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg></div>
+              <div class="feed-txt"><b>Игорь Соколов</b> завершил задачу «Адаптивная сетка каталога»</div>
+              <span class="feed-time">5 мин</span>
+            </div>
+            <div class="feed-item">
+              <div class="feed-ic green"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+              <div class="feed-txt"><b>Ольга Ким</b> оставила комментарий в «Дизайн-система UI»</div>
+              <span class="feed-time">28 мин</span>
+            </div>
+            <div class="feed-item">
+              <div class="feed-ic orange"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+              <div class="feed-txt"><b>Дмитрий Л.</b> запланировал встречу на пятницу, 14:00</div>
+              <span class="feed-time">1 ч</span>
+            </div>
+            <div class="feed-item">
+              <div class="feed-ic blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+              <div class="feed-txt"><b>Максим Орлов</b> присоединился к команде разработки</div>
+              <span class="feed-time">3 ч</span>
+            </div>
+            <div class="feed-item">
+              <div class="feed-ic red"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+              <div class="feed-txt"><b>Елена Воробьёва</b> отметила заявку «Возврат оплаты #482»</div>
+              <span class="feed-time">Вчера</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <a class="back-btn" href="../../">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Каталог
+  </a>
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* ─── Theme ─── */
+      var tgl = document.getElementById('themeToggle');
+      var sun = document.getElementById('sunIcon'), moon = document.getElementById('moonIcon');
+      var stored = localStorage.getItem('design-demo-theme');
+      var sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      var theme = stored || (sysDark ? 'dark' : 'light');
+      document.documentElement.setAttribute('data-theme', theme);
+      syncTheme();
+      tgl.addEventListener('click', function () {
+        var next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+        document.documentElement.setAttribute('data-theme', next);
+        localStorage.setItem('design-demo-theme', next);
+        syncTheme();
+      });
+      function syncTheme() {
+        var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+        sun.style.display = dark ? 'none' : '';
+        moon.style.display = dark ? '' : 'none';
+      }
+
+      var fmt = new Intl.NumberFormat('ru-RU');
+
+      /* ─── Sidebar collapse ─── */
+      var sbCollapse = document.getElementById('sbCollapse');
+      sbCollapse.addEventListener('click', function () {
+        document.body.classList.toggle('sb-collapsed');
+      });
+
+      /* ─── Mobile sidebar ─── */
+      var sidebar = document.getElementById('sidebar');
+      var overlay = document.getElementById('sbOverlay');
+      var burger = document.getElementById('burger');
+      function openSb() { sidebar.classList.add('mobile-open'); overlay.classList.add('show'); }
+      function closeSb() { sidebar.classList.remove('mobile-open'); overlay.classList.remove('show'); }
+      burger.addEventListener('click', function () {
+        sidebar.classList.contains('mobile-open') ? closeSb() : openSb();
+      });
+      overlay.addEventListener('click', closeSb);
+      sidebar.querySelectorAll('.sb-link').forEach(function (l) {
+        l.addEventListener('click', function () {
+          sidebar.querySelectorAll('.sb-link').forEach(function (x) { x.classList.remove('is-active'); });
+          l.classList.add('is-active');
+          if (window.innerWidth <= 980) closeSb();
+        });
+      });
+
+      /* ─── Dropdowns (outside click) ─── */
+      function closeAllDDs() {
+        document.querySelectorAll('.dd-menu.open').forEach(function (m) { m.classList.remove('open'); });
+      }
+      document.addEventListener('click', function (e) {
+        if (!e.target.closest('.dd')) closeAllDDs();
+      });
+      document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape') closeAllDDs();
+      });
+      var bellDD = document.getElementById('bellDD');
+      var bellMenu = document.getElementById('bellMenu');
+      var bellBtn = bellDD.querySelector('.dd-btn');
+      bellBtn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var open = bellMenu.classList.contains('open');
+        closeAllDDs();
+        if (!open) bellMenu.classList.add('open');
+      });
+      var userDD = document.getElementById('userDD');
+      var userMenu = document.getElementById('userMenu');
+      var userChip = document.getElementById('userChip');
+      userChip.addEventListener('click', function (e) {
+        e.stopPropagation();
+        var open = userMenu.classList.contains('open');
+        closeAllDDs();
+        if (!open) userMenu.classList.add('open');
+      });
+      userMenu.querySelectorAll('.menu-item').forEach(function (it) {
+        it.addEventListener('click', function () { closeAllDDs(); });
+      });
+
+      /* ─── Notifications: mark all read ─── */
+      var bellDot = document.getElementById('bellDot');
+      document.getElementById('markRead').addEventListener('click', function () {
+        bellMenu.querySelectorAll('.dd-item.unread').forEach(function (it) {
+          it.classList.remove('unread');
+        });
+        bellDot.style.display = 'none';
+      });
+
+      /* ─── Sparklines ─── */
+      function mulberry32(a) {
+        return function () {
+          a |= 0; a = a + 0x6D2B79F5 | 0;
+          var t = Math.imul(a ^ a >>> 15, 1 | a);
+          t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+          return ((t ^ t >>> 14) >>> 0) / 4294967296;
+        };
+      }
+      function sparkSeries(n, seed, base, amp, trend) {
+        var rnd = mulberry32(seed), out = [];
+        for (var i = 0; i < n; i++) {
+          var t = i / (n - 1);
+          out.push(base * (1 + trend * t) + Math.sin(t * Math.PI * 2.4 + seed) * amp * .4 + (rnd() - .5) * amp * .8);
+        }
+        return out;
+      }
+
+      var SPARKS = [
+        { seed: 31, base: 156000, amp: 22000, trend: .18, money: true },
+        { seed: 32, base: 1240, amp: 190, trend: .24, money: false },
+        { seed: 33, base: 182, amp: 30, trend: -.08, money: false },
+        { seed: 34, base: 3.42, amp: .5, trend: .12, pct: true }
+      ];
+      var sparks = document.querySelectorAll('.spark-card');
+      sparks.forEach(function (card, idx) {
+        var cfg = SPARKS[idx];
+        var s = sparkSeries(18, cfg.seed, cfg.base, cfg.amp, cfg.trend);
+        var svg = card.querySelector('.spark-svg');
+        var min = Math.min.apply(null, s), max = Math.max.apply(null, s);
+        var rng = (max - min) || 1;
+        var pts = s.map(function (v, i) {
+          var x = 4 + (i / (s.length - 1)) * 152;
+          var y = 36 - ((v - min) / rng) * 30;
+          return x.toFixed(1) + ',' + y.toFixed(1);
+        });
+        var area = 'M' + pts.join('L') + 'L156,38L4,38Z';
+        svg.innerHTML =
+          '<path class="spark-area" d="' + area + '"></path>' +
+          '<path class="spark-line" d="M' + pts.join('L') + '"></path>';
+        // value + delta
+        var val = s[s.length - 1];
+        var prev = s[0];
+        var delta = ((val - prev) / prev) * 100;
+        var up = delta >= 0;
+        var vEl = card.querySelector('.spark-val');
+        vEl.textContent = cfg.pct ? val.toFixed(2).replace('.', ',') + '%' : fmt.format(Math.round(val)) + (cfg.money ? ' \u20BD' : '');
+        var dEl = card.querySelector('.spark-delta');
+        dEl.classList.add(up ? 'up' : 'down');
+        dEl.querySelector('svg').outerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="' + (up ? '18 15 12 9 6 15' : '6 9 12 15 18 9') + '"/></svg>';
+        dEl.querySelector('span').textContent = (up ? '+' : '') + Math.abs(delta).toFixed(1).replace('.', ',') + '%';
+        // hover: show last point
+        svg.addEventListener('mouseenter', function () {
+          var dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          var last = pts[pts.length - 1].split(',');
+          dot.setAttribute('cx', last[0]); dot.setAttribute('cy', last[1]);
+          dot.setAttribute('r', '3.2');
+          dot.setAttribute('fill', 'var(--accent)');
+          dot.setAttribute('stroke', 'var(--surface)');
+          dot.setAttribute('stroke-width', '1.6');
+          dot.id = 'sparkDot';
+          svg.appendChild(dot);
+        });
+        svg.addEventListener('mouseleave', function () {
+          var dot = svg.querySelector('#sparkDot');
+          if (dot) dot.remove();
+        });
+      });
+
+      /* ─── Progress bars (animate on load + refresh) ─── */
+      var fills = document.querySelectorAll('.proj-fill');
+      function animateProgress() {
+        fills.forEach(function (f) {
+          f.style.width = '0%';
+          setTimeout(function () { f.style.width = f.dataset.w + '%'; }, 60);
+        });
+      }
+      animateProgress();
+      document.getElementById('refreshProj').addEventListener('click', function () {
+        fills.forEach(function (f) {
+          var target = Math.min(96, Math.max(8, +f.dataset.w + Math.round((Math.random() - .45) * 18)));
+          f.dataset.w = target;
+          var label = f.closest('.proj-row').querySelector('.pr');
+          label.textContent = target + '%';
+        });
+        animateProgress();
+      });
+
+      /* ─── Mini donut ─── */
+      var MD_DEF = [
+        { name: 'В работе', color: 'var(--accent)', v: 14 },
+        { name: 'На проверке', color: 'var(--c2)', v: 9 },
+        { name: 'Готово', color: 'var(--c3)', v: 21 },
+        { name: 'Просрочено', color: 'var(--c5)', v: 4 }
+      ];
+      function renderMD() {
+        var R = 56, C = 2 * Math.PI * R;
+        var total = MD_DEF.reduce(function (s, x) { return s + x.v; }, 0);
+        var inner = '', acc = 0;
+        MD_DEF.forEach(function (s) {
+          var len = (s.v / total) * C;
+          inner += '<circle class="md-seg" cx="75" cy="75" r="' + R + '" fill="none" stroke="' + s.color + '" stroke-width="16" stroke-dasharray="' + len.toFixed(2) + ' ' + C.toFixed(2) + '" stroke-dashoffset="' + (-acc).toFixed(2) + '" data-i="' + MD_DEF.indexOf(s) + '"></circle>';
+          acc += len;
+        });
+        document.getElementById('mdSegs').innerHTML = inner;
+        var leg = document.getElementById('mdLegend');
+        leg.innerHTML = MD_DEF.map(function (s, i) {
+          var p = Math.round(s.v / total * 100);
+          return '<div class="md-item" data-i="' + i + '"><span class="md-dot" style="background:' + s.color + '"></span><span class="md-name">' + s.name + '</span><span class="md-val">' + s.v + ' · ' + p + '%</span></div>';
+        }).join('');
+        var segs = document.querySelectorAll('#mdSegs .md-seg');
+        var items = document.querySelectorAll('#mdLegend .md-item');
+        function hi(i) {
+          segs.forEach(function (s, j) { s.classList.toggle('muted', i !== null && j !== i); });
+          items.forEach(function (s, j) { s.classList.toggle('muted', i !== null && j !== i); });
+          document.getElementById('mdPct').textContent = i === null ? total : MD_DEF[i].v;
+          document.getElementById('mdLbl').textContent = i === null ? 'задач' : MD_DEF[i].name;
+        }
+        segs.forEach(function (s) {
+          s.addEventListener('mouseenter', function () { hi(+s.dataset.i); });
+          s.addEventListener('mouseleave', function () { hi(null); });
+        });
+        items.forEach(function (s) {
+          s.addEventListener('mouseenter', function () { hi(+s.dataset.i); });
+          s.addEventListener('mouseleave', function () { hi(null); });
+        });
+      }
+      renderMD();
+
+      /* ─── Tasks ─── */
+      var taskList = document.getElementById('taskList');
+      var taskCount = document.getElementById('taskCount');
+      var taskBar = document.getElementById('taskBar');
+      function countTasks() {
+        var all = taskList.querySelectorAll('.task').length;
+        var done = taskList.querySelectorAll('.task.done').length;
+        taskCount.textContent = done + ' из ' + all + ' выполнено';
+        taskBar.style.width = (all ? (done / all) * 100 : 0) + '%';
+      }
+      function syncTasks() {
+        taskList.querySelectorAll('.task').forEach(function (t) {
+          if (t.dataset.done === '1') t.classList.add('done');
+        });
+        countTasks();
+      }
+      taskList.addEventListener('click', function (e) {
+        var task = e.target.closest('.task');
+        if (!task) return;
+        task.classList.toggle('done');
+        task.dataset.done = task.classList.contains('done') ? '1' : '0';
+        countTasks();
+      });
+      var TASK_POOL = [
+        ['Подготовить презентацию для клиента', 't-purple', 'Дизайн'],
+        ['Обновить базу контактов в CRM', 't-blue', 'Данные'],
+        ['Проверить счёт за хостинг', 't-orange', 'Финансы'],
+        ['Написать инструкцию по онбордингу', 't-green', 'Процессы']
+      ];
+      var pi = 0;
+      document.getElementById('addTask').addEventListener('click', function () {
+        var t = TASK_POOL[pi % TASK_POOL.length]; pi++;
+        var div = document.createElement('div');
+        div.className = 'task';
+        div.dataset.done = '0';
+        div.innerHTML = '<span class="task-check"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>' +
+          '<span class="task-txt">' + t[0] + '</span><span class="task-tag ' + t[1] + '">' + t[2] + '</span>';
+        taskList.appendChild(div);
+        countTasks();
+      });
+      syncTasks();
+
+      /* ─── Activity feed refresh ─── */
+      var FEED_POOL = [
+        ['green', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>', 'Никита Волков опубликовал новый релиз «2.4.1»', 'только что'],
+        ['purple', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>', 'Алина Раева назначена менеджером проекта «Атлас»', '2 мин'],
+        ['blue', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>', 'Команда оставила 6 комментариев в обсуждении «Тарифы»', '6 мин'],
+        ['orange', '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>', 'Напоминание: оплата домена истекает через 3 дня', '1 ч']
+      ];
+      var fi = 0;
+      document.getElementById('refreshFeed').addEventListener('click', function () {
+        var list = document.getElementById('feedList');
+        var items = list.querySelectorAll('.feed-item');
+        if (items.length) {
+          var first = items[0];
+          first.style.opacity = '0';
+          first.style.transform = 'translateY(-6px)';
+          first.style.transition = 'opacity .25s var(--ease), transform .25s var(--ease)';
+          setTimeout(function () { first.remove(); }, 260);
+        }
+        var f = FEED_POOL[fi % FEED_POOL.length]; fi++;
+        var div = document.createElement('div');
+        div.className = 'feed-item';
+        div.style.opacity = '0';
+        div.style.transform = 'translateY(6px)';
+        div.style.transition = 'opacity .3s var(--ease), transform .3s var(--ease)';
+        div.innerHTML = '<div class="feed-ic ' + f[0] + '">' + f[1] + '</div><div class="feed-txt">' + f[2] + '</div><span class="feed-time">' + f[3] + '</span>';
+        list.insertBefore(div, list.firstChild);
+        requestAnimationFrame(function () {
+          div.style.opacity = '1';
+          div.style.transform = 'none';
+        });
+      });
+
+      /* ─── Date ─── */
+      var gDate = document.getElementById('gDate');
+      var now = new Date();
+      gDate.textContent = new Intl.DateTimeFormat('ru-RU', { weekday: 'long', day: 'numeric', month: 'long' }).format(now);
+    })();
+  </script>
+</body>
+</html>

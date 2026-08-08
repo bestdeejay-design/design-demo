@@ -1,0 +1,676 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orbita — платформа автоматизации бизнеса</title>
+  <style>
+    :root{--bg:#f5f5f7;--surface:#fff;--surface-2:#f0f0f5;--surface-3:#e8e8ed;--text:#1c1c1e;--text-2:#636366;--text-3:#8e8e93;--text-inverse:#fff;--border:#e5e5ea;--border-strong:#d0d0d6;--accent:#6c5ce7;--accent-hover:#5a4bd1;--accent-light:#a29bfe;--accent-soft:rgba(108,92,231,.08);--success:#00b894;--success-soft:rgba(0,184,148,.1);--warning:#fdcb6e;--radius-sm:6px;--radius:10px;--radius-md:12px;--radius-lg:16px;--radius-xl:20px;--shadow-sm:0 2px 6px rgba(0,0,0,.05);--shadow:0 4px 16px rgba(0,0,0,.07);--shadow-md:0 8px 28px rgba(0,0,0,.09);--shadow-lg:0 16px 48px rgba(0,0,0,.12);--ease:cubic-bezier(.4,0,.2,1);--dur-fast:180ms;--dur:260ms;--dur-slow:420ms;--font-sans:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',system-ui,sans-serif}
+    [data-theme="dark"]{--bg:#0c0c0e;--surface:#1a1a20;--surface-2:#23232a;--surface-3:#2a2a32;--text:#ececf0;--text-2:#a0a0a8;--text-3:#6e6e76;--border:#2a2a32;--border-strong:#3a3a44;--accent-soft:rgba(108,92,231,.15);--shadow-sm:0 2px 6px rgba(0,0,0,.35);--shadow:0 4px 16px rgba(0,0,0,.4);--shadow-md:0 8px 28px rgba(0,0,0,.45);--shadow-lg:0 16px 48px rgba(0,0,0,.55)}
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{font-family:var(--font-sans);background:var(--bg);color:var(--text);min-height:100vh;-webkit-font-smoothing:antialiased;line-height:1.5}
+    .container{max-width:1140px;margin:0 auto;padding:0 24px}
+    section{padding:88px 0}
+
+    /* Fixed controls */
+    .theme-toggle{position:fixed;top:20px;right:20px;width:38px;height:38px;border-radius:10px;border:1px solid var(--border);background:var(--surface);color:var(--text-2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:80;transition:all var(--dur-fast) var(--ease);box-shadow:var(--shadow-sm)}
+    .theme-toggle:hover{transform:scale(1.06);border-color:var(--accent);color:var(--accent)}
+    .theme-toggle svg{width:16px;height:16px}
+    .back-btn{position:fixed;bottom:20px;left:20px;display:inline-flex;align-items:center;gap:6px;padding:8px 14px;background:var(--surface);backdrop-filter:blur(12px);border:1px solid var(--border);border-radius:100px;color:var(--text);font-size:.8rem;font-weight:500;text-decoration:none;z-index:80;transition:all var(--dur-fast) var(--ease);box-shadow:var(--shadow-sm)}
+    .back-btn:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+    .back-btn svg{width:12px;height:12px}
+
+    /* Navbar */
+    .nav{position:fixed;top:0;left:0;right:0;z-index:70;transition:background var(--dur) var(--ease),box-shadow var(--dur),border-color var(--dur);border-bottom:1px solid transparent}
+    .nav.is-scrolled{background:var(--bg);border-color:var(--border);box-shadow:var(--shadow-sm);backdrop-filter:blur(12px)}
+    [data-theme="dark"] .nav.is-scrolled{background:rgba(12,12,14,.85)}
+    [data-theme="light"] .nav.is-scrolled{background:rgba(245,245,247,.85)}
+    .nav-inner{display:flex;align-items:center;justify-content:space-between;height:68px}
+    .logo{display:flex;align-items:center;gap:10px;font-weight:800;font-size:1.08rem;color:var(--text);text-decoration:none;letter-spacing:-.01em}
+    .logo-icon{width:32px;height:32px;border-radius:9px;background:linear-gradient(135deg,var(--accent),var(--accent-light));display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 4px 12px rgba(108,92,231,.35)}
+    .logo-icon svg{width:16px;height:16px}
+    .nav-links{display:flex;align-items:center;gap:6px}
+    .nav-links a{padding:8px 14px;border-radius:8px;color:var(--text-2);text-decoration:none;font-size:.9rem;font-weight:500;transition:all var(--dur-fast)}
+    .nav-links a:hover{color:var(--text);background:var(--surface-2)}
+    .nav-actions{display:flex;align-items:center;gap:10px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:12px 22px;border-radius:var(--radius);font-size:.92rem;font-weight:600;font-family:inherit;cursor:pointer;text-decoration:none;border:none;transition:all var(--dur-fast) var(--ease)}
+    .btn svg{width:15px;height:15px;transition:transform var(--dur-fast) var(--ease)}
+    .btn-primary{background:var(--accent);color:var(--text-inverse);box-shadow:0 4px 14px rgba(108,92,231,.3)}
+    .btn-primary:hover{background:var(--accent-hover);transform:translateY(-1px);box-shadow:0 6px 20px rgba(108,92,231,.4)}
+    .btn-primary:hover svg{transform:translateX(3px)}
+    .btn-primary:active{transform:translateY(0) scale(.99)}
+    .btn-ghost{background:var(--surface);color:var(--text);border:1.5px solid var(--border-strong)}
+    .btn-ghost:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-1px)}
+    .btn-ghost:active{transform:translateY(0) scale(.99)}
+    .btn-white{background:#fff;color:var(--accent);box-shadow:0 6px 20px rgba(0,0,0,.2)}
+    .btn-white:hover{transform:translateY(-2px)}
+    .burger{display:none;width:42px;height:42px;border-radius:10px;border:1px solid var(--border);background:var(--surface);cursor:pointer;flex-direction:column;align-items:center;justify-content:center;gap:5px;transition:border-color var(--dur-fast)}
+    .burger:hover{border-color:var(--accent)}
+    .burger span{display:block;width:18px;height:2px;background:var(--text);border-radius:2px;transition:transform var(--dur) var(--ease),opacity var(--dur)}
+    .burger[aria-expanded="true"] span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+    .burger[aria-expanded="true"] span:nth-child(2){opacity:0}
+    .burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+    .mobile-menu{display:none;position:fixed;top:68px;left:0;right:0;background:var(--surface);border-bottom:1px solid var(--border);box-shadow:var(--shadow-md);flex-direction:column;padding:12px;z-index:69;transform:translateY(-8px);opacity:0;pointer-events:none;transition:all var(--dur) var(--ease)}
+    .mobile-menu.is-open{transform:translateY(0);opacity:1;pointer-events:auto}
+    .mobile-menu a{padding:13px 16px;border-radius:10px;color:var(--text);text-decoration:none;font-size:.95rem;font-weight:500}
+    .mobile-menu a:hover{background:var(--accent-soft);color:var(--accent)}
+    .mobile-menu .btn{margin:10px 8px 6px}
+
+    /* Hero */
+    .hero{position:relative;padding:150px 0 90px;overflow:hidden}
+    .hero::before{content:'';position:absolute;top:-220px;right:-160px;width:560px;height:560px;background:radial-gradient(circle,rgba(108,92,231,.14),transparent 65%);pointer-events:none}
+    .hero::after{content:'';position:absolute;bottom:-240px;left:-200px;width:520px;height:520px;background:radial-gradient(circle,rgba(116,185,255,.1),transparent 65%);pointer-events:none}
+    .hero-inner{position:relative;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center}
+    .hero-badge{display:inline-flex;align-items:center;gap:7px;padding:6px 14px;background:var(--accent-soft);color:var(--accent);border:1px solid rgba(108,92,231,.25);border-radius:100px;font-size:.78rem;font-weight:600;margin-bottom:20px}
+    .hero-badge svg{width:12px;height:12px}
+    .hero h1{font-size:clamp(2.1rem,4.6vw,3.3rem);font-weight:800;letter-spacing:-.03em;line-height:1.1;margin-bottom:18px}
+    .hero h1 .grad{background:linear-gradient(120deg,var(--accent),var(--accent-light));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+    .hero p{color:var(--text-2);font-size:clamp(.98rem,1.7vw,1.12rem);line-height:1.65;max-width:520px;margin-bottom:30px}
+    .hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:26px}
+    .hero-trust{display:flex;align-items:center;gap:10px;font-size:.8rem;color:var(--text-3)}
+    .hero-trust .avatars{display:flex}
+    .hero-trust .avatars span{width:26px;height:26px;border-radius:50%;border:2px solid var(--bg);display:flex;align-items:center;justify-content:center;color:#fff;font-size:.62rem;font-weight:700;margin-left:-8px}
+    .hero-trust .avatars span:first-child{margin-left:0}
+    .hero-trust b{color:var(--text)}
+
+    /* Product mock */
+    .mock{position:relative}
+    .mock-window{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-xl);box-shadow:var(--shadow-lg);overflow:hidden}
+    .mock-bar{display:flex;align-items:center;gap:6px;padding:12px 16px;border-bottom:1px solid var(--border);background:var(--surface-2)}
+    .mock-dot{width:10px;height:10px;border-radius:50%;background:var(--surface-3)}
+    .mock-dot:first-child{background:#ff5f57}
+    .mock-dot:nth-child(2){background:#febc2e}
+    .mock-dot:nth-child(3){background:#28c840}
+    .mock-url{margin-left:10px;flex:1;max-width:220px;background:var(--surface);border:1px solid var(--border);border-radius:6px;padding:4px 10px;font-size:.68rem;color:var(--text-3)}
+    .mock-body{display:flex}
+    .mock-side{width:150px;padding:14px 10px;border-right:1px solid var(--border);background:var(--surface-2);display:flex;flex-direction:column;gap:4px}
+    .mock-side-item{display:flex;align-items:center;gap:7px;padding:7px 9px;border-radius:7px;font-size:.7rem;color:var(--text-2)}
+    .mock-side-item svg{width:12px;height:12px;flex-shrink:0}
+    .mock-side-item.is-active{background:var(--accent-soft);color:var(--accent);font-weight:600}
+    .mock-main{flex:1;padding:18px}
+    .mock-title{font-size:.82rem;font-weight:700;margin-bottom:12px}
+    .mock-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+    .mock-card{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:10px 12px}
+    .mock-card-label{font-size:.6rem;color:var(--text-3);text-transform:uppercase;letter-spacing:.4px}
+    .mock-card-value{font-size:1.05rem;font-weight:800;margin-top:2px}
+    .mock-card-trend{font-size:.62rem;color:var(--success);font-weight:600}
+    .mock-chart{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:14px}
+    .mock-chart-label{font-size:.66rem;color:var(--text-3);margin-bottom:10px}
+    .mock-bars{display:flex;align-items:flex-end;gap:8px;height:90px}
+    .mock-bar2{flex:1;border-radius:5px 5px 0 0;background:linear-gradient(180deg,var(--accent),var(--accent-light));opacity:.85;transition:opacity var(--dur)}
+    .mock-bar2:hover{opacity:1}
+    .mock-list{background:var(--surface-2);border:1px solid var(--border);border-radius:10px;padding:12px}
+    .mock-row{display:flex;align-items:center;justify-content:space-between;padding:7px 4px;border-bottom:1px dashed var(--border);font-size:.68rem}
+    .mock-row:last-child{border-bottom:none}
+    .mock-row b{font-weight:600}
+    .mock-row span{color:var(--text-3)}
+    .mock-row .ok{color:var(--success);font-weight:700}
+    .mock-float{position:absolute;top:-18px;right:-14px;background:var(--surface);border:1px solid var(--border);border-radius:12px;box-shadow:var(--shadow-md);padding:10px 14px;display:flex;align-items:center;gap:10px;animation:floaty 5s ease-in-out infinite}
+    .mock-float-icon{width:32px;height:32px;border-radius:9px;background:var(--success-soft);color:var(--success);display:flex;align-items:center;justify-content:center}
+    .mock-float-icon svg{width:15px;height:15px}
+    .mock-float b{font-size:.78rem;display:block;line-height:1.2}
+    .mock-float span{font-size:.66rem;color:var(--text-3)}
+    @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+
+    /* Logos strip */
+    .logos{border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:26px 0}
+    .logos-label{text-align:center;font-size:.72rem;text-transform:uppercase;letter-spacing:1.2px;color:var(--text-3);margin-bottom:20px}
+    .logos-row{display:flex;align-items:center;justify-content:space-between;gap:28px;flex-wrap:wrap}
+    .logo-item{display:flex;align-items:center;gap:8px;color:var(--text-3);font-weight:700;font-size:.95rem;opacity:.75;transition:all var(--dur-fast);filter:grayscale(1)}
+    .logo-item:hover{opacity:1;filter:grayscale(0);color:var(--text-2)}
+    .logo-item svg{width:20px;height:20px}
+
+    /* Section headers */
+    .sec-head{text-align:center;max-width:640px;margin:0 auto 52px}
+    .sec-tag{display:inline-block;font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--accent);background:var(--accent-soft);padding:5px 12px;border-radius:100px;margin-bottom:14px}
+    .sec-head h2{font-size:clamp(1.7rem,3.4vw,2.4rem);font-weight:800;letter-spacing:-.025em;line-height:1.15;margin-bottom:14px}
+    .sec-head p{color:var(--text-2);font-size:.98rem;line-height:1.65}
+
+    /* Stats */
+    .stats{background:linear-gradient(135deg,var(--accent) 0%,var(--accent-hover) 60%,#4a3cc1 100%);border-radius:var(--radius-xl);padding:52px 40px;display:grid;grid-template-columns:repeat(4,1fr);gap:28px;color:#fff;position:relative;overflow:hidden}
+    .stats::before,.stats::after{content:'';position:absolute;border-radius:50%;background:rgba(255,255,255,.07)}
+    .stats::before{width:300px;height:300px;top:-140px;right:-80px}
+    .stats::after{width:220px;height:220px;bottom:-120px;left:-60px}
+    .stat{text-align:center;position:relative}
+    .stat-value{font-size:clamp(1.9rem,4vw,2.6rem);font-weight:800;letter-spacing:-.02em;line-height:1}
+    .stat-label{margin-top:8px;font-size:.85rem;opacity:.85}
+
+    /* Features */
+    .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+    .feature-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;transition:all var(--dur) var(--ease)}
+    .feature-card:hover{transform:translateY(-4px);box-shadow:var(--shadow-md);border-color:var(--accent)}
+    .feature-icon{width:46px;height:46px;border-radius:12px;background:var(--accent-soft);color:var(--accent);display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+    .feature-icon svg{width:21px;height:21px}
+    .feature-card h3{font-size:1.02rem;font-weight:700;margin-bottom:8px}
+    .feature-card p{font-size:.88rem;color:var(--text-2);line-height:1.6}
+
+    /* How it works */
+    .how{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+    .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:40px;position:relative;counter-reset:step}
+    .steps::before{content:'';position:absolute;top:34px;left:16%;right:16%;height:2px;background:linear-gradient(90deg,var(--accent-soft),var(--accent),var(--accent-soft))}
+    .step{text-align:center;position:relative}
+    .step-num{width:68px;height:68px;margin:0 auto 20px;border-radius:50%;background:var(--bg);border:2px solid var(--accent);color:var(--accent);font-size:1.35rem;font-weight:800;display:flex;align-items:center;justify-content:center;position:relative;z-index:1}
+    .step-icon{width:34px;height:34px;border-radius:50%;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;position:absolute;bottom:-6px;right:-6px;border:3px solid var(--bg)}
+    .step-icon svg{width:14px;height:14px}
+    .step h3{font-size:1.05rem;font-weight:700;margin-bottom:8px}
+    .step p{font-size:.88rem;color:var(--text-2);line-height:1.6;max-width:300px;margin:0 auto}
+
+    /* Testimonials */
+    .testimonials{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+    .testi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:26px;transition:all var(--dur) var(--ease)}
+    .testi:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
+    .testi-stars{display:flex;gap:2px;color:var(--warning);margin-bottom:12px}
+    .testi-stars svg{width:14px;height:14px}
+    .testi-quote{font-size:.9rem;color:var(--text-2);line-height:1.6;margin-bottom:18px}
+    .testi-user{display:flex;align-items:center;gap:12px}
+    .testi-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.85rem;flex-shrink:0}
+    .testi-name{font-size:.88rem;font-weight:600;line-height:1.2}
+    .testi-role{font-size:.76rem;color:var(--text-3)}
+
+    /* Pricing teaser */
+    .teaser-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+    .teaser{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:28px;display:flex;flex-direction:column;transition:all var(--dur) var(--ease)}
+    .teaser:hover{transform:translateY(-4px);box-shadow:var(--shadow-md)}
+    .teaser.is-hot{border:1.5px solid var(--accent);box-shadow:var(--shadow-md)}
+    .teaser h3{font-size:1rem;font-weight:700}
+    .teaser-price{font-size:1.7rem;font-weight:800;letter-spacing:-.02em;margin:8px 0 4px}
+    .teaser-price small{font-size:.85rem;font-weight:600;color:var(--text-2)}
+    .teaser p{font-size:.84rem;color:var(--text-2);flex:1;line-height:1.6;margin-bottom:18px}
+    .teaser .btn{width:100%}
+    .teaser-note{text-align:center;font-size:.78rem;color:var(--text-3);margin-top:26px}
+    .teaser-note a{color:var(--accent);font-weight:600;text-decoration:none}
+    .teaser-note a:hover{text-decoration:underline}
+
+    /* Final CTA */
+    .cta-final{background:linear-gradient(135deg,#6c5ce7 0%,#5a4bd1 55%,#4a3cc1 100%);border-radius:var(--radius-xl);padding:64px 40px;text-align:center;color:#fff;position:relative;overflow:hidden}
+    .cta-final::before,.cta-final::after{content:'';position:absolute;border-radius:50%;background:rgba(255,255,255,.08)}
+    .cta-final::before{width:340px;height:340px;top:-170px;left:-100px}
+    .cta-final::after{width:260px;height:260px;bottom:-130px;right:-80px}
+    .cta-final h2{font-size:clamp(1.7rem,3.6vw,2.5rem);font-weight:800;letter-spacing:-.025em;margin-bottom:14px;position:relative}
+    .cta-final p{font-size:1rem;opacity:.9;max-width:520px;margin:0 auto 30px;line-height:1.6;position:relative}
+    .cta-final .cta-row{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;position:relative}
+    .cta-note{margin-top:18px;font-size:.78rem;opacity:.75;position:relative}
+
+    /* Footer */
+    .footer{background:var(--surface);border-top:1px solid var(--border);padding:56px 0 36px}
+    .footer-grid{display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr;gap:36px;margin-bottom:40px}
+    .footer-brand p{font-size:.86rem;color:var(--text-2);line-height:1.65;margin-top:12px;max-width:280px}
+    .footer h4{font-size:.8rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--text-3);margin-bottom:14px}
+    .footer-col{display:flex;flex-direction:column;gap:9px}
+    .footer-col a{font-size:.88rem;color:var(--text-2);text-decoration:none;transition:color var(--dur-fast)}
+    .footer-col a:hover{color:var(--accent)}
+    .footer-bottom{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-top:1px solid var(--border);padding-top:22px;font-size:.8rem;color:var(--text-3)}
+    .footer-bottom .lang{display:flex;gap:14px}
+    .footer-bottom a{color:var(--text-3);text-decoration:none}
+    .footer-bottom a:hover{color:var(--accent)}
+
+    @media (max-width: 940px){
+      .nav-links{display:none}
+      .nav-actions .btn{display:none}
+      .burger{display:flex}
+      .mobile-menu{display:flex}
+      .theme-toggle{top:12px;right:70px;width:34px;height:34px}
+      .hero-inner{grid-template-columns:1fr;gap:48px}
+      .hero{padding:130px 0 60px}
+      .mock{max-width:520px;margin:0 auto}
+      .features-grid{grid-template-columns:repeat(2,1fr)}
+      .steps{grid-template-columns:1fr;gap:36px}
+      .steps::before{display:none}
+      .testimonials{grid-template-columns:1fr;max-width:520px;margin:0 auto}
+      .teaser-grid{grid-template-columns:1fr;max-width:420px;margin:0 auto}
+      .stats{grid-template-columns:repeat(2,1fr)}
+      .footer-grid{grid-template-columns:1fr 1fr}
+    }
+    @media (max-width: 560px){
+      .features-grid{grid-template-columns:1fr}
+      .stats{padding:40px 24px;gap:20px}
+      .mock-side{display:none}
+      .mock-float{display:none}
+      .nav-actions{gap:6px}
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" id="themeToggle" aria-label="Переключить тему">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="sunIcon"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" id="moonIcon" style="display:none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+
+  <a class="back-btn" href="../../">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+    Каталог
+  </a>
+
+  <!-- Navbar -->
+  <header class="nav" id="nav">
+    <div class="container nav-inner">
+      <a href="#" class="logo">
+        <span class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+        Orbita
+      </a>
+      <nav class="nav-links">
+        <a href="#features">Возможности</a>
+        <a href="#how">Как работает</a>
+        <a href="#testimonials">Отзывы</a>
+        <a href="#pricing">Тарифы</a>
+      </nav>
+      <div class="nav-actions">
+        <a href="#" class="btn btn-ghost">Войти</a>
+        <a href="#pricing" class="btn btn-primary">Начать бесплатно
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+        </a>
+      </div>
+      <button class="burger" id="burger" aria-expanded="false" aria-label="Открыть меню">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </header>
+
+  <div class="mobile-menu" id="mobileMenu">
+    <a href="#features">Возможности</a>
+    <a href="#how">Как работает</a>
+    <a href="#testimonials">Отзывы</a>
+    <a href="#pricing">Тарифы</a>
+    <a href="#" class="btn btn-primary">Начать бесплатно</a>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container hero-inner">
+      <div>
+        <span class="hero-badge">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          Новая версия 3.0 уже доступна
+        </span>
+        <h1>Автоматизируйте рутину, <span class="grad">фокусируйтесь на росте</span></h1>
+        <p>Orbita собирает задачи, документы, отчёты и коммуникации в одном окне. Команда тратит на 30% меньше времени на ручные операции — с первого дня.</p>
+        <div class="hero-cta">
+          <a href="#pricing" class="btn btn-primary">Начать бесплатно
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </a>
+          <a href="#how" class="btn btn-ghost">Смотреть демо</a>
+        </div>
+        <div class="hero-trust">
+          <div class="avatars">
+            <span style="background:linear-gradient(135deg,#6c5ce7,#a29bfe)">М</span>
+            <span style="background:linear-gradient(135deg,#ff4757,#fdcb6e)">Д</span>
+            <span style="background:linear-gradient(135deg,#00b894,#55efc4)">А</span>
+            <span style="background:linear-gradient(135deg,#74b9ff,#0984e3)">И</span>
+          </div>
+          <span>Рейтинг <b>4,9 из 5</b> · более 12 000 команд уже с нами</span>
+        </div>
+      </div>
+
+      <!-- CSS-drawn product mock -->
+      <div class="mock">
+        <div class="mock-window">
+          <div class="mock-bar">
+            <span class="mock-dot"></span><span class="mock-dot"></span><span class="mock-dot"></span>
+            <span class="mock-url">app.orbita.ru/dashboard</span>
+          </div>
+          <div class="mock-body">
+            <div class="mock-side">
+              <div class="mock-side-item is-active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Дашборд</div>
+              <div class="mock-side-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>Документы</div>
+              <div class="mock-side-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg>Отчёты</div>
+              <div class="mock-side-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>Настройки</div>
+            </div>
+            <div class="mock-main">
+              <div class="mock-title">Выручка за месяц</div>
+              <div class="mock-cards">
+                <div class="mock-card"><div class="mock-card-label">Продажи</div><div class="mock-card-value">1 284</div><div class="mock-card-trend">+12,4%</div></div>
+                <div class="mock-card"><div class="mock-card-label">Клиенты</div><div class="mock-card-value">847</div><div class="mock-card-trend">+8,1%</div></div>
+                <div class="mock-card"><div class="mock-card-label">Конверсия</div><div class="mock-card-value">3,42%</div><div class="mock-card-trend">+0,8%</div></div>
+              </div>
+              <div class="mock-chart">
+                <div class="mock-chart-label">Динамика за неделю</div>
+                <div class="mock-bars">
+                  <div class="mock-bar2" style="height:45%"></div>
+                  <div class="mock-bar2" style="height:68%"></div>
+                  <div class="mock-bar2" style="height:52%"></div>
+                  <div class="mock-bar2" style="height:84%"></div>
+                  <div class="mock-bar2" style="height:70%"></div>
+                  <div class="mock-bar2" style="height:92%"></div>
+                  <div class="mock-bar2" style="height:78%"></div>
+                </div>
+              </div>
+              <div class="mock-list">
+                <div class="mock-row"><b>Отчёт за август</b><span>Сформирован автоматически</span><span class="ok">Готов</span></div>
+                <div class="mock-row"><b>Счёт № 4821</b><span>Выставлен клиенту</span><span class="ok">Готов</span></div>
+                <div class="mock-row"><b>Синхронизация с 1С</b><span>Прошла ночью</span><span class="ok">Готов</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="mock-float">
+          <div class="mock-float-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div><b>Задача выполнена</b><span>Автоматически за 0,4 с</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Logos -->
+  <div class="logos">
+    <div class="container">
+      <div class="logos-label">Нам доверяют команды из более чем 40 стран</div>
+      <div class="logos-row">
+        <div class="logo-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17l6-6-6-6"/><path d="M12 19h8"/></svg>ТехноЛаб</div>
+        <div class="logo-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg>СмартФактори</div>
+        <div class="logo-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="2" x2="12" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/></svg>Вектор Групп</div>
+        <div class="logo-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>ПромБанк</div>
+        <div class="logo-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0 1 22 16.92z"/></svg>АйТи Групп</div>
+        <div class="logo-item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2"/></svg>МедиаПро</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Stats -->
+  <section style="padding:0;margin-top:-44px">
+    <div class="container">
+      <div class="stats">
+        <div class="stat"><div class="stat-value" data-count="12500" data-format="spaces">0</div><div class="stat-label">активных команд</div></div>
+        <div class="stat"><div class="stat-value" data-count="42">0</div><div class="stat-label">страны присутствия</div></div>
+        <div class="stat"><div class="stat-value" data-count="99.9" data-decimals="1">0</div><div class="stat-label">% аптайм за год</div></div>
+        <div class="stat"><div class="stat-value" data-count="97" data-suffix="%">0</div><div class="stat-label">клиентов рекомендуют нас</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section id="features">
+    <div class="container">
+      <div class="sec-head">
+        <span class="sec-tag">Возможности</span>
+        <h2>Всё для управления бизнесом — в одном месте</h2>
+        <p>Замените пять разрозненных сервисов одной платформой. Orbita растёт вместе с вашей командой от трёх до трёхсот человек.</p>
+      </div>
+      <div class="features-grid">
+        <div class="feature-card">
+          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></div>
+          <h3>Аналитика в реальном времени</h3>
+          <p>Выручка, воронки и затраты обновляются автоматически. Никаких ручных таблиц — отчёты всегда точны и готовы к презентации.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+          <h3>Автоматизация процессов</h3>
+          <p>Счета, уведомления, статусы задач — сценарии выполняются сами по правилам, которые вы задали один раз. Экономия до 20 часов в месяц.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>
+          <h3>Безопасность данных</h3>
+          <p>Шифрование AES-256, двухфакторная аутентификация и соответствие 152-ФЗ. Данные хранятся на серверах в РФ с резервным копированием.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg></div>
+          <h3>Интеграции с вашим стеком</h3>
+          <p>Готовые коннекторы к 1С, amoCRM, Битрикс24, Telegram и Slack. Настройка интеграции занимает минуты, а не недели.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg></div>
+          <h3>Документы и электронная подпись</h3>
+          <p>Создавайте, согласовывайте и подписывайте документы прямо в платформе. Юридически значимая подпись без отдельного сервиса.</p>
+        </div>
+        <div class="feature-card">
+          <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <h3>Быстрый API и открытая платформа</h3>
+          <p>Публичный REST API и вебхуки позволяют встроить Orbita в любую внутреннюю систему и построить отчёты под свои процессы.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="how" id="how">
+    <div class="container">
+      <div class="sec-head">
+        <span class="sec-tag">Как это работает</span>
+        <h2>Три шага до автоматизации</h2>
+        <p>Полный запуск занимает меньше часа — без участия разработчиков и долгих внедрений.</p>
+      </div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num">1
+            <span class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/></svg></span>
+          </div>
+          <h3>Создайте аккаунт</h3>
+          <p>Регистрация занимает 30 секунд — нужен только email. Бесплатный тариф позволяет работать без ограничений по времени.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">2
+            <span class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>
+          </div>
+          <h3>Импортируйте данные</h3>
+          <p>Перенесите клиентов, задачи и документы из Excel или вашей CRM. Мастер импорта сам разберёт таблицы и исправит дубли.</p>
+        </div>
+        <div class="step">
+          <div class="step-num">3
+            <span class="step-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+          </div>
+          <h3>Запустите автоматизацию</h3>
+          <p>Выберите готовые сценарии из библиотеки или создайте свои. Через неделю рутинные задачи начнут выполняться без вас.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials -->
+  <section id="testimonials">
+    <div class="container">
+      <div class="sec-head">
+        <span class="sec-tag">Отзывы</span>
+        <h2>Что говорят наши клиенты</h2>
+        <p>Более 12 000 команд доверяют Orbita ежедневные операции. Вот несколько историй из первых уст.</p>
+      </div>
+      <div class="testimonials">
+        <div class="testi">
+          <div class="testi-stars">
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <p class="testi-quote">«Перешли с трёх разных сервисов на Orbita за один день. Команда перестала терять заявки — всё теперь в одном окне и с уведомлениями».</p>
+          <div class="testi-user">
+            <div class="testi-avatar" style="background:linear-gradient(135deg,#6c5ce7,#a29bfe)">Е</div>
+            <div><div class="testi-name">Елена Крылова</div><div class="testi-role">Операционный директор, «ТехноЛаб»</div></div>
+          </div>
+        </div>
+        <div class="testi">
+          <div class="testi-stars">
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <p class="testi-quote">«Автоматические счета и сверка с 1С сэкономили нам около 25 часов в месяц. Интеграция настроилась за один вечер без программиста».</p>
+          <div class="testi-user">
+            <div class="testi-avatar" style="background:linear-gradient(135deg,#00b894,#55efc4)">С</div>
+            <div><div class="testi-name">Сергей Данилов</div><div class="testi-role">Финансовый директор, «Вектор Групп»</div></div>
+          </div>
+        </div>
+        <div class="testi">
+          <div class="testi-stars">
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            <svg viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+          </div>
+          <p class="testi-quote">«Прошли аудит безопасности без единого замечания. Orbita закрыла для нас вопросы соответствия 152-ФЗ, которые пугали инвесторов».</p>
+          <div class="testi-user">
+            <div class="testi-avatar" style="background:linear-gradient(135deg,#74b9ff,#0984e3)">П</div>
+            <div><div class="testi-name">Павел Орлов</div><div class="testi-role">Технический директор, «МедиаПро»</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Pricing teaser -->
+  <section id="pricing" style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)">
+    <div class="container">
+      <div class="sec-head">
+        <span class="sec-tag">Тарифы</span>
+        <h2>Начните бесплатно, растите по мере развития</h2>
+        <p>Все тарифы включают 14 дней полного доступа. Полное сравнение и FAQ — на странице тарифов.</p>
+      </div>
+      <div class="teaser-grid">
+        <div class="teaser">
+          <h3>Старт</h3>
+          <div class="teaser-price">0 ₽<small>/мес</small></div>
+          <p>Для фрилансеров и небольших проектов: базовые задачи, 10 ГБ хранилища и отчёты за 30 дней.</p>
+          <a href="#" class="btn btn-ghost">Подробнее</a>
+        </div>
+        <div class="teaser is-hot">
+          <h3>Бизнес</h3>
+          <div class="teaser-price">990 ₽<small>/мес при оплате за год</small></div>
+          <p>Для растущих команд: автоматизация, интеграции, роли доступа и приоритетная поддержка. Выбор 68% клиентов.</p>
+          <a href="#" class="btn btn-primary">Выбрать Бизнес</a>
+        </div>
+        <div class="teaser">
+          <h3>Корпорация</h3>
+          <div class="teaser-price">2 790 ₽<small>/мес при оплате за год</small></div>
+          <p>Для крупных организаций: SSO, аудит, SLA 99,9%, выделенный менеджер и кастомные интеграции.</p>
+          <a href="#" class="btn btn-ghost">Подробнее</a>
+        </div>
+      </div>
+      <p class="teaser-note">Нужны все детали? <a href="../05-pricing/">Смотреть полную страницу тарифов</a> — там переключатель оплаты, FAQ и отзывы.</p>
+    </div>
+  </section>
+
+  <!-- Final CTA -->
+  <section>
+    <div class="container">
+      <div class="cta-final">
+        <h2>Готовы сэкономить 30% рабочего времени?</h2>
+        <p>Присоединяйтесь к 12 000+ командам, которые уже автоматизировали рутину с Orbita. Бесплатный тариф — навсегда.</p>
+        <div class="cta-row">
+          <a href="#" class="btn btn-white">Начать бесплатно</a>
+          <a href="#" class="btn btn-ghost" style="background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.35);color:#fff">Заказать демо</a>
+        </div>
+        <div class="cta-note">Без карты · Отмена в один клик · Гарантия возврата 14 дней</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <a href="#" class="logo">
+            <span class="logo-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
+            Orbita
+          </a>
+          <p>Платформа автоматизации бизнеса для команд от 3 до 300 человек. Данные хранятся в РФ, поддержка — на русском, 24/7.</p>
+        </div>
+        <div class="footer-col">
+          <h4>Продукт</h4>
+          <a href="#features">Возможности</a>
+          <a href="#pricing">Тарифы</a>
+          <a href="#">Обновления</a>
+          <a href="#">Статус системы</a>
+        </div>
+        <div class="footer-col">
+          <h4>Компания</h4>
+          <a href="#">О нас</a>
+          <a href="#">Карьера</a>
+          <a href="#">Блог</a>
+          <a href="#">Контакты</a>
+        </div>
+        <div class="footer-col">
+          <h4>Документы</h4>
+          <a href="#">Политика конфиденциальности</a>
+          <a href="#">Публичная оферта</a>
+          <a href="#">Соглашение об обработке данных</a>
+          <a href="#">Центр помощи</a>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <span>© 2026 Orbita · Демо-страница каталога Design Demo</span>
+        <div class="lang">
+          <a href="#">Русский</a>
+          <a href="#">English</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Theme
+    const tgl = document.getElementById('themeToggle');
+    const s = document.getElementById('sunIcon');
+    const m = document.getElementById('moonIcon');
+    const stored = localStorage.getItem('design-demo-theme');
+    const sysDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    let theme = stored || (sysDark ? 'dark' : 'light');
+    document.documentElement.setAttribute('data-theme', theme);
+    if (theme === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    tgl.addEventListener('click', () => {
+      const next = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('design-demo-theme', next);
+      if (next === 'dark') { s.style.display = 'none'; m.style.display = ''; } else { s.style.display = ''; m.style.display = 'none'; }
+    });
+
+    // Navbar scroll state
+    const nav = document.getElementById('nav');
+    const onScroll = () => { nav.classList.toggle('is-scrolled', window.scrollY > 10); };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+
+    // Mobile burger
+    const burger = document.getElementById('burger');
+    const mobileMenu = document.getElementById('mobileMenu');
+    burger.addEventListener('click', () => {
+      const open = burger.getAttribute('aria-expanded') === 'true';
+      burger.setAttribute('aria-expanded', String(!open));
+      mobileMenu.classList.toggle('is-open', !open);
+    });
+    mobileMenu.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => {
+        burger.setAttribute('aria-expanded', 'false');
+        mobileMenu.classList.remove('is-open');
+      });
+    });
+
+    // Smooth anchor offset handled by scroll-behavior + padding-top on hero
+
+    // Animated counters on scroll
+    const counters = document.querySelectorAll('[data-count]');
+    const fmtNum = (value, el) => {
+      const decimals = parseInt(el.dataset.decimals || '0', 10);
+      let str = value.toFixed(decimals);
+      if (el.dataset.format === 'spaces') {
+        str = Number(value).toLocaleString('ru-RU');
+      }
+      return str + (el.dataset.suffix || '');
+    };
+    const animate = (el) => {
+      const target = parseFloat(el.dataset.count);
+      const dur = 1600;
+      const start = performance.now();
+      const step = (now) => {
+        const p = Math.min((now - start) / dur, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = fmtNum(target * eased, el);
+        if (p < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    };
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) {
+          animate(e.target);
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.4 });
+    counters.forEach(c => io.observe(c));
+  </script>
+</body>
+</html>
